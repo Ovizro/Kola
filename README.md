@@ -26,7 +26,7 @@ There is an simple example.
     
 In KoiLang, file is divided into 'command' part and 'text' part.
 The formation of command part is like C preprocessor directive,
-using '#' as starting. And text is between command.
+using '#' as starting. And text is surrounding commands.
 
     #command "This is a command"
     This is a text.
@@ -42,7 +42,7 @@ Valid argument type include integer, float, literal and string.
 > Here "literal" is a valid python variety name containing letter,
  digit, underline and not starting with digit. Usual it is same as a string.
  
-There is another kind of arguments, keyword arguments forming as
+There is another kind of arguments -- keyword arguments which formation is as this:
 
     #kwargs key(value)
     
@@ -52,7 +52,7 @@ There is another kind of arguments, keyword arguments forming as
     And the third:
     #kwargs_dict key(x: 11, y: 45, z: 14)
 
-All the arguments can put together
+All the arguments can be put together
     
     #draw Line 2 pos0(x: 0, y: 0) pos1(x: 16, y: 16) \
         thickness(2) color(255, 255, 255)
@@ -62,9 +62,7 @@ All the arguments can put together
 Kola module provides a fast way to convert KoiLang command
 to a python function call.
 
-    #draw Line 2 pos0(x: 0, y: 0) pos1(x: 16, y: 16) \
-        thickness(2) color(255, 255, 255)
-    This command with convert to calling below:
+Above command will convert to calling below:
 
 ```py
 draw(

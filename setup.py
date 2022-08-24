@@ -36,7 +36,8 @@ USE_CYTHON = "USE_CYTHON" in os.environ
 FILE_SUFFIX = ".pyx" if USE_CYTHON else ".c"
 
 extensions = [
-    Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX], include_path=[os.path.dirname(__file__)]),
+    Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX], include_dirs=[os.path.dirname(__file__)]),
+    Extension("kola.parser", ["kola/parser" + FILE_SUFFIX])
 ]
 if USE_CYTHON:
     from Cython.Build import cythonize
