@@ -62,7 +62,7 @@ All the arguments can be put together
 Kola module provides a fast way to convert KoiLang command
 to a python function call.
 
-Above command `#draw` will convert to calling below:
+Above command `#draw` will convert to function calling below:
 
 ```py
 draw(

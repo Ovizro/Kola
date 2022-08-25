@@ -38,7 +38,7 @@ FILE_SUFFIX = ".pyx" if USE_CYTHON else ".c"
 _home = os.path.dirname(__file__)
 
 extensions = [
-    Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX]),
+    Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX, "kola/lex.yy.c"]),
     Extension("kola.parser", ["kola/parser" + FILE_SUFFIX])
 ]
 if USE_CYTHON:
@@ -59,6 +59,7 @@ setup(
     maintainer_email="Ovizro@hypercol.com",
     license="Apache 2.0",
 
+    url="https://github.com/Ovizro/Kola",
     packages=["kola"],
     python_requires=">=3.6",
     package_data={'':["*.pyi", "*.pxd", "*.h"]},

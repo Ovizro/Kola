@@ -55,7 +55,7 @@ static const char* get_format(int code) {
     case 201:
     case 202:
         ERR_MSG(keyword must be a literal);
-    case 203:
+    case 210:
         ERR_MSG(bad argument count);
     }
     

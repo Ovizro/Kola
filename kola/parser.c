@@ -3434,7 +3434,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_6parser_6Parser_pop(st
  *     cpdef Token pop(self):
  *         cdef Token n = self.stack_top             # <<<<<<<<<<<<<<
  *         if n is None:
- *             self.set_error(202)
+ *             self.set_error(210)
  */
   __pyx_t_1 = ((PyObject *)__pyx_v_self->stack_top);
   __Pyx_INCREF(__pyx_t_1);
@@ -3445,7 +3445,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_6parser_6Parser_pop(st
  *     cpdef Token pop(self):
  *         cdef Token n = self.stack_top
  *         if n is None:             # <<<<<<<<<<<<<<
- *             self.set_error(202)
+ *             self.set_error(210)
  *         self.stack_top = n.next
  */
   __pyx_t_6 = (((PyObject *)__pyx_v_n) == Py_None);
@@ -3454,26 +3454,26 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_6parser_6Parser_pop(st
     /* "kola/parser.pyx":16
  *         cdef Token n = self.stack_top
  *         if n is None:
- *             self.set_error(202)             # <<<<<<<<<<<<<<
+ *             self.set_error(210)             # <<<<<<<<<<<<<<
  *         self.stack_top = n.next
  *         return n
  */
     __pyx_t_7.__pyx_n = 1;
-    __pyx_t_7.errorno = 0xCA;
+    __pyx_t_7.errorno = 0xD2;
     ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->set_error(__pyx_v_self, &__pyx_t_7); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 16, __pyx_L1_error)
 
     /* "kola/parser.pyx":15
  *     cpdef Token pop(self):
  *         cdef Token n = self.stack_top
  *         if n is None:             # <<<<<<<<<<<<<<
- *             self.set_error(202)
+ *             self.set_error(210)
  *         self.stack_top = n.next
  */
   }
 
   /* "kola/parser.pyx":17
  *         if n is None:
- *             self.set_error(202)
+ *             self.set_error(210)
  *         self.stack_top = n.next             # <<<<<<<<<<<<<<
  *         return n
  * 
@@ -3487,7 +3487,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_6parser_6Parser_pop(st
   __pyx_t_1 = 0;
 
   /* "kola/parser.pyx":18
- *             self.set_error(202)
+ *             self.set_error(210)
  *         self.stack_top = n.next
  *         return n             # <<<<<<<<<<<<<<
  * 
