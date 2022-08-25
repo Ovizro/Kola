@@ -2,6 +2,8 @@
 #define _INCLUDE_HELPER_ 
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 enum TokenSyn {
     CMD=1, CMD_N, TEXT, LITERAL, STRING, NUM, NUM_H, NUM_B, NUM_F, CLN, CMA, SLP, SRP
@@ -17,9 +19,31 @@ static const uint8_t yy_goto[7][8] = {
     0,   0,   65,  0,   81, 0,   81, 0     // SRP
 };
 
+#ifndef FLEX_SCANNER
+struct yy_buffer_state;
+typedef struct yy_buffer_state* YY_BUFFER_STATE;
+extern int yylineno;
+extern int yyleng;
+extern char* yytext;
+
+int yylex();
+void yyrestart(FILE *input_file);
+
+void yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
+void yy_load_buffer_state();
+YY_BUFFER_STATE yy_create_buffer(FILE *file, int size);
+void yy_delete_buffer(YY_BUFFER_STATE b);
+void yy_init_buffer(YY_BUFFER_STATE b, FILE *file);
+void yy_flush_buffer(YY_BUFFER_STATE b);
+
+YY_BUFFER_STATE yy_scan_buffer(char *base, size_t size);
+YY_BUFFER_STATE yy_scan_string(const char *yy_str);
+YY_BUFFER_STATE yy_scan_bytes(const char *bytes, int len);
+#endif
 
 #ifdef Py_PYTHON_H
-#define ERR_MSG(msg) return "[%d]" # msg
+#define ERR_CASE(syn, act) case (act << 4) + syn
+#define ERR_MSG(msg) return "[%d] " # msg
 
 static const char* get_format(int code) {
     switch (code)
@@ -28,10 +52,21 @@ static const char* get_format(int code) {
         ERR_MSG(unknown symbol '%s');
     case 10:
         ERR_MSG(end of line in incurrect place);
-    
-    default:
-        ERR_MSG(unknown syntax);
+    case 201:
+    case 202:
+        ERR_MSG(keyword must be a literal);
+    case 203:
+        ERR_MSG(bad argument count);
     }
+    
+    switch (code & 0x0F)
+    {
+    case CMD:
+    case CMD_N:
+    case TEXT:
+        ERR_MSG(end of line in incurrect place);
+    }
+    ERR_MSG(unknown syntax);
 }
 
 #include "frameobject.h"

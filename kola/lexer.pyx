@@ -1,3 +1,4 @@
+# distutils: sources = kola/lex.yy.c
 cimport cython
 from .exception import KoiLangSyntaxError
 
@@ -41,6 +42,9 @@ cdef class Token:
 
         self.lineno = lineno or yylineno
         self.raw_val = raw_val or PyBytes_FromStringAndSize(yytext, yyleng)
+    
+    def __eq__(self, other):
+        return self is other or self.syn == other
     
     cpdef int get_flag(self):
         if self.syn <= TEXT:
@@ -94,6 +98,9 @@ cdef class BaseLexer:
         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, yytext)
     
     cdef Token next_token(self):
+        if self.buffer == NULL:
+            raise OSError("operation on closed lexer")
+
         self.ensure()
         cdef:
             int syn = yylex()
@@ -122,6 +129,10 @@ cdef class BaseLexer:
     @property
     def filename(self):
         return self._filename.decode()
+    
+    @property
+    def closed(self):
+        return self.buffer == NULL
     
     @property
     def _cur_text(self):

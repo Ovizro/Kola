@@ -23,7 +23,7 @@ try:
         description = f.read()
 except OSError:
     warnings.warn("Miss file 'README.md', using default description.", ResourceWarning)
-    description = "simple tool to help parse text"
+    description = "simple python module for KoiLang parsing"
 
 try:
     with open("kola/version.py") as f:
@@ -35,8 +35,10 @@ except Exception as e:
 USE_CYTHON = "USE_CYTHON" in os.environ
 FILE_SUFFIX = ".pyx" if USE_CYTHON else ".c"
 
+_home = os.path.dirname(__file__)
+
 extensions = [
-    Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX], include_dirs=[os.path.dirname(__file__)]),
+    Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX]),
     Extension("kola.parser", ["kola/parser" + FILE_SUFFIX])
 ]
 if USE_CYTHON:
@@ -45,9 +47,9 @@ if USE_CYTHON:
 
 
 setup(
-    name="kola",
+    name="KoiLang",
     version=version,
-    description="simple tool to help parse text",
+    description="simple python module for KoiLang parsing",
     long_description=description,
     long_description_content_type='text/markdown',
 
@@ -59,7 +61,7 @@ setup(
 
     packages=["kola"],
     python_requires=">=3.6",
-    package_data={'':["*.pyi", "*.pxd"]},
+    package_data={'':["*.pyi", "*.pxd", "*.h"]},
     ext_modules=extensions,
 
     classifiers=[
@@ -73,7 +75,6 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Topic :: Software Development :: Compilers",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Text Processing :: Markup"
     ]

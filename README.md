@@ -2,13 +2,13 @@
 Simple python module for KoiLang parsing.
 
 [![License](https://img.shields.io/github/license/Ovizro/Kola.svg)](LICENSE)
-[![PyPI](https://img.shields.io/pypi/v/kola.svg)](https://pypi.python.org/pypi/kola)
+[![PyPI](https://img.shields.io/pypi/v/KoiLang.svg)](https://pypi.python.org/pypi/KoiLang)
 ![Python Version](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9|3.10-blue.svg)
 
 ## Installation
 From pip:
 
-    pip install kola
+    pip install KoiLang
 
 From source code:
     
@@ -40,7 +40,7 @@ Valid argument type include integer, float, literal and string.
     #arg_string "A string"
 
 > Here "literal" is a valid python variety name containing letter,
- digit, underline and not starting with digit. Usual it is same as a string.
+ digit, underline and not starting with digit. Usually it is same as a string.
  
 There is another kind of arguments -- keyword arguments which formation is as this:
 
@@ -62,7 +62,7 @@ All the arguments can be put together
 Kola module provides a fast way to convert KoiLang command
 to a python function call.
 
-Above command will convert to calling below:
+Above command `#draw` will convert to calling below:
 
 ```py
 draw(

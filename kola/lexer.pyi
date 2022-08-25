@@ -1,6 +1,21 @@
 from typing import Any, Final
 
 
+S_CMD: int
+S_CMD_N: int
+S_TEXT: int
+S_LITERAL: int
+S_STRING: int
+S_NUM: int
+S_NUM_H: int
+S_NUM_B: int
+S_NUM_F: int
+S_CLN: int
+S_CMA: int
+S_SLP: int
+s_SRP: int
+
+
 class Token:
     syn: Final[int]
     val: Final[Any]
@@ -12,6 +27,8 @@ class BaseLexer:
 
     def ensure(self) -> None: ...
     def close(self) -> None: ...
+    @property
+    def closed(self) -> bool: ...
     @property
     def _cur_text(self) -> str: ...
     def __iter__(self) -> "BaseLexer": ...

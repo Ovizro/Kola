@@ -23,38 +23,37 @@ text    [^#\n\r \t]((.|\\\n)*[^\r\n\\ \t])?
 
 %s COMMAND
 %s ARGUMENT
-%s ARGUMENT_D
 
 %%
 
 {ws}                            {}
 \\\r?\n                         {}
 \r?\n                           {
-    if (YY_START != INITIAL && YY_START != ARGUMENT) {
+    if (YY_START == COMMAND) {
         yyterminate();
     }
     BEGIN INITIAL;
 }
-<INITIAL>#                      {BEGIN COMMAND;}
-<COMMAND>{literal}              {BEGIN ARGUMENT; return(CMD);}
-<COMMAND>{uint}                 {BEGIN ARGUMENT; return(CMD_N);}
-<INITIAL>{text}                 {return(TEXT);}
+<INITIAL>#              {BEGIN COMMAND;}
+<COMMAND>{literal}      {BEGIN ARGUMENT; return(CMD);}
+<COMMAND>{uint}         {BEGIN ARGUMENT; return(CMD_N);}
+<INITIAL>{text}         {return(TEXT);}
 
-<ARGUMENT>\(                    {BEGIN ARGUMENT_D; return(SLP);}
-<ARGUMENT_D>\)                  {BEGIN ARGUMENT; return(SRP);}
+<ARGUMENT>\(            {return(SLP);}
+<ARGUMENT>\)            {return(SRP);}
 
-<ARGUMENT,ARGUMENT_D>{string}     {return(STRING);}
+<ARGUMENT>{string}      {return(STRING);}
 
-<ARGUMENT_D>":"                 {return(CLN);}
-<ARGUMENT_D>\,                  {return(CMA);}
+<ARGUMENT>":"           {return(CLN);}
+<ARGUMENT>\,            {return(CMA);}
 
-<ARGUMENT,ARGUMENT_D>{uint}     {return(NUM);}
-<ARGUMENT,ARGUMENT_D>{hex}      {return(NUM_H);}
-<ARGUMENT,ARGUMENT_D>{bin}      {return(NUM_B);}
-<ARGUMENT,ARGUMENT_D>{float}    {return(NUM_F);}
-<ARGUMENT,ARGUMENT_D>{literal}  {return(LITERAL);}
+<ARGUMENT>{uint}        {return(NUM);}
+<ARGUMENT>{hex}         {return(NUM_H);}
+<ARGUMENT>{bin}         {return(NUM_B);}
+<ARGUMENT>{float}       {return(NUM_F);}
+<ARGUMENT>{literal}     {return(LITERAL);}
 <<EOF>>                         {
-    if (YY_START != INITIAL && YY_START != ARGUMENT) {
+    if (YY_START == COMMAND) {
         yyterminate();
     }
     return(EOF);

@@ -13,22 +13,22 @@ cdef class Parser:
     cpdef Token pop(self):
         cdef Token n = self.stack_top
         if n is None:
-            self.set_error()
+            self.set_error(210)
         self.stack_top = n.next
         return n
     
-    cdef void set_error(self, const char* format = "unknown syntax") except *:
+    cdef void set_error(self, int errorno = 16) except *:
         cdef:
             int lineno = 1
-            int errno = 16
             const char* text = ""
         if not self.t_cache is None:
             lineno = self.t_cache.lineno
-            errno = (self.stat << 4) + self.t_cache.syn
+            if errorno == 16:
+                errorno = (self.stat << 4) + self.t_cache.syn
             text = <char*>self.t_cache.raw_val
         while not self.t_cache is None and not CMD <= self.t_cache.syn <= TEXT:
             self.t_cache = self.lexer.next_token()
-        kola_set_error(KoiLangSyntaxError, errno,
+        kola_set_error(KoiLangSyntaxError, errorno,
             self.lexer._filename, lineno, text)
     
     cpdef object exec_once(self):
@@ -37,23 +37,23 @@ cdef class Parser:
 
             list args = []
             dict kwds = {}
-            Token i, t
+            object v
+            Token i
 
-        t = self.t_cache
-        if t is None:
-            t = self.lexer.next_token()
-            if t is None:
+        i = self.t_cache
+        if i is None:
+            i = self.lexer.next_token()
+            if i is None:
+                self.stat = 255
                 return
-        if t.syn == CMD:
-            c = self.command_set[t.val]
-        elif t.syn == CMD_N:
+        if i.syn == CMD:
+            c = self.command_set[i.val]
+        elif i.syn == CMD_N:
             c = self.command_set["@number"]
-            args.append(t.val)
-        elif t.syn == TEXT:
+            args.append(i.val)
+        elif i.syn == TEXT:
             c = self.command_set["@text"]
-            args.append(t.val)
-        else:
-            raise KoiLangSyntaxError("invalid command")
+            args.append(i.val)
         
         while True:
             self.stat = stat
@@ -75,12 +75,14 @@ cdef class Parser:
                 v = self.pop().val
                 i = self.pop()
                 if not i.syn == LITERAL:
-                    self.set_error("keyword must be a literal")
+                    self.t_cache = i
+                    self.set_error(201)
                 kwds[i.val] = v
             elif action == 5:
                 i = self.pop()
                 if not i.syn == LITERAL:
-                    self.set_error("keyword must be a literal")
+                    self.t_cache = i
+                    self.set_error(202)
                 kwds[i.val] = v
             elif action == 6:
                 v = [self.pop().val]
@@ -118,6 +120,9 @@ cdef class Parser:
     
     def __next__(self):
         ret = self.exec_once()
-        if self.t_cache is None:
+        if self.stat == 255:
             raise StopIteration
         return ret
+    
+    def __repr__(self):
+        return PyUnicode_FromFormat("<kola parser in file \"%s\">", self.lexer._filename)
