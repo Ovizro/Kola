@@ -33,6 +33,7 @@ jobs:
         pip install setuptools --upgrade
     - name: Test
       run: |
+        python setup.py install
         python -m unittest
     - name: Build package
       run: |
