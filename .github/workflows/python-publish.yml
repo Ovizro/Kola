@@ -19,7 +19,7 @@ permissions:
 jobs:
   deploy:
 
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -34,10 +34,9 @@ jobs:
         pip install wheel
     - name: Build package
       run: |
-        python setup.py build_ext --inplace
-        python setup.py sdist bdist_wheel
+        python setup.py sdist
     - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
