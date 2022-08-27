@@ -8,18 +8,14 @@ class KoiLangError(Exception):
     __slots__ = []
 
 
-class KoiLangSyntaxError(Exception):
+class KoiLangSyntaxError(KoiLangError):
     """
     Raised when failing to parse text
     """
-    __slots__ = ["err_code"]
-
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-        self.err_code = 0
+    __slots__ = []
 
 
-class KoiLangCommandError(Exception):
+class KoiLangCommandError(KoiLangError):
     """
     Raised when errors occure during executing commands
     """

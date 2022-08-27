@@ -1,4 +1,4 @@
-from .exception import KoiLangSyntaxError
+from .exception import KoiLangError, KoiLangSyntaxError, KoiLangCommandError
 
 
 cdef class Parser:
@@ -34,7 +34,8 @@ cdef class Parser:
     cpdef object exec_once(self):
         cdef:
             uint8_t stat = 1, action = 0
-
+            
+            str name
             list args = []
             dict kwds = {}
             object v
@@ -47,21 +48,21 @@ cdef class Parser:
                 self.stat = 255
                 return
         if i.syn == CMD:
-            c = self.command_set[i.val]
+            name = <str>i.val
         elif i.syn == CMD_N:
-            c = self.command_set["@number"]
+            name = "@number"
             args.append(i.val)
         elif i.syn == TEXT:
-            c = self.command_set["@text"]
+            name = "@text"
             args.append(i.val)
         
         while True:
             self.stat = stat
             i = self.lexer.next_token()
             if i is None:
-                break
-                
-            stat = yy_goto[i.get_flag()][stat - 1]
+                stat = yy_goto[0][stat-1]
+            else:
+                stat = yy_goto[i.get_flag()][stat - 1]
             action = stat >> 4
             stat &= 0x0F
 
@@ -108,7 +109,17 @@ cdef class Parser:
             self.set_error()
 
         self.t_cache = i
-        return c(*args, **kwds)
+        try:
+            cmd = self.command_set[name]
+        except KeyError:
+            raise KoiLangCommandError(f"command '{name}' not found") from None
+        
+        try:
+            return cmd(*args, **kwds)
+        except KoiLangError:
+            raise
+        except Exception as e:
+            raise KoiLangCommandError(f"an error occured during handling command '{name}'") from e
     
     cpdef void exec_(self) except *:
         self.exec_once()

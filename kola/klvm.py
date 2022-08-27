@@ -48,11 +48,9 @@ class KoiLang(metaclass=KoiLangMeta):
     def __getitem__(self, key: str) -> Callable:
         return self.command_set[key]
 
-    def parse(self, text: Optional[str] = None) -> None:
-        if text is None:
-            lexer = BaseLexer()
-        else:
-            lexer = StringLexer(text)
+    def parse(self, lexer: Union[BaseLexer, str]) -> None:
+        if isinstance(lexer, str):
+            lexer = StringLexer(lexer)
         Parser(lexer, self.command_set).exec_()
     
     def parse_file(self, path: str) -> None:

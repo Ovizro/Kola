@@ -1,0 +1,6 @@
+#file "hello.txt"
+Hello world!
+
+#file "test.txt"
+This is a text.
+#close

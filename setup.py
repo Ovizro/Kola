@@ -66,7 +66,7 @@ setup(
     ext_modules=extensions,
 
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Cython",
         "Programming Language :: Python :: 3",
