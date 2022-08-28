@@ -55,6 +55,9 @@ class KoiLang(metaclass=KoiLangMeta):
     
     def parse_file(self, path: str) -> None:
         Parser(FileLexer(path), self.command_set).exec_()
+    
+    def parse_command(self, cmd: str) -> None:
+        Parser(StringLexer(cmd, stat=1), self.command_set).exec_()
 
 
 def kola_command(func: Callable) -> KoiLangCommand:

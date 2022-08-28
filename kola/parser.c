@@ -1347,12 +1347,12 @@ struct __pyx_opt_args_4kola_6parser_6Parser_set_error {
   int errorno;
 };
 
-/* "lexer.pxd":29
+/* "lexer.pxd":32
  * 
  * 
  * cdef class Token:             # <<<<<<<<<<<<<<
- *     cdef Token next     # used in grammar parser
- *     cdef readonly:
+ *     cdef:
+ *         Token next     # used in grammar parser
  */
 struct __pyx_obj_4kola_5lexer_Token {
   PyObject_HEAD
@@ -1365,7 +1365,7 @@ struct __pyx_obj_4kola_5lexer_Token {
 };
 
 
-/* "lexer.pxd":40
+/* "lexer.pxd":44
  * 
  * 
  * cdef class BaseLexer:             # <<<<<<<<<<<<<<
@@ -1378,10 +1378,11 @@ struct __pyx_obj_4kola_5lexer_BaseLexer {
   char *_filename;
   YY_BUFFER_STATE buffer;
   int lineno;
+  int stat;
 };
 
 
-/* "lexer.pxd":52
+/* "lexer.pxd":58
  * 
  * 
  * cdef class FileLexer(BaseLexer):             # <<<<<<<<<<<<<<
@@ -1395,7 +1396,7 @@ struct __pyx_obj_4kola_5lexer_FileLexer {
 };
 
 
-/* "lexer.pxd":60
+/* "lexer.pxd":66
  * 
  * 
  * cdef class StringLexer(BaseLexer):             # <<<<<<<<<<<<<<
@@ -1426,12 +1427,12 @@ struct __pyx_obj_4kola_6parser_Parser {
 
 
 
-/* "lexer.pxd":29
+/* "lexer.pxd":32
  * 
  * 
  * cdef class Token:             # <<<<<<<<<<<<<<
- *     cdef Token next     # used in grammar parser
- *     cdef readonly:
+ *     cdef:
+ *         Token next     # used in grammar parser
  */
 
 struct __pyx_vtabstruct_4kola_5lexer_Token {
@@ -1440,7 +1441,7 @@ struct __pyx_vtabstruct_4kola_5lexer_Token {
 static struct __pyx_vtabstruct_4kola_5lexer_Token *__pyx_vtabptr_4kola_5lexer_Token;
 
 
-/* "lexer.pxd":40
+/* "lexer.pxd":44
  * 
  * 
  * cdef class BaseLexer:             # <<<<<<<<<<<<<<
@@ -1457,7 +1458,7 @@ struct __pyx_vtabstruct_4kola_5lexer_BaseLexer {
 static struct __pyx_vtabstruct_4kola_5lexer_BaseLexer *__pyx_vtabptr_4kola_5lexer_BaseLexer;
 
 
-/* "lexer.pxd":52
+/* "lexer.pxd":58
  * 
  * 
  * cdef class FileLexer(BaseLexer):             # <<<<<<<<<<<<<<
@@ -1471,7 +1472,7 @@ struct __pyx_vtabstruct_4kola_5lexer_FileLexer {
 static struct __pyx_vtabstruct_4kola_5lexer_FileLexer *__pyx_vtabptr_4kola_5lexer_FileLexer;
 
 
-/* "lexer.pxd":60
+/* "lexer.pxd":66
  * 
  * 
  * cdef class StringLexer(BaseLexer):             # <<<<<<<<<<<<<<
@@ -3844,7 +3845,7 @@ static void __pyx_f_4kola_6parser_6Parser_set_error(struct __pyx_obj_4kola_6pars
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("kola.parser.Parser.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  //__Pyx_AddTraceback("kola.parser.Parser.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
@@ -7562,24 +7563,24 @@ static int __Pyx_modinit_type_import_code(void) {
   __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_7cpython_7complex_complex) __PYX_ERR(5, 15, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("kola.lexer"); if (unlikely(!__pyx_t_1)) __PYX_ERR(6, 29, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("kola.lexer"); if (unlikely(!__pyx_t_1)) __PYX_ERR(6, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_ptype_4kola_5lexer_Token = __Pyx_ImportType(__pyx_t_1, "kola.lexer", "Token", sizeof(struct __pyx_obj_4kola_5lexer_Token), __PYX_GET_STRUCT_ALIGNMENT(struct __pyx_obj_4kola_5lexer_Token),
   __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_4kola_5lexer_Token) __PYX_ERR(6, 29, __pyx_L1_error)
-  __pyx_vtabptr_4kola_5lexer_Token = (struct __pyx_vtabstruct_4kola_5lexer_Token*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_Token); if (unlikely(!__pyx_vtabptr_4kola_5lexer_Token)) __PYX_ERR(6, 29, __pyx_L1_error)
+   if (!__pyx_ptype_4kola_5lexer_Token) __PYX_ERR(6, 32, __pyx_L1_error)
+  __pyx_vtabptr_4kola_5lexer_Token = (struct __pyx_vtabstruct_4kola_5lexer_Token*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_Token); if (unlikely(!__pyx_vtabptr_4kola_5lexer_Token)) __PYX_ERR(6, 32, __pyx_L1_error)
   __pyx_ptype_4kola_5lexer_BaseLexer = __Pyx_ImportType(__pyx_t_1, "kola.lexer", "BaseLexer", sizeof(struct __pyx_obj_4kola_5lexer_BaseLexer), __PYX_GET_STRUCT_ALIGNMENT(struct __pyx_obj_4kola_5lexer_BaseLexer),
   __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_4kola_5lexer_BaseLexer) __PYX_ERR(6, 40, __pyx_L1_error)
-  __pyx_vtabptr_4kola_5lexer_BaseLexer = (struct __pyx_vtabstruct_4kola_5lexer_BaseLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_BaseLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_BaseLexer)) __PYX_ERR(6, 40, __pyx_L1_error)
+   if (!__pyx_ptype_4kola_5lexer_BaseLexer) __PYX_ERR(6, 44, __pyx_L1_error)
+  __pyx_vtabptr_4kola_5lexer_BaseLexer = (struct __pyx_vtabstruct_4kola_5lexer_BaseLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_BaseLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_BaseLexer)) __PYX_ERR(6, 44, __pyx_L1_error)
   __pyx_ptype_4kola_5lexer_FileLexer = __Pyx_ImportType(__pyx_t_1, "kola.lexer", "FileLexer", sizeof(struct __pyx_obj_4kola_5lexer_FileLexer), __PYX_GET_STRUCT_ALIGNMENT(struct __pyx_obj_4kola_5lexer_FileLexer),
   __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_4kola_5lexer_FileLexer) __PYX_ERR(6, 52, __pyx_L1_error)
-  __pyx_vtabptr_4kola_5lexer_FileLexer = (struct __pyx_vtabstruct_4kola_5lexer_FileLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_FileLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_FileLexer)) __PYX_ERR(6, 52, __pyx_L1_error)
+   if (!__pyx_ptype_4kola_5lexer_FileLexer) __PYX_ERR(6, 58, __pyx_L1_error)
+  __pyx_vtabptr_4kola_5lexer_FileLexer = (struct __pyx_vtabstruct_4kola_5lexer_FileLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_FileLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_FileLexer)) __PYX_ERR(6, 58, __pyx_L1_error)
   __pyx_ptype_4kola_5lexer_StringLexer = __Pyx_ImportType(__pyx_t_1, "kola.lexer", "StringLexer", sizeof(struct __pyx_obj_4kola_5lexer_StringLexer), __PYX_GET_STRUCT_ALIGNMENT(struct __pyx_obj_4kola_5lexer_StringLexer),
   __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_4kola_5lexer_StringLexer) __PYX_ERR(6, 60, __pyx_L1_error)
-  __pyx_vtabptr_4kola_5lexer_StringLexer = (struct __pyx_vtabstruct_4kola_5lexer_StringLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_StringLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_StringLexer)) __PYX_ERR(6, 60, __pyx_L1_error)
+   if (!__pyx_ptype_4kola_5lexer_StringLexer) __PYX_ERR(6, 66, __pyx_L1_error)
+  __pyx_vtabptr_4kola_5lexer_StringLexer = (struct __pyx_vtabstruct_4kola_5lexer_StringLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_StringLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_StringLexer)) __PYX_ERR(6, 66, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;

@@ -132,7 +132,7 @@ if namespace.debug == "token":
         except KeyboardInterrupt:
             break
         except KoiLangError:
-            print_exc(5)
+            print_exc()
 
 elif namespace.debug == "grammar":
     if lexer:
@@ -141,18 +141,18 @@ elif namespace.debug == "grammar":
         print(f"KoiLang Grammar Debugger {__version__} on {sys.platform}")
         while True:
             try:
-                sys.stdout.write("$kola: ")
+                sys.stdout.write("$kola #: ")
                 sys.stdout.flush()
                 i = sys.stdin.readline()
                 while i.endswith("\\\n"):
-                    sys.stdout.write("... :")
+                    sys.stdout.write("$kola .: ")
                     sys.stdout.flush()
                     i += sys.stdin.readline()
                 Parser(StringLexer(i), CommandDebugger).exec_once()
             except KeyboardInterrupt:
                 break
             except KoiLangError:
-                print_exc(5)
+                print_exc()
     
 else:
     if namespace.script:
@@ -167,16 +167,16 @@ else:
         print(f"KoiLang Runner {__version__} on {sys.platform}")
         while True:
             try:
-                sys.stdout.write("$kola: ")
+                sys.stdout.write("$kola #: ")
                 sys.stdout.flush()
                 i = sys.stdin.readline()
                 while i.endswith("\\\n"):
-                    sys.stdout.write("... :")
+                    sys.stdout.write("$kola .: ")
                     sys.stdout.flush()
                     i += sys.stdin.readline()
-                command_set.parse(i)
+                command_set.parse_command(i)
             except KeyboardInterrupt:
                 break
             except KoiLangError:
-                print_exc(5)
+                print_exc()
     

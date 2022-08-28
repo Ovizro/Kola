@@ -60,3 +60,11 @@ text    [^#\n\r \t]((.|\\\n)*[^\r\n\\ \t])?
 }
 
 %%
+
+int get_stat() {
+    return YY_START;
+}
+
+void set_stat(int stat) {
+    BEGIN stat;
+}

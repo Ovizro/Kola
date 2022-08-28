@@ -1688,3 +1688,12 @@ int main()
 	}
 #endif
 #line 62 "kola/kolalexer.l"
+
+
+int get_stat() {
+    return YY_START;
+}
+
+void set_stat(int stat) {
+    BEGIN stat;
+}

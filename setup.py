@@ -29,13 +29,11 @@ try:
     with open("kola/version.py") as f:
         version = re.search(r"__version__\s*=\s*\"(.*)\"\n", f.read()).group(1) # type: ignore
 except Exception as e:
-    raise ValueError("fail to read mcdp version") from e
+    raise ValueError("fail to read kola version") from e
 
 
 USE_CYTHON = "USE_CYTHON" in os.environ
 FILE_SUFFIX = ".pyx" if USE_CYTHON else ".c"
-
-_home = os.path.dirname(__file__)
 
 extensions = [
     Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX, "kola/lex.yy.c"]),

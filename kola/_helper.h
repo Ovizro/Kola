@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum TokenSyn {
     CMD=1, CMD_N, TEXT, LITERAL, STRING, NUM, NUM_H, NUM_B, NUM_F, CLN, CMA, SLP, SRP
 } TokenSyn;
@@ -25,6 +29,9 @@ typedef struct yy_buffer_state* YY_BUFFER_STATE;
 extern int yylineno;
 extern int yyleng;
 extern char* yytext;
+
+int get_stat();
+void set_stat(int stat);
 
 int yylex();
 void yyrestart(FILE *input_file);
@@ -111,4 +118,7 @@ end:
 }
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 #endif

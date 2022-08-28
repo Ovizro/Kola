@@ -6,7 +6,7 @@ from cpython cimport PyObject, PyLong_FromString, PyFloat_FromString, PyUnicode_
 from ._helper cimport *
 
 
-cdef extern from *:
+cdef extern from "_helper.h":
     struct yy_buffer_state:
         pass
     ctypedef yy_buffer_state *YY_BUFFER_STATE
@@ -15,6 +15,9 @@ cdef extern from *:
     int yyleng
     int yylineno
     YY_BUFFER_STATE yy_current_buffer
+
+    int get_stat()
+    void set_stat(int stat)
 
     int yylex() nogil
     void yyrestart(FILE *input_file) nogil
@@ -27,7 +30,8 @@ cdef extern from *:
 
 
 cdef class Token:
-    cdef Token next     # used in grammar parser
+    cdef:
+        Token next     # used in grammar parser
     cdef readonly:
         TokenSyn syn
         object val
@@ -41,7 +45,9 @@ cdef class BaseLexer:
     cdef:
         char* _filename
         YY_BUFFER_STATE buffer
-    cdef readonly int lineno
+    cdef readonly:
+        int lineno
+        int stat
 
     cpdef void ensure(self)
     cpdef void close(self)

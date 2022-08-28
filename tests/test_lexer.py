@@ -1,6 +1,6 @@
 from unittest import TestCase
 from kola.exception import KoiLangSyntaxError
-from kola.lexer import StringLexer, FileLexer, S_CMD, S_LITERAL, S_TEXT
+from kola.lexer import StringLexer, FileLexer, S_CMD, S_LITERAL, S_TEXT, Token
 
 
 class TestLexer(TestCase):
@@ -11,6 +11,9 @@ class TestLexer(TestCase):
 
         with self.assertRaises(OSError):
             next(lexer)
+        
+        with self.assertRaises(TypeError):
+            type("Temp", (Token,), {})
 
     def test_token(self) -> None:
         lexer = StringLexer(

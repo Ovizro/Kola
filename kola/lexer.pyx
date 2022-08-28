@@ -67,10 +67,14 @@ cdef class BaseLexer:
     """
     KoiLang lexer reading from stdin
     """
-    def __cinit__(self):
+    def __cinit__(self, *args, uint8_t stat = 0):
+        if type(self) is BaseLexer:
+            if args:
+                PyErr_Format(TypeError, "__cinit__() takes exactly 0 positional arguments (%d given)", len(args))
+            self.buffer = yy_create_buffer(stdin, BUFFER_SIZE)
         self._filename = "<stdin>"
-        self.buffer = yy_create_buffer(stdin, BUFFER_SIZE)
         self.lineno = 1
+        self.stat = stat
     
     def __dealloc__(self):
         self.close()
@@ -81,6 +85,7 @@ cdef class BaseLexer:
         """
         yy_switch_to_buffer(self.buffer)
         yylineno = self.lineno
+        set_stat(self.stat)
     
     cpdef void close(self):
         yy_delete_buffer(self.buffer)
@@ -106,6 +111,7 @@ cdef class BaseLexer:
             int syn = yylex()
             object val = None
         self.lineno = yylineno
+        self.stat = get_stat()
         if syn == NUM or syn == CMD_N:
             val = PyLong_FromString(yytext, NULL, 10)
         elif syn == NUM_H:
@@ -155,7 +161,7 @@ cdef class FileLexer(BaseLexer):
     """
     KoiLang lexer reading from file
     """
-    def __cinit__(self, str filename not None):
+    def __cinit__(self, str filename not None, *, uint8_t stat = 0):
         self._filenameo = filename.encode()
         self._filename = <char*>self._filenameo
 
@@ -164,7 +170,6 @@ cdef class FileLexer(BaseLexer):
             PyErr_Format(OSError, "fail to open %s", self._filename)
 
         self.buffer = yy_create_buffer(self.fp, BUFFER_SIZE)
-        self.lineno = 1
     
     cpdef void close(self):
         yy_delete_buffer(self.buffer)
@@ -178,8 +183,7 @@ cdef class StringLexer(BaseLexer):
     """
     KoiLang lexer reading from string provided
     """
-    def __cinit__(self, str content not None):
+    def __cinit__(self, str content not None, *, uint8_t stat = 0):
         self._filename = "<string>"
         self.content = content.encode()
         self.buffer = yy_scan_bytes(self.content, len(self.content))
-        self.lineno = 1
