@@ -58,6 +58,9 @@ class KoiLang(metaclass=KoiLangMeta):
     
     def parse_command(self, cmd: str) -> None:
         Parser(StringLexer(cmd, stat=1), self.command_set).exec_()
+    
+    def parse_args(self, args: str) -> Tuple[tuple, dict]:
+        return Parser(StringLexer(args, stat=2), self.command_set).parse_args()
 
 
 def kola_command(func: Callable) -> KoiLangCommand:

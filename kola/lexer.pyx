@@ -74,6 +74,8 @@ cdef class BaseLexer:
             self.buffer = yy_create_buffer(stdin, BUFFER_SIZE)
         self._filename = "<stdin>"
         self.lineno = 1
+        if stat > 2:
+            raise ValueError("lexer state must be between 0 and 2")
         self.stat = stat
     
     def __dealloc__(self):

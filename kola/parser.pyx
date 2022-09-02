@@ -31,31 +31,15 @@ cdef class Parser:
         kola_set_error(KoiLangSyntaxError, errorno,
             self.lexer._filename, lineno, text)
     
-    cpdef object exec_once(self):
+    cpdef tuple parse_args(self):
         cdef:
             uint8_t stat = 1, action = 0
             
-            str name
             list args = []
             dict kwds = {}
             object v
             Token i
 
-        i = self.t_cache
-        if i is None:
-            i = self.lexer.next_token()
-            if i is None:
-                self.stat = 255
-                return
-        if i.syn == CMD:
-            name = <str>i.val
-        elif i.syn == CMD_N:
-            name = "@number"
-            args.append(i.val)
-        elif i.syn == TEXT:
-            name = "@text"
-            args.append(i.val)
-        
         while True:
             self.stat = stat
             i = self.lexer.next_token()
@@ -109,6 +93,34 @@ cdef class Parser:
             self.set_error()
 
         self.t_cache = i
+        return tuple(args), kwds
+    
+    cpdef object exec_once(self):
+        cdef:
+            str name
+            tuple args
+            dict kwds
+            Token token
+
+        token = self.t_cache
+        if token is None:
+            token = self.lexer.next_token()
+            if token is None:
+                self.stat = 255
+                return
+        
+        args = self.parse_args()
+        kwds = <dict>args[1]
+        args = <tuple>args[0]
+
+        if token.syn == CMD:
+            name = <str>token.val
+        elif token.syn == CMD_N:
+            name = "@number"
+            args = (token.val,) + args
+        elif token.syn == TEXT:
+            name = "@text"
+            args = (token.val,)
         try:
             cmd = self.command_set[name]
         except KeyError:

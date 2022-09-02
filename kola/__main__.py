@@ -13,14 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import os
 import sys
 from argparse import ArgumentParser
 from traceback import print_exc
-from typing import Any, Callable, Dict, Tuple
+from typing import Any, Callable, Type
 
 from .lexer import BaseLexer, FileLexer, StringLexer
 from .parser import Parser
-from .klvm import KoiLang, KoiLangMeta, kola_command, kola_number, kola_text
+from .klvm import KoiLang, KoiLangMeta, kola_command, kola_text
 from .exception import KoiLangCommandError, KoiLangError
 
 from . import __version__
@@ -57,15 +58,6 @@ class KoiLangMain(KoiLang):
         print(__version__)
     
     @kola_command
-    def author(self, author: str = "name") -> None:
-        if author == "name":
-            print("Ovizro")
-        elif author == "email":
-            print("Ovizro@hypercol.com")
-        else:
-            raise KoiLangCommandError("author information only supports 'name' and 'email'")
-
-    @kola_command
     def license(self) -> None:
         print(__doc__)
     
@@ -86,6 +78,21 @@ class KoiLangMain(KoiLang):
         self.vars.update(kwds)
     
     @kola_command
+    def mkdir(self, dir: str, mode: int = 777) -> None:
+        os.mkdir(dir, mode)
+    
+    @kola_command
+    def open(self, path: str, mode: str = "r", *, encoding: str = "utf-8") -> None:
+        if hasattr(self, "file"):
+            self.file.close()
+        self.file = open(path, mode, encoding=encoding)
+    
+    @kola_command
+    def close(self) -> None:
+        self.file.close()
+        del self.file
+    
+    @kola_command
     def load(self, path: str, type: str = "kola", *, encoding: str = "utf-8") -> None:
         if type == "kola":
             self.parse_file(path)
@@ -95,9 +102,16 @@ class KoiLangMain(KoiLang):
         else:
             raise KoiLangCommandError("load type only supports 'kola' and 'script'")
 
+    @kola_command
+    def reset(self) -> None:
+        self.command_set = self.__class__.get_command_set(self)
+
     @kola_text
     def text(self, text: str) -> None:
-        print(f"::{text}")
+        if hasattr(self, "file"):
+            self.file.write(text)
+        else:
+            print(f"::{text}")
     
     @kola_command
     def exit(self, code: int = 0) -> None:
@@ -108,7 +122,7 @@ parser = ArgumentParser("kola")
 parser.add_argument("file", default=None, nargs="?")
 parser.add_argument("-i", "--inline", help="parse inline string")
 parser.add_argument("-s", "--script", help="parser script")
-parser.add_argument("-d", "--debug", help="dubugger type", choices=["token", "grammar"])
+parser.add_argument("-d", "--debug", help="dubugger type", choices=["token", "command"])
 
 namespace = parser.parse_args()
 
@@ -134,18 +148,18 @@ if namespace.debug == "token":
         except KoiLangError:
             print_exc()
 
-elif namespace.debug == "grammar":
+elif namespace.debug == "command":
     if lexer:
         Parser(lexer, CommandDebugger).exec_()
     else:
-        print(f"KoiLang Grammar Debugger {__version__} on {sys.platform}")
+        print(f"KoiLang Command Debugger {__version__} on {sys.platform}")
         while True:
             try:
-                sys.stdout.write("$kola #: ")
+                sys.stdout.write("$kola : ")
                 sys.stdout.flush()
                 i = sys.stdin.readline()
                 while i.endswith("\\\n"):
-                    sys.stdout.write("$kola .: ")
+                    sys.stdout.write("$kola . ")
                     sys.stdout.flush()
                     i += sys.stdin.readline()
                 Parser(StringLexer(i), CommandDebugger).exec_once()

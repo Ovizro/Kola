@@ -1,6 +1,15 @@
-#file "hello.txt"
+#file "hello.txt" encoding("utf-8")
 Hello world!
+And there are all my friends.
 
-#file "test.txt"
-This is a text.
-#close
+#space hello
+
+    #file "bob.txt"
+    Hello Bob.
+
+    #file "Alice.txt"
+    Hello Alice.
+
+#endspace
+
+#end

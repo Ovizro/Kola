@@ -1,6 +1,9 @@
-from cpython cimport PyUnicode_FromFormat
 from ._helper cimport *
 from .lexer cimport Token, BaseLexer
+
+
+cdef extern from *:
+    str PyUnicode_FromFormat(const char*, ...)
 
 
 cdef class Parser:
@@ -15,5 +18,6 @@ cdef class Parser:
     cpdef void push(self, Token n)
     cpdef Token pop(self)
     cdef void set_error(self, int errorno = *) except *
+    cpdef tuple parse_args(self)
     cpdef object exec_once(self)
     cpdef void exec_(self) except *

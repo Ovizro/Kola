@@ -1,9 +1,13 @@
 from libc.stdio cimport stdin, FILE, fopen, fclose, EOF
 from libc.string cimport strchr
 from cpython cimport PyObject, PyLong_FromString, PyFloat_FromString, PyUnicode_FromStringAndSize, \
-    PyUnicode_FromFormat, PyBytes_FromStringAndSize, PyErr_Format, PY_MINOR_VERSION
+    PyBytes_FromStringAndSize, PyErr_Format, PY_MINOR_VERSION
 
 from ._helper cimport *
+
+
+cdef extern from *:
+    str PyUnicode_FromFormat(const char*, ...)
 
 
 cdef extern from "_helper.h":

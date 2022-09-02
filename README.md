@@ -39,8 +39,7 @@ Valid argument type include integer, float, literal and string.
     #arg_literal __name__
     #arg_string "A string"
 
-> Here "literal" is a valid python variety name containing letter,
- digit, underline and not starting with digit. Usually it is same as a string.
+> Here "literal" is a valid python variety name containing letter,digit, underline and not starting with digit. Usually it is same as a string.
  
 There is another kind of arguments -- keyword arguments which formation is as this:
 
@@ -74,21 +73,56 @@ draw(
 )
 ```
 
-Well, Kola do not know the exact implementation of a command, so a command set is needed to provide. Just create a subclass of `KoiLang` and use decorator `@kola_command` on the command functions. Here is a fast example script.
+Kola mudule just create a bridge from kola file to Python script. The bridge, the main class of Kola module, is `KoiLang` class. There is a simple example.
+
+## Example
+
+Let's image a simple situation, where you want to create some small files. Manual creating is complex and time-consuming. Here is a way to solve that. We can use a single kola file to write all my text. Then use commands to devide these text in to different files.
+
+```
+#file "hello.txt" encoding("utf-8")
+Hello world!
+And there are all my friends.
+
+#space hello
+
+    #file "bob.txt"
+    Hello Bob.
+
+    #file "Alice.txt"
+    Hello Alice.
+
+#endspace
+
+#end
+```
 
 ```py
 import os
+from typing import Optional, TextIO
 from kola import KoiLang, kola_command, kola_text
 
 
 class MultiFileManager(KoiLang):
     def __init__(self) -> None:
-        self._file = None
         super().__init__()
+        self._file: Optional[TextIO] = None
     
     def __del__(self) -> None:
         if self._file:
             self._file.close()
+    
+    @kola_command
+    def space(self, name: str) -> None:
+        path = name.replace('.', '/')
+        if not os.path.isdir(path):
+            os.makedirs(path)
+        os.chdir(path)
+    
+    @kola_command
+    def endspace(self) -> None:
+        os.chdir("..")
+        self.end()
     
     @kola_command
     def file(self, path: str, encoding: str = "utf-8") -> None:
@@ -100,7 +134,7 @@ class MultiFileManager(KoiLang):
         self._file = open(path, "w", encoding=encoding)
     
     @kola_command
-    def close(self) -> None:
+    def end(self) -> None:
         if self._file:
             self._file.close()
             self._file = None
@@ -110,17 +144,6 @@ class MultiFileManager(KoiLang):
         if not self._file:
             raise OSError("write texts before the file open")
         self._file.write(text)
-```
-
-Then make a simple kola file.
-
-```
-#file "hello.txt"
-Hello world!
-
-#file "test.txt"
-This is a text.
-#close
 ```
 
 And input this in terminal:
