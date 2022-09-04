@@ -13,12 +13,14 @@ S_NUM_F: int
 S_CLN: int
 S_CMA: int
 S_SLP: int
-s_SRP: int
+S_SRP: int
 
 
 class Token:
     syn: Final[int]
     val: Final[Any]
+
+    def get_flag(self) -> int: ...
 
 
 class BaseLexer:

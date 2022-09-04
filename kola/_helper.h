@@ -14,13 +14,13 @@ enum TokenSyn {
 } TokenSyn;
 
 static const uint8_t yy_goto[7][8] = {
-    15,  63,  0,   0,   0,  0,   0, 0,     // CMD | CMD_N | TEXT
-    34,  162, 35,  117, 0,  151, 0, 40,    // LITERAL   
-    17,  49,  35,  117, 0,  151, 0, 40,    // NUM | STRING
-    0,   0,   134, 0,   0,  0,   0, 6,     // CLN
-    0,   0,   100, 0,   4,  0,   8, 0,     // CMA
-    0,   3,   0,   0,   0,  0,   0, 0,     // SLP
-    0,   0,   65,  0,   81, 0,   81, 0     // SRP
+    {15,  63,  0,   0,   0,  0,   0, 0},     // CMD | CMD_N | TEXT
+    {34,  162, 35,  117, 0,  151, 0, 40},    // LITERAL   
+    {17,  49,  35,  117, 0,  151, 0, 40},    // NUM | STRING
+    {0,   0,   134, 0,   0,  0,   0, 6},     // CLN
+    {0,   0,   100, 0,   4,  0,   8, 0},     // CMA
+    {0,   3,   0,   0,   0,  0,   0, 0},     // SLP
+    {0,   0,   65,  0,   81, 0,   81, 0}     // SRP
 };
 
 #ifndef FLEX_SCANNER
@@ -59,9 +59,10 @@ static const char* get_format(int code) {
         ERR_MSG(unknown symbol '%s');
     case 10:
         ERR_MSG(end of line in incurrect place);
+    case 28:
+        ERR_MSG(keyword must be a literal);
     case 201:
     case 202:
-        ERR_MSG(keyword must be a literal);
     case 210:
         ERR_MSG(bad argument count);
     }

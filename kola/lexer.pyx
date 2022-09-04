@@ -18,7 +18,7 @@ S_NUM_F = NUM_F
 S_CLN = CLN
 S_CMA = CMA
 S_SLP = SLP
-s_SRP = SRP
+S_SRP = SRP
 
 
 @cython.final

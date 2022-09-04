@@ -3,7 +3,7 @@ Simple python module for KoiLang parsing.
 
 [![License](https://img.shields.io/github/license/Ovizro/Kola.svg)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/KoiLang.svg)](https://pypi.python.org/pypi/KoiLang)
-![Python Version](https://img.shields.io/badge/python-3.6|3.7|3.8|3.9|3.10-blue.svg)
+![Python Version](https://img.shields.io/badge/python-3.6%20|%203.7%20|%203.8%20|%203.9%20|%203.10-blue.svg)
 
 ## Installation
 From pip:
@@ -86,7 +86,7 @@ And there are all my friends.
 
 #space hello
 
-    #file "bob.txt"
+    #file "Bob.txt"
     Hello Bob.
 
     #file "Alice.txt"
@@ -158,3 +158,21 @@ if __name__ = "__main__":
 ```
 
 You will see new files in your work dir.
+
+    workdir
+    │      
+    │  hello.txt
+    │      
+    └─hello
+        Alice.txt
+        Bob.txt
+
+## What is more
+
+The most difference between KoiLang and other markup language like YAML which is data-centric is that KoiLang more pay attention to the command. Yeah, text in Kola file is a special command named `@text` too. In fact, the core idea of Kola is to separate data and instructions. The kola file is the data to execute commands, and the python script is the instructions. Then Kola module just mix they together. It can be considered as a simple virtual machine engine. if you want, you can even build a Python virtual machine (of course, I guess no one like to do that).
+
+On the other hand, text is also an important feature of Kola, which is a separate part, independent of context during parsing. The text is the soul of a Kola file. Any commands just are used to tell the computer what to do with the text. Though you can make a Kola file with only commands, it is not recommended. Instead, you ought to consider switching to another language.
+
+## Bugs/Requests
+
+Please send bug reports and feature requests through [github issue tracker](https://github.com/Ovizro/Kola/issues). Kola is open to any constructive suggestions.

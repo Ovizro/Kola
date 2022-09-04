@@ -82,7 +82,7 @@ class KoiLangMain(KoiLang):
         os.mkdir(dir, mode)
     
     @kola_command
-    def open(self, path: str, mode: str = "r", *, encoding: str = "utf-8") -> None:
+    def open(self, path: str, mode: str = "w", *, encoding: str = "utf-8") -> None:
         if hasattr(self, "file"):
             self.file.close()
         self.file = open(path, mode, encoding=encoding)
@@ -91,6 +91,10 @@ class KoiLangMain(KoiLang):
     def close(self) -> None:
         self.file.close()
         del self.file
+    
+    @kola_command
+    def remove(self, path: str) -> None:
+        os.remove(path)
     
     @kola_command
     def load(self, path: str, type: str = "kola", *, encoding: str = "utf-8") -> None:
@@ -155,11 +159,11 @@ elif namespace.debug == "command":
         print(f"KoiLang Command Debugger {__version__} on {sys.platform}")
         while True:
             try:
-                sys.stdout.write("$kola : ")
+                sys.stdout.write("$kola: ")
                 sys.stdout.flush()
                 i = sys.stdin.readline()
                 while i.endswith("\\\n"):
-                    sys.stdout.write("$kola . ")
+                    sys.stdout.write("$...: ")
                     sys.stdout.flush()
                     i += sys.stdin.readline()
                 Parser(StringLexer(i), CommandDebugger).exec_once()
@@ -181,14 +185,14 @@ else:
         print(f"KoiLang Runner {__version__} on {sys.platform}")
         while True:
             try:
-                sys.stdout.write("$kola #: ")
+                sys.stdout.write("$kola: ")
                 sys.stdout.flush()
                 i = sys.stdin.readline()
                 while i.endswith("\\\n"):
-                    sys.stdout.write("$kola .: ")
+                    sys.stdout.write("$... : ")
                     sys.stdout.flush()
                     i += sys.stdin.readline()
-                command_set.parse_command(i)
+                command_set.parse(i)
             except KeyboardInterrupt:
                 break
             except KoiLangError:
