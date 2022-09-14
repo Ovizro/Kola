@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-enum TokenSyn {
+static enum TokenSyn {
     CMD=1, CMD_N, TEXT, LITERAL, STRING, NUM, NUM_H, NUM_B, NUM_F, CLN, CMA, SLP, SRP
 } TokenSyn;
 
@@ -57,6 +57,10 @@ static const char* get_format(int code) {
     {
     case 1:
         ERR_MSG(unknown symbol '%s');
+    case 2:
+        ERR_MSG(command '%s' not found);
+    case 3:
+        ERR_MSG(an error occured during handling command '%s');
     case 10:
         ERR_MSG(end of line in incurrect place);
     case 28:
@@ -80,42 +84,85 @@ static const char* get_format(int code) {
 #include "frameobject.h"
 // For Cython limiting, error setting function has to define here 
 static void __inline kola_set_error(PyObject* exc_type, int errorno,
-                            const char* filename, int lineno, char* text) 
+                            const char* filename, int lineno, const char* text) 
 {
     PyErr_Format(exc_type, get_format(errorno), errorno, text);
 
     // add traceback in .kola file
-#if PY_VERSION_HEX >= 0x03080000
-    _PyTraceback_Add("<kola>", filename, lineno);
-#else
-    PyCodeObject* code = NULL;
-    PyFrameObject* frame = NULL;
-    PyObject* globals = NULL;
+    #if PY_VERSION_HEX >= 0x03080000
+        _PyTraceback_Add("<kola>", filename, lineno);
+    #else
+        PyCodeObject* code = NULL;
+        PyFrameObject* frame = NULL;
+        PyObject* globals = NULL;
+        PyObject *exc, *val, *tb;
+
+        PyErr_Fetch(&exc, &val, &tb);
+
+        globals = PyDict_New();
+        if (!globals) goto end;
+        code = PyCode_NewEmpty(filename, "<kola>", lineno);
+        if (!code) goto end;
+        frame = PyFrame_New(
+            PyThreadState_Get(),
+            code,
+            globals,
+            NULL
+        );
+        if (!frame) goto end;
+
+        frame->f_lineno = lineno;
+        PyErr_Restore(exc, val, tb);
+        PyTraceBack_Here(frame);
+
+    end:
+        Py_XDECREF(code);
+        Py_XDECREF(frame);
+        Py_XDECREF(globals);
+    #endif
+}
+
+static void __inline kola_set_errcause(PyObject* exc_type, int errorno,
+                            const char* filename, int lineno, const char* text, PyObject* cause) 
+{
+    PyErr_Format(exc_type, get_format(errorno), errorno, text);
+    
     PyObject *exc, *val, *tb;
-
     PyErr_Fetch(&exc, &val, &tb);
+    if (cause == Py_None) {
+        PyException_SetContext(val, NULL);
+    } else {
+        Py_INCREF(cause);
+        PyException_SetCause(val, cause);
+    }
+    #if PY_VERSION_HEX >= 0x03080000
+        PyErr_Restore(exc, val, tb);
+        _PyTraceback_Add("<kola>", filename, lineno);
+    #else
+        PyCodeObject* code = NULL;
+        PyFrameObject* frame = NULL;
+        PyObject* globals = NULL;
+        globals = PyDict_New();
+        if (!globals) goto end;
+        code = PyCode_NewEmpty(filename, "<kola>", lineno);
+        if (!code) goto end;
+        frame = PyFrame_New(
+            PyThreadState_Get(),
+            code,
+            globals,
+            NULL
+        );
+        if (!frame) goto end;
 
-    globals = PyDict_New();
-    if (!globals) goto end;
-    code = PyCode_NewEmpty(filename, "<kola>", lineno);
-    if (!code) goto end;
-    frame = PyFrame_New(
-        PyThreadState_Get(),
-        code,
-        globals,
-        NULL
-    );
-    if (!frame) goto end;
+        frame->f_lineno = lineno;
+        PyErr_Restore(exc, val, tb);
+        PyTraceBack_Here(frame);
 
-    frame->f_lineno = lineno;
-    PyErr_Restore(exc, val, tb);
-    PyTraceBack_Here(frame);
-
-end:
-    Py_XDECREF(code);
-    Py_XDECREF(frame);
-    Py_XDECREF(globals);
-#endif
+    end:
+        Py_XDECREF(code);
+        Py_XDECREF(frame);
+        Py_XDECREF(globals);
+    #endif
 }
 #endif
 

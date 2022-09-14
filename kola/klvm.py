@@ -1,6 +1,4 @@
-from argparse import ArgumentParser
-import sys
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Set, Tuple, Union
 from types import MethodType
 from .lexer import BaseLexer, StringLexer, FileLexer
 from .parser import Parser
@@ -24,10 +22,13 @@ class KoiLangMeta(type):
     """
     Metaclass for KoiLang class
     """
-    __command_field__: List[KoiLangCommand]
+    __command_field__: Set[KoiLangCommand]
 
     def __new__(cls, name: str, base: Tuple[type, ...], attr: Dict[str, Any]):
-        __command_field__ = [i for i in attr.values() if isinstance(i, KoiLangCommand)]
+        __command_field__ = {i for i in attr.values() if isinstance(i, KoiLangCommand)}
+        for i in base:
+            if isinstance(i, KoiLangMeta):
+                __command_field__.update(i.__command_field__)
         attr["__command_field__"] = __command_field__
 
         return super().__new__(cls, name, base, attr)
@@ -54,20 +55,20 @@ class KoiLang(metaclass=KoiLangMeta):
         Parser(lexer, self.command_set).exec_()
     
     def parse_file(self, path: str) -> None:
-        Parser(FileLexer(path), self.command_set).exec_()
+        self.parse(FileLexer(path))
     
     def parse_command(self, cmd: str) -> None:
-        Parser(StringLexer(cmd, stat=1), self.command_set).exec_()
+        self.parse(StringLexer(cmd, stat=1))
     
     def parse_args(self, args: str) -> Tuple[tuple, dict]:
         return Parser(StringLexer(args, stat=2), self.command_set).parse_args()
 
 
-def kola_command(func: Callable) -> KoiLangCommand:
+def kola_command(func: Callable[..., Any]) -> KoiLangCommand:
     return KoiLangCommand(func.__name__, func)
 
-def kola_text(func: Callable) -> KoiLangCommand:
+def kola_text(func: Callable[[Any, str], Any]) -> KoiLangCommand:
     return KoiLangCommand("@text", func)
 
-def kola_number(func: Callable) -> KoiLangCommand:
+def kola_number(func: Callable[..., Any]) -> KoiLangCommand:
     return KoiLangCommand("@number", func)

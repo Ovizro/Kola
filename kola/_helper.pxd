@@ -16,4 +16,5 @@ cdef extern from "_helper.h":
         SLP
         SRP
     const uint8_t yy_goto[7][8]
-    void kola_set_error(object exc_type, int errorno, const char* filename, int lineno, char* text) except *
+    void kola_set_error(object exc_type, int errorno, const char* filename, int lineno, const char* text) except *
+    void kola_set_errcause(object exc_type, int errorno, const char* filename, int lineno, const char* text, object cause) except *

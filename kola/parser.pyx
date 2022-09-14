@@ -21,11 +21,12 @@ cdef class Parser:
         cdef:
             int lineno = 1
             const char* text = ""
-        if not self.t_cache is None:
+            Token cur = self.t_cache
+        if not cur is None:
             lineno = self.t_cache.lineno
             if errorno == 16:
-                errorno = (self.stat << 4) + self.t_cache.syn
-            text = <char*>self.t_cache.raw_val
+                errorno = (self.stat << 4) + cur.syn
+            text = <char*>cur.raw_val
         while not self.t_cache is None and not CMD <= self.t_cache.syn <= TEXT:
             self.t_cache = self.lexer.next_token()
         kola_set_error(KoiLangSyntaxError, errorno,
@@ -124,14 +125,17 @@ cdef class Parser:
         try:
             cmd = self.command_set[name]
         except KeyError:
-            raise KoiLangCommandError(f"command '{name}' not found") from None
+            kola_set_errcause(KoiLangCommandError, 2, 
+                self.lexer._filename, token.lineno, token.raw_val, None)
         
         try:
             return cmd(*args, **kwds)
         except KoiLangError:
             raise
         except Exception as e:
-            raise KoiLangCommandError(f"an error occured during handling command '{name}'") from e
+            kola_set_errcause(KoiLangCommandError, 3, 
+                self.lexer._filename, token.lineno, token.raw_val, e)
+
     
     cpdef void exec_(self) except *:
         self.exec_once()
