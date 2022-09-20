@@ -20,4 +20,4 @@ cdef class Parser:
     cdef void set_error(self, int errorno = *) except *
     cpdef tuple parse_args(self)
     cpdef object exec_once(self)
-    cpdef void exec_(self) except *
+    cpdef void exec(self) except *

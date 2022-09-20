@@ -29,7 +29,7 @@ cdef class Token:
     Don't instantiate this class directly unless you make
     sure enough arguments provided.
     """
-    def __init__(
+    def __cinit__(
             self,
             TokenSyn syn,
             val = None,
@@ -85,6 +85,7 @@ cdef class BaseLexer:
         """
         synchronize buffer data in yylex
         """
+        global yylineno
         yy_switch_to_buffer(self.buffer)
         yylineno = self.lineno
         set_stat(self.stat)

@@ -9,7 +9,7 @@ from .util import CommandTest
 class TestParser(TestCase):
     def test_parser(self) -> None:
         lexer = FileLexer("examples/example0.kola")
-        Parser(lexer, CommandTest).exec_()
+        Parser(lexer, CommandTest).exec()
 
     def test_command(self) -> None:
         lexer = StringLexer(
@@ -33,7 +33,7 @@ class TestParser(TestCase):
         )
         parser = Parser(lexer, CommandTest)
         with self.assertRaises(KoiLangSyntaxError):
-            parser.exec_()
+            parser.exec()
         
         self.assertEqual(
             [i[0] for i in parser], 
@@ -47,4 +47,4 @@ class TestParser(TestCase):
             """
         )
         with self.assertRaises(KoiLangSyntaxError):
-            Parser(lexer, CommandTest).exec_()
+            Parser(lexer, CommandTest).exec()

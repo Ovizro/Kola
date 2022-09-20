@@ -17,11 +17,11 @@ import os
 import sys
 from argparse import ArgumentParser
 from traceback import print_exc
-from typing import Any, Callable, Type
+from typing import Callable
 
 from .lexer import BaseLexer, FileLexer, StringLexer
 from .parser import Parser
-from .klvm import KoiLang, KoiLangMeta, kola_command, kola_text
+from .klvm import KoiLang, KoiLangMeta, kola_command, kola_env, kola_text
 from .exception import KoiLangCommandError, KoiLangError
 
 from . import __version__
@@ -41,17 +41,19 @@ def _load_script(path: str, encoding: str = "utf-8") -> KoiLangMeta:
         raise TypeError("no KoiLang command set found")
 
 
-class CommandDebugger:
-    def __class_getitem__(cls, key: str) -> Callable[..., None]:
+class _CommandDebugger:
+    def __getitem__(self, key: str) -> Callable[..., None]:
         def wrapper(*args, **kwds) -> None:
             print(f"cmd: {key} with args {args} kwds {kwds}")
         return wrapper
 
+cmd_debugger = _CommandDebugger()
+
 
 class KoiLangMain(KoiLang):
     def __init__(self) -> None:
-        self.vars = {}
         super().__init__()
+        self.vars = {}
 
     @kola_command
     def version(self) -> None:
@@ -66,11 +68,11 @@ class KoiLangMain(KoiLang):
         raise KoiLangCommandError
     
     @kola_command
-    def echo(self, text: str) -> None:
-        print(text)
+    def echo(self, *text: str) -> None:
+        print(' '.join(text))
     
-    @kola_command
-    def get(self, key: str) -> None:
+    @kola_command("get")
+    def get_(self, key: str) -> None:
         print(self.vars.get(key, None))
     
     @kola_command
@@ -81,13 +83,13 @@ class KoiLangMain(KoiLang):
     def mkdir(self, dir: str, mode: int = 777) -> None:
         os.mkdir(dir, mode)
     
-    @kola_command
+    @kola_env
     def open(self, path: str, mode: str = "w", *, encoding: str = "utf-8") -> None:
         if hasattr(self, "file"):
             self.file.close()
         self.file = open(path, mode, encoding=encoding)
     
-    @kola_command
+    @open.at_exit
     def close(self) -> None:
         self.file.close()
         del self.file
@@ -96,13 +98,13 @@ class KoiLangMain(KoiLang):
     def remove(self, path: str) -> None:
         os.remove(path)
     
-    @kola_command
+    @kola_command(envs="__init__")
     def load(self, path: str, type: str = "kola", *, encoding: str = "utf-8") -> None:
         if type == "kola":
             self.parse_file(path)
         elif type == "script":
-            cmd_set = _load_script(path, encoding=encoding)()
-            self.command_set.update(cmd_set.command_set)
+            cmd_set = _load_script(path, encoding=encoding)
+            self.push(cmd_set.__name__, cmd_set())
         else:
             raise KoiLangCommandError("load type only supports 'kola' and 'script'")
 
@@ -154,7 +156,7 @@ if namespace.debug == "token":
 
 elif namespace.debug == "command":
     if lexer:
-        Parser(lexer, CommandDebugger).exec_()
+        Parser(lexer, cmd_debugger).exec()
     else:
         print(f"KoiLang Command Debugger {__version__} on {sys.platform}")
         while True:
@@ -166,7 +168,7 @@ elif namespace.debug == "command":
                     sys.stdout.write("$...: ")
                     sys.stdout.flush()
                     i += sys.stdin.readline()
-                Parser(StringLexer(i), CommandDebugger).exec_once()
+                Parser(StringLexer(i), cmd_debugger).exec_once()
             except KeyboardInterrupt:
                 break
             except KoiLangError:

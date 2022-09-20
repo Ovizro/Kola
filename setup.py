@@ -61,6 +61,7 @@ setup(
     packages=["kola"],
     python_requires=">=3.6",
     package_data={'':["*.pyi", "*.pxd", "*.h"]},
+    install_requires=["typing_extensions"],
     ext_modules=extensions,
 
     classifiers=[

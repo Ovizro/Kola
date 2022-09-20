@@ -137,7 +137,7 @@ cdef class Parser:
                 self.lexer._filename, token.lineno, token.raw_val, e)
 
     
-    cpdef void exec_(self) except *:
+    cpdef void exec(self) except *:
         self.exec_once()
         while not self.t_cache is None:
             self.exec_once()
