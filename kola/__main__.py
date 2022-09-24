@@ -89,7 +89,7 @@ class KoiLangMain(KoiLang):
             self.file.close()
         self.file = open(path, mode, encoding=encoding)
     
-    @open.at_exit
+    @open.exit_command
     def close(self) -> None:
         self.file.close()
         del self.file

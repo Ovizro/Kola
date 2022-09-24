@@ -1,6 +1,3 @@
-from traceback import format_tb
-
-
 class KoiLangError(Exception):
     """
     Base exception for marktext compiler

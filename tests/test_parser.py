@@ -3,13 +3,13 @@ from kola.exception import KoiLangSyntaxError
 from kola.lexer import FileLexer, StringLexer
 from kola.parser import Parser
 
-from .util import CommandTest
+from .util import cmd_test
 
 
 class TestParser(TestCase):
     def test_parser(self) -> None:
         lexer = FileLexer("examples/example0.kola")
-        Parser(lexer, CommandTest).exec()
+        Parser(lexer, cmd_test).exec()
 
     def test_command(self) -> None:
         lexer = StringLexer(
@@ -19,7 +19,7 @@ class TestParser(TestCase):
             """
         )
         self.assertEqual(
-            [i[0] for i in Parser(lexer, CommandTest)], 
+            [i[0] for i in Parser(lexer, cmd_test)], 
             ["hello", "@text"]
         )
     
@@ -31,7 +31,7 @@ class TestParser(TestCase):
             I am glad to meet you.
             """
         )
-        parser = Parser(lexer, CommandTest)
+        parser = Parser(lexer, cmd_test)
         with self.assertRaises(KoiLangSyntaxError):
             parser.exec()
         
@@ -47,4 +47,4 @@ class TestParser(TestCase):
             """
         )
         with self.assertRaises(KoiLangSyntaxError):
-            Parser(lexer, CommandTest).exec()
+            Parser(lexer, cmd_test).exec()

@@ -135,7 +135,6 @@ cdef class Parser:
         except Exception as e:
             kola_set_errcause(KoiLangCommandError, 3, 
                 self.lexer._filename, token.lineno, token.raw_val, e)
-
     
     cpdef void exec(self) except *:
         self.exec_once()
