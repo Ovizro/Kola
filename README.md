@@ -75,7 +75,7 @@ draw(
 
 Kola mudule just create a bridge from kola file to Python script. The bridge, the main class of Kola module, is `KoiLang` class. There is a simple example.
 
-## Example
+### Example
 
 Let's image a simple situation, where you want to create some small files. Manual creating is complex and time-consuming. Here is a way to solve that. We can use a single kola file to write all my text. Then use commands to devide these text in to different files.
 
@@ -93,24 +93,20 @@ And there are all my friends.
     Hello Alice.
 
 #endspace
-
-#end
 ```
+
+Then, we make a script to explain how to do with these commands:
 
 ```py
 import os
-from typing import Optional, TextIO
-from kola import KoiLang, kola_command, kola_text
+from typing import Union
+from kola import KoiLang, BaseLexer, kola_command, kola_text
 
 
 class MultiFileManager(KoiLang):
     def __init__(self) -> None:
         super().__init__()
-        self._file: Optional[TextIO] = None
-    
-    def __del__(self) -> None:
-        if self._file:
-            self._file.close()
+        self._file = None
     
     @kola_command
     def space(self, name: str) -> None:
@@ -144,9 +140,16 @@ class MultiFileManager(KoiLang):
         if not self._file:
             raise OSError("write texts before the file open")
         self._file.write(text)
+    
+    def parse(self, lexer: Union[BaseLexer, str]) -> None:
+        super().parse(lexer)
+        self.end()
 ```
 
-And input this in terminal:
+And mix them together, just input this in terminal:
+
+> Here we assume the two files above is `kolafile.kola` and `script.py`
+
 ```
 python -m kola kolafile.kola -s script.py
 ```
@@ -154,18 +157,98 @@ python -m kola kolafile.kola -s script.py
 Or directly add in script:
 ```py
 if __name__ = "__main__":
-    FMultiFileManager().parse_file("kolafile.kola")
+    MultiFileManager().parse_file("kolafile.kola")
 ```
 
 You will see new files in your work dir.
 
-    workdir
+    <workdir>
     │      
     │  hello.txt
     │      
     └─hello
         Alice.txt
         Bob.txt
+
+### What happened
+
+It seems amusing? Well, if you make a python script as this:
+
+```py
+vmobj = MultiFileManager()
+vmobj.file("hello.txt", encoding="utf-8")
+vmobj.text("Hello world!")
+vmobj.text("And there are all my friends.")
+
+vmobj.space("hello")
+
+vmobj.file("Bob.txt")
+vmobj.text("Hello Bob.")
+
+vmobj.file("Alice.txt")
+vmobj.text("Hello Alice.")
+
+vmobj.endspace()
+vmobj.end() # from parse
+```
+the same result will be get. This is the python script corresponding to the previous kola file. What we have done is to make KoiLang interpreter know the correspondence between kola commands and python functions.
+
+So let's go back to the script. Here the first we need is a kola command set class. All commands we want to use will be included in the class. The best way is create a subclass of `KoiLang`. That is:
+```py
+from kola import KoiLang
+
+class MultiFileManager(KoiLang):
+    ...
+```
+The next step is making an exact kola command. So a function is defined:
+```py
+def space(self, name: str) -> None:
+    path = name.replace('.', '/')
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    os.chdir(path)
+```
+But it is not enough. Use the decorator `@kola_command` to annotate the function can be used in kola files. In default case, the name of kola command will be the same to that of the function's. If another name is expected to use in kola files instead of the raw function name, you can use `@kola_command("new_name")` as the decorator. It wiil look like:
+```py
+@kola_command("create_space")
+def space(self, name: str) -> None:
+    ...
+```
+Than `#create_space hello` will be a new valid command, while using `#space hello` would get a `KoiLangCommandError`.
+
+You may have notice that there is a special decorator `@kola_text`. As we know, the text in kola files is a command, too. This decorator is to annotate the function to use to handle texts. Using `@kola_command("@text")` has the same effect. And another special decorator which is not shown here is `@kola_number`. It can handle commands like `#114` or `#1919`. The first argument wiil be the number in the command.
+
+### File parse
+`KoiLang` class provides several method. Use `parse` method to parse a string and `parse_file` to parse a file. It is suggested to use the second way so that KoiLang interpreter can give a traceback to the file when an error occure.
+
+### Advanced techniques
+In above example, we define two commands to create and leave the space. While, if users use `#endspace` before creating space, this can cause some problems. To correct user behavior, we can use the environment to restrict the use of some commands. `@kola_env` decorator can be used to define a environment:
+
+```py
+@kola_env
+def space(self, name: str) -> None:
+    ...
+```
+
+And register the function `endspace` as the exit command of environment `space`:
+
+```py
+@space.exit_command
+def endspace(self) -> None:
+    ...
+```
+
+> Notice: `@kola_env` has the similar arguments to the `@kola_command`, but the first string argument in `@kola_env` is the **environment name**, not **command name** in kola files. Use `@kola_env(cmd_name="new_name")` to define the command name.
+
+And other commands wanted to use in the `space` environment can be defined as:
+
+```py
+@space.env_command
+def foo(self, *args, *kwds) -> Any:
+    ...
+```
+
+> There is a argument in `@kola_command` `envs`, which is also used to limit command uses. But those is not same. `envs` argument means the top stack of environment must have the same name, while `@env.env_command` means the commands can be used until the environment is pop from the stack, even though the stack top is other environment.
 
 ## What is more
 

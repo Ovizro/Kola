@@ -14,7 +14,7 @@ class EnvNode(NamedTuple):
 
 
 class Command(object):
-    __slots__ = ["__name__", "__func__", "method_type", "envs", "suppression"]
+    __slots__ = ["__name__", "__func__", "method_type", "envs", "suppression", "alias"]
 
     def __init__(
             self, name: str,
@@ -22,6 +22,7 @@ class Command(object):
             *,
             method: Literal["static", "class", "default"] = "default",
             envs: Union[Iterable[str], str] = tuple(),
+            alias: Union[Iterable[str], str] = tuple(),
             suppression: bool = False
         ) -> None:
         self.__name__ = name
@@ -31,10 +32,8 @@ class Command(object):
             raise KoiLangCommandError(
                 "cannot accesss the environment for class method and static method"
             )
-        if isinstance(envs, str):
-            self.envs = (envs,)
-        else:
-            self.envs = tuple(envs)
+        self.envs = (envs,) if isinstance(envs, str) else tuple(envs)
+        self.alias = (alias,) if isinstance(alias, str) else tuple(alias)
         self.suppression = suppression
 
     def bind(self, ins: Optional["KoiLang"], owner: Optional[Type["KoiLang"]] = None) -> Callable:
@@ -48,7 +47,10 @@ class Command(object):
     
     def generate_commands(self, vmobj: "KoiLang", force: bool = False) -> Generator[Tuple[str, Callable], None, None]:
         if not self.suppression or force:
-            yield self.__name__, self.bind(vmobj)
+            bound_func = self.bind(vmobj)
+            yield self.__name__, bound_func
+            for i in self.alias:
+                yield i, bound_func
 
     def __get__(self, instance: Any, owner: type) -> Callable:
         return self.bind(instance, cast(Type[KoiLang], owner))
@@ -75,10 +77,9 @@ class BaseEnv(Command):
             *,
             method: Literal["static", "class", "default"] = "default",
             env_name: Optional[str] = None,
-            envs: Union[Iterable[str], str] = tuple(),
-            suppression: bool = False
+            **kwds
         ) -> None:
-        super().__init__(name, func, method=method, envs=envs, suppression=suppression)
+        super().__init__(name, func, method=method, **kwds)
         self.env_name = env_name or name
 
     def bind(self, ins: "KoiLang", owner: Optional[Type["KoiLang"]] = None) -> Callable:
@@ -106,15 +107,11 @@ class EnvEnter(BaseEnv):
             name: str,
             func: Callable,
             *,
-            method: Literal["static", "class", "default"] = "default",
-            env_name: Optional[str] = None,
-            envs: Union[Iterable[str], str] = tuple(),
-
-            suppression: bool = False,
             command_set: Union[Dict[str, Callable], "KoiLang", None] = None,
-            auto_pop: bool = True
+            auto_pop: bool = True,
+            **kwds
         ) -> None:
-        super().__init__(name, func, method=method, env_name=env_name, envs=envs, suppression=suppression)
+        super().__init__(name, func, **kwds)
         self.command_set = command_set
         self.auto_pop = auto_pop
         self.command_set_extra: Set[Command] = set()
@@ -128,9 +125,10 @@ class EnvEnter(BaseEnv):
         return super().__call__(vmobj, *args, **kwds)
 
     @overload
-    def exit_command(self, func: Optional[str] = None, *, method: Literal["static", "class", "default"] = ...,) -> Callable[[Callable[..., Any]], Command]: ...
-    @overload
     def exit_command(self, func: Callable[..., Any], **kwds) -> Command: ...
+    @overload
+    def exit_command(self, func: Optional[str] = None, *, method: Literal["static", "class", "default"] = ...,
+                alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
     def exit_command(self, func: Union[Callable, str, None] = None, **kwds) -> Union[Callable[[Callable], Command], Command]:
         """
         Define a command to exit current environment
@@ -150,10 +148,10 @@ class EnvEnter(BaseEnv):
             return wrapper
     
     @overload
-    def env_command(self, func: Optional[str] = None, *, method: Literal["static", "class", "default"] = ...,
-                envs: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
-    @overload
     def env_command(self, func: Callable[..., Any], **kwds) -> Command: ...
+    @overload
+    def env_command(self, func: Optional[str] = None, *, method: Literal["static", "class", "default"] = ...,
+                envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
     def env_command(self, func: Union[Callable, str, None] = None, **kwds) -> Union[Callable[[Callable], Command], Command]:
         """
         Define a command only can be used in current environment
@@ -180,11 +178,10 @@ class EnvExit(BaseEnv):
             name: str,
             func: Callable,
             *,
-            method: Literal["static", "class", "default"] = "default",
             env_name: str,
-            suppression: bool = False
+            **kwds
         ) -> None:
-        super().__init__(name, func, method=method, env_name=env_name, suppression=suppression)
+        super().__init__(name, func, env_name=env_name, envs=env_name, **kwds)
     
     def __call__(self, vmobj: "KoiLang", *args: Any, **kwds: Any) -> Any:
         ret = super().__call__(vmobj, *args, **kwds)
@@ -201,14 +198,11 @@ class EnvClsEnter(BaseEnv):
             func: Callable,
             *,
             command_set_class: Type["KoiLang"],
-            method: Literal["static", "class", "default"] = "default",
             env_name: Optional[str] = None,
-            envs: Union[Iterable[str], str] = tuple(),
             exit_entry: Union[str, Iterable[str]] = tuple(),
-            suppression: bool = False
+            **kwds
         ) -> None:
-        super().__init__(name, func, method=method, env_name=env_name or command_set_class.__name__,
-            envs=envs, suppression=suppression)
+        super().__init__(name, func, env_name=env_name or command_set_class.__name__, **kwds)
         self.auto_pop = bool(exit_entry)
         self.command_set_class = command_set_class
         if isinstance(exit_entry, str):
@@ -256,10 +250,24 @@ class KoiLangMeta(type):
     def get_command_set(self, instance: Any) -> Dict[str, Callable]:
         return self.eval_commands(self.__command_field__, instance)
 
-    def register_command(self, func: Callable, *, target: Optional[str] = None) -> None:
-        if not isinstance(func, Command):
-            func = Command(target or func.__name__, func)
-        self.__command_field__.add(func)
+    @overload
+    def register_command(self, func: Callable[..., Any], **kwds) -> Command: ...
+    @overload
+    def register_command(self, func: Optional[str] = None, *, method: Literal["static", "class", "default"] = ...,
+                envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
+    def register_command(self, func: Union[Callable, str, None] = None, **kwds) -> Union[Callable[[Callable], Command], Command]:
+        def wrapper(wrapped_func: Callable[..., Any]) -> Command:
+            if isinstance(func, str):
+                name = func
+            else:
+                name = wrapped_func.__name__
+            cmd = Command(name, wrapped_func, suppression=True, **kwds)
+            self.__command_field__.add(cmd)
+            return cmd
+        if callable(func):
+            return wrapper(func)
+        else:
+            return wrapper
     
     def __repr__(self) -> str:
         return f"<KoiLang command set '{self.__qualname__}'>"
@@ -269,11 +277,14 @@ class KoiLang(metaclass=KoiLangMeta):
     """
     Main class for KoiLang virtual machine.
     """
-    __slots__ = ["_stack"]
+    __slots__ = ["_stack", "back"]
+
+    back: Optional["KoiLang"]
 
     def __init__(self) -> None:
         command_set = self.__class__.get_command_set(self)
         self._stack = EnvNode("__init__", command_set)
+        self.back = None
 
     def __getitem__(self, key: str) -> Callable:
         # sourcery skip: use-named-expression
@@ -281,12 +292,7 @@ class KoiLang(metaclass=KoiLangMeta):
         if not command:
             raise KeyError(f"command '{key}' not found")
         return command
-    
-    def __setitem__(self, key: str, value: Callable) -> None:
-        if isinstance(value, Command):
-            value = value.bind(self)
-        self._stack.command_set[key] = value
-    
+        
     def __contains__(self, key: str) -> bool:
         return _klvm_get(self, key, None) is not None
 
@@ -334,9 +340,18 @@ class KoiLang(metaclass=KoiLangMeta):
     def top(self) -> Tuple[str, Union[Dict[str, Callable], "KoiLang"]]:
         return self._stack[:2]
     
+    @property
+    def home(self) -> "KoiLang":
+        cur = self
+        while cur.back:
+            cur = cur.back
+        return cur
+    
     def push(self, name: str, commands: Union[Dict[str, Callable], "KoiLang", Set[Command]]) -> None:
         if isinstance(commands, set):
             commands = self.__class__.eval_commands(commands, self)
+        elif isinstance(commands, KoiLang):
+            commands.back = self
         self._stack = EnvNode(name, commands, self._stack)
     
     def pop(self) -> Tuple[str, Union[Dict[str, Callable], "KoiLang"]]:
@@ -351,11 +366,11 @@ class KoiLang(metaclass=KoiLangMeta):
             lexer = StringLexer(lexer)
         Parser(lexer, self).exec()
 
-    def parse_file(self, path: str) -> Any:
-        return self.parse(FileLexer(path))
+    def parse_file(self, path: str, **kwds) -> Any:
+        return self.parse(FileLexer(path), **kwds)
 
-    def parse_command(self, cmd: str) -> Any:
-        return self.parse(StringLexer(cmd, stat=1))
+    def parse_command(self, cmd: str, **kwds) -> Any:
+        return self.parse(StringLexer(cmd, stat=1), **kwds)
 
     def parse_args(self, args: str) -> Tuple[tuple, Dict[str, Any]]:
         return Parser(StringLexer(args, stat=2), self).parse_args()
@@ -379,7 +394,7 @@ def _klvm_get(vmobj: KoiLang, key: str, default: Optional[Callable]) -> Optional
 def kola_command(func: Callable[..., Any], **kwds) -> Command: ...
 @overload
 def kola_command(func: Optional[str] = None, *, method: Literal["static", "class", "default"] = ...,
-                envs: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
+                envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
 def kola_command(func: Union[Callable[..., Any], str, None] = None,
                 **kwds) -> Union[Command, Callable[[Callable], Command]]:
     def wrapper(wrapped_func: Callable[..., Any]) -> Command:
@@ -397,7 +412,8 @@ def kola_command(func: Union[Callable[..., Any], str, None] = None,
 @overload
 def kola_text(func: Callable[..., Any], **kwds) -> Command: ...
 @overload
-def kola_text(*, method: Literal["static", "class", "default"] = ..., envs: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
+def kola_text(*, method: Literal["static", "class", "default"] = ..., envs: Union[Iterable[str], str] = ...,
+            alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
 def kola_text(func: Optional[Callable[..., Any]] = None, **kwds) -> Union[Command, Callable[[Callable], Command]]:
     def wrapper(wrapped_func: Callable[..., Any]) -> Command:
         return Command("@text", wrapped_func, **kwds)
@@ -410,7 +426,8 @@ def kola_text(func: Optional[Callable[..., Any]] = None, **kwds) -> Union[Comman
 @overload
 def kola_number(func: Callable[..., Any], **kwds) -> Command: ...
 @overload
-def kola_number(*, method: Literal["static", "class", "default"] = ..., envs: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
+def kola_number(*, method: Literal["static", "class", "default"] = ..., envs: Union[Iterable[str], str] = ...,
+            alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
 def kola_number(func: Optional[Callable[..., Any]] = None, **kwds) -> Union[Command, Callable[[Callable], Command]]:
     def wrapper(wrapped_func: Callable[..., Any]) -> Command:
         return Command("@number", wrapped_func, **kwds)
@@ -423,7 +440,7 @@ def kola_number(func: Optional[Callable[..., Any]] = None, **kwds) -> Union[Comm
 @overload
 def kola_env(func: Callable[..., Any], **kwds) -> EnvEnter: ...
 @overload
-def kola_env(func: Optional[str] = None, *, cmd_name: str = ..., method: Literal["static", "class", "default"] = ...,
+def kola_env(func: Optional[str] = None, *, cmd_name: str = ..., method: Literal["static", "class", "default"] = ..., alias: Union[Iterable[str], str] = ...,
             envs: Union[Iterable[str], str] = ..., command_set: Union[Dict[str, Callable], "KoiLang"] = ...) -> Callable[[Callable[..., Any]], EnvEnter]: ...
 def kola_env(func: Union[Callable[..., Any], str, None] = None, 
             *, cmd_name: Optional[str] = None, **kwds) -> Union[EnvEnter, Callable[[Callable], EnvEnter]]:
@@ -442,7 +459,7 @@ def kola_env(func: Union[Callable[..., Any], str, None] = None,
 @overload
 def kola_env_exit(func: Callable[..., Any], **kwds) -> EnvExit: ...
 @overload
-def kola_env_exit(func: Optional[str] = None, *, cmd_name: str = ...,
+def kola_env_exit(func: Optional[str] = None, *, cmd_name: str = ..., alias: Union[Iterable[str], str] = ...,
                 method: Literal["static", "class", "default"] = ...) -> Callable[[Callable[..., Any]], EnvExit]: ...
 def kola_env_exit(func: Union[Callable[..., Any], str, None] = None, *,
                 cmd_name: Optional[str] = None, **kwds) -> Union[EnvExit, Callable[[Callable], EnvExit]]:
@@ -461,7 +478,7 @@ def kola_env_exit(func: Union[Callable[..., Any], str, None] = None, *,
 @overload
 def kola_env_class(kola_cls: Type[KoiLang], **kwds) -> EnvClsEnter: ...
 @overload
-def kola_env_class(kola_cls: Optional[str] = None, *, enter: str = ..., 
+def kola_env_class(kola_cls: Optional[str] = None, *, enter: str = ..., alias: Union[Iterable[str], str] = ...,
                 exit: Union[str, Iterable[str], None] = ..., envs: Union[str, Tuple[str,...]]) -> Callable[[Type[KoiLang]], EnvClsEnter]: ...
 def kola_env_class(kola_cls: Union[Type[KoiLang], str, None] = None, *, enter: str = "enter", 
                 exit: Union[str, Iterable[str], None] = None, **kwds) -> Union[Callable[[Type[KoiLang]], EnvClsEnter], EnvClsEnter]:

@@ -42,15 +42,16 @@ class KolaTest(KoiLang):
 class TestKlvm(TestCase):
     def test_env(self) -> None:
         string = """
-        #step_1 0.101e1
-        #step_2 key1(hello, "world") key2(abc)
-        #step_3
-        #step_4
-        #step_3
-        Hello
-        #step_6
-        World
-        #step_6
+            #step_1 0.101e1
+            #step_2 key1(hello, "world") key2(abc)
+            #step_3
+            #step_4
+            #step_3
+            
+            Hello
+            #step_6
+            World
+            #step_6
         """
 
         parser = Parser(StringLexer(string), KolaTest())

@@ -67,6 +67,7 @@ setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: C",
         "Programming Language :: Cython",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
