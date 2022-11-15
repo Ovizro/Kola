@@ -2088,7 +2088,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_6parser_6Parser_pop(st
 static void __pyx_f_4kola_6parser_6Parser_set_error(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self, struct __pyx_opt_args_4kola_6parser_6Parser_set_error *__pyx_optional_args); /* proto*/
 static PyObject *__pyx_f_4kola_6parser_6Parser_parse_args(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
-static void __pyx_f_4kola_6parser_6Parser_exec_(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_4kola_6parser_6Parser_exec(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 static CYTHON_INLINE double __pyx_f_7cpython_7complex_7complex_4real_real(PyComplexObject *__pyx_v_self); /* proto*/
 static CYTHON_INLINE double __pyx_f_7cpython_7complex_7complex_4imag_imag(PyComplexObject *__pyx_v_self); /* proto*/
 
@@ -2429,7 +2429,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_2push(struct __pyx_obj_4kola_6pa
 static PyObject *__pyx_pf_4kola_6parser_6Parser_4pop(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_4kola_6parser_6Parser_6parse_args(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_4kola_6parser_6Parser_8exec_once(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_4kola_6parser_6Parser_10exec_(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4kola_6parser_6Parser_10exec(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_4kola_6parser_6Parser_12__iter__(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_4kola_6parser_6Parser_14__next__(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_4kola_6parser_6Parser_16__repr__(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self); /* proto */
@@ -5143,7 +5143,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *             kola_set_errcause(KoiLangCommandError, 3,
  *                 self.lexer._filename, token.lineno, token.raw_val, e)             # <<<<<<<<<<<<<<
  * 
- * 
+ *     cpdef void exec(self) except *:
  */
         if (unlikely(__pyx_v_token->raw_val == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "expected bytes, NoneType found");
@@ -5322,7 +5322,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_8exec_once(struct __pyx_obj_4kol
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("kola.parser.Parser.exec_once", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  //__Pyx_AddTraceback("kola.parser.Parser.exec_once", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5330,22 +5330,22 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_8exec_once(struct __pyx_obj_4kol
   return __pyx_r;
 }
 
-/* "kola/parser.pyx":140
- * 
+/* "kola/parser.pyx":139
+ *                 self.lexer._filename, token.lineno, token.raw_val, e)
  * 
  *     cpdef void exec(self) except *:             # <<<<<<<<<<<<<<
  *         self.exec_once()
  *         while not self.t_cache is None:
  */
 
-static PyObject *__pyx_pw_4kola_6parser_6Parser_11exec_(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_4kola_6parser_6Parser_11exec(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static void __pyx_f_4kola_6parser_6Parser_exec_(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self, int __pyx_skip_dispatch) {
+static void __pyx_f_4kola_6parser_6Parser_exec(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self, int __pyx_skip_dispatch) {
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -5367,14 +5367,14 @@ static void __pyx_f_4kola_6parser_6Parser_exec_(struct __pyx_obj_4kola_6parser_P
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_exec); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 140, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_exec); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 139, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       #ifdef __Pyx_CyFunction_USED
       if (!__Pyx_IsCyOrPyCFunction(__pyx_t_1)
       #else
       if (!PyCFunction_Check(__pyx_t_1)
       #endif
-              || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_4kola_6parser_6Parser_11exec_)) {
+              || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_4kola_6parser_6Parser_11exec)) {
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
         __pyx_t_5 = 0;
@@ -5392,7 +5392,7 @@ static void __pyx_f_4kola_6parser_6Parser_exec_(struct __pyx_obj_4kola_6parser_P
           PyObject *__pyx_callargs[1] = {__pyx_t_4, };
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 0+__pyx_t_5);
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 140, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 139, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         }
@@ -5413,18 +5413,18 @@ static void __pyx_f_4kola_6parser_6Parser_exec_(struct __pyx_obj_4kola_6parser_P
     #endif
   }
 
-  /* "kola/parser.pyx":141
+  /* "kola/parser.pyx":140
  * 
  *     cpdef void exec(self) except *:
  *         self.exec_once()             # <<<<<<<<<<<<<<
  *         while not self.t_cache is None:
  *             self.exec_once()
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->exec_once(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->exec_once(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 140, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "kola/parser.pyx":142
+  /* "kola/parser.pyx":141
  *     cpdef void exec(self) except *:
  *         self.exec_once()
  *         while not self.t_cache is None:             # <<<<<<<<<<<<<<
@@ -5436,20 +5436,20 @@ static void __pyx_f_4kola_6parser_6Parser_exec_(struct __pyx_obj_4kola_6parser_P
     __pyx_t_7 = (__pyx_t_6 != 0);
     if (!__pyx_t_7) break;
 
-    /* "kola/parser.pyx":143
+    /* "kola/parser.pyx":142
  *         self.exec_once()
  *         while not self.t_cache is None:
  *             self.exec_once()             # <<<<<<<<<<<<<<
  * 
  *     def __iter__(self):
  */
-    __pyx_t_1 = ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->exec_once(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
+    __pyx_t_1 = ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->exec_once(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "kola/parser.pyx":140
- * 
+  /* "kola/parser.pyx":139
+ *                 self.lexer._filename, token.lineno, token.raw_val, e)
  * 
  *     cpdef void exec(self) except *:             # <<<<<<<<<<<<<<
  *         self.exec_once()
@@ -5469,15 +5469,15 @@ static void __pyx_f_4kola_6parser_6Parser_exec_(struct __pyx_obj_4kola_6parser_P
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_4kola_6parser_6Parser_11exec_(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_4kola_6parser_6Parser_11exec(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_4kola_6parser_6Parser_11exec_ = {"exec", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_4kola_6parser_6Parser_11exec_, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_4kola_6parser_6Parser_11exec_(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_4kola_6parser_6Parser_11exec = {"exec", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_4kola_6parser_6Parser_11exec, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4kola_6parser_6Parser_11exec(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5494,14 +5494,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   if (unlikely(__pyx_nargs > 0)) {
     __Pyx_RaiseArgtupleInvalid("exec", 1, 0, 0, __pyx_nargs); return NULL;}
   if (unlikely(__pyx_kwds) && __Pyx_NumKwargs_FASTCALL(__pyx_kwds) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "exec", 0))) return NULL;
-  __pyx_r = __pyx_pf_4kola_6parser_6Parser_10exec_(((struct __pyx_obj_4kola_6parser_Parser *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4kola_6parser_6Parser_10exec(((struct __pyx_obj_4kola_6parser_Parser *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_4kola_6parser_6Parser_10exec_(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self) {
+static PyObject *__pyx_pf_4kola_6parser_6Parser_10exec(struct __pyx_obj_4kola_6parser_Parser *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5510,8 +5510,8 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_10exec_(struct __pyx_obj_4kola_6
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("exec", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_4kola_6parser_6Parser_exec_(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 140, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_f_4kola_6parser_6Parser_exec(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5528,7 +5528,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_10exec_(struct __pyx_obj_4kola_6
   return __pyx_r;
 }
 
-/* "kola/parser.pyx":145
+/* "kola/parser.pyx":144
  *             self.exec_once()
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -5555,7 +5555,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_12__iter__(struct __pyx_obj_4kol
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__iter__", 0);
 
-  /* "kola/parser.pyx":146
+  /* "kola/parser.pyx":145
  * 
  *     def __iter__(self):
  *         return self             # <<<<<<<<<<<<<<
@@ -5567,7 +5567,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_12__iter__(struct __pyx_obj_4kol
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "kola/parser.pyx":145
+  /* "kola/parser.pyx":144
  *             self.exec_once()
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -5582,7 +5582,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_12__iter__(struct __pyx_obj_4kol
   return __pyx_r;
 }
 
-/* "kola/parser.pyx":148
+/* "kola/parser.pyx":147
  *         return self
  * 
  *     def __next__(self):             # <<<<<<<<<<<<<<
@@ -5615,19 +5615,19 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_14__next__(struct __pyx_obj_4kol
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__next__", 0);
 
-  /* "kola/parser.pyx":149
+  /* "kola/parser.pyx":148
  * 
  *     def __next__(self):
  *         ret = self.exec_once()             # <<<<<<<<<<<<<<
  *         if self.stat == 255:
  *             raise StopIteration
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->exec_once(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->exec_once(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_ret = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "kola/parser.pyx":150
+  /* "kola/parser.pyx":149
  *     def __next__(self):
  *         ret = self.exec_once()
  *         if self.stat == 255:             # <<<<<<<<<<<<<<
@@ -5637,7 +5637,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_14__next__(struct __pyx_obj_4kol
   __pyx_t_2 = ((__pyx_v_self->stat == 0xFF) != 0);
   if (unlikely(__pyx_t_2)) {
 
-    /* "kola/parser.pyx":151
+    /* "kola/parser.pyx":150
  *         ret = self.exec_once()
  *         if self.stat == 255:
  *             raise StopIteration             # <<<<<<<<<<<<<<
@@ -5645,9 +5645,9 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_14__next__(struct __pyx_obj_4kol
  * 
  */
     __Pyx_Raise(__pyx_builtin_StopIteration, 0, 0, 0);
-    __PYX_ERR(0, 151, __pyx_L1_error)
+    __PYX_ERR(0, 150, __pyx_L1_error)
 
-    /* "kola/parser.pyx":150
+    /* "kola/parser.pyx":149
  *     def __next__(self):
  *         ret = self.exec_once()
  *         if self.stat == 255:             # <<<<<<<<<<<<<<
@@ -5656,7 +5656,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_14__next__(struct __pyx_obj_4kol
  */
   }
 
-  /* "kola/parser.pyx":152
+  /* "kola/parser.pyx":151
  *         if self.stat == 255:
  *             raise StopIteration
  *         return ret             # <<<<<<<<<<<<<<
@@ -5668,7 +5668,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_14__next__(struct __pyx_obj_4kol
   __pyx_r = __pyx_v_ret;
   goto __pyx_L0;
 
-  /* "kola/parser.pyx":148
+  /* "kola/parser.pyx":147
  *         return self
  * 
  *     def __next__(self):             # <<<<<<<<<<<<<<
@@ -5688,7 +5688,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_14__next__(struct __pyx_obj_4kol
   return __pyx_r;
 }
 
-/* "kola/parser.pyx":154
+/* "kola/parser.pyx":153
  *         return ret
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -5718,19 +5718,19 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_16__repr__(struct __pyx_obj_4kol
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "kola/parser.pyx":155
+  /* "kola/parser.pyx":154
  * 
  *     def __repr__(self):
  *         return PyUnicode_FromFormat("<kola parser in file \"%s\">", self.lexer._filename)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyUnicode_FromFormat(((char const *)"<kola parser in file \"%s\">"), __pyx_v_self->lexer->_filename); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_1 = PyUnicode_FromFormat(((char const *)"<kola parser in file \"%s\">"), __pyx_v_self->lexer->_filename); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 154, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "kola/parser.pyx":154
+  /* "kola/parser.pyx":153
  *         return ret
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -7346,7 +7346,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 /* #### Code section: cached_builtins ### */
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_KeyError = __Pyx_GetBuiltinName(__pyx_n_s_KeyError); if (!__pyx_builtin_KeyError) __PYX_ERR(0, 127, __pyx_L1_error)
-  __pyx_builtin_StopIteration = __Pyx_GetBuiltinName(__pyx_n_s_StopIteration); if (!__pyx_builtin_StopIteration) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_builtin_StopIteration = __Pyx_GetBuiltinName(__pyx_n_s_StopIteration); if (!__pyx_builtin_StopIteration) __PYX_ERR(0, 150, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -7399,14 +7399,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  */
   __pyx_codeobj__7 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_parser_pyx, __pyx_n_s_exec_once, 99, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__7)) __PYX_ERR(0, 99, __pyx_L1_error)
 
-  /* "kola/parser.pyx":140
- * 
+  /* "kola/parser.pyx":139
+ *                 self.lexer._filename, token.lineno, token.raw_val, e)
  * 
  *     cpdef void exec(self) except *:             # <<<<<<<<<<<<<<
  *         self.exec_once()
  *         while not self.t_cache is None:
  */
-  __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_parser_pyx, __pyx_n_s_exec, 140, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_parser_pyx, __pyx_n_s_exec, 139, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(0, 139, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -7572,7 +7572,7 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_vtable_4kola_6parser_Parser.set_error = (void (*)(struct __pyx_obj_4kola_6parser_Parser *, struct __pyx_opt_args_4kola_6parser_6Parser_set_error *__pyx_optional_args))__pyx_f_4kola_6parser_6Parser_set_error;
   __pyx_vtable_4kola_6parser_Parser.parse_args = (PyObject *(*)(struct __pyx_obj_4kola_6parser_Parser *, int __pyx_skip_dispatch))__pyx_f_4kola_6parser_6Parser_parse_args;
   __pyx_vtable_4kola_6parser_Parser.exec_once = (PyObject *(*)(struct __pyx_obj_4kola_6parser_Parser *, int __pyx_skip_dispatch))__pyx_f_4kola_6parser_6Parser_exec_once;
-  __pyx_vtable_4kola_6parser_Parser.exec = (void (*)(struct __pyx_obj_4kola_6parser_Parser *, int __pyx_skip_dispatch))__pyx_f_4kola_6parser_6Parser_exec_;
+  __pyx_vtable_4kola_6parser_Parser.exec = (void (*)(struct __pyx_obj_4kola_6parser_Parser *, int __pyx_skip_dispatch))__pyx_f_4kola_6parser_6Parser_exec;
   #if CYTHON_USE_TYPE_SPECS
   __pyx_ptype_4kola_6parser_Parser = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_4kola_6parser_Parser_spec, NULL); if (unlikely(!__pyx_ptype_4kola_6parser_Parser)) __PYX_ERR(0, 4, __pyx_L1_error)
   if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_4kola_6parser_Parser_spec, __pyx_ptype_4kola_6parser_Parser) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
@@ -8039,16 +8039,16 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_4kola_6parser_Parser);
 
-  /* "kola/parser.pyx":140
- * 
+  /* "kola/parser.pyx":139
+ *                 self.lexer._filename, token.lineno, token.raw_val, e)
  * 
  *     cpdef void exec(self) except *:             # <<<<<<<<<<<<<<
  *         self.exec_once()
  *         while not self.t_cache is None:
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_6parser_6Parser_11exec_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Parser_exec, NULL, __pyx_n_s_kola_parser, __pyx_d, ((PyObject *)__pyx_codeobj__8)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_6parser_6Parser_11exec, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Parser_exec, NULL, __pyx_n_s_kola_parser, __pyx_d, ((PyObject *)__pyx_codeobj__8)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_4kola_6parser_Parser->tp_dict, __pyx_n_s_exec, __pyx_t_3) < 0) __PYX_ERR(0, 140, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_4kola_6parser_Parser->tp_dict, __pyx_n_s_exec, __pyx_t_3) < 0) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_4kola_6parser_Parser);
 

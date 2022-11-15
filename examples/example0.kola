@@ -1,6 +1,158 @@
-#command arg0 arg1(item0, item1) arg2(key0: val0)
-This is a text.
-#a "\
-"
-    This \
-    is
+#name "Orga's Death"\
+                        by("喜羊羊")
+
+#background Corridor
+    #camera from(right)
+
+    #character Ride
+        Boss! The Car is ready!
+    #character Orga
+        Okay!
+
+    #camera on(Kudelia)
+    #character Orga
+        #action face to(Kudelia)
+        Later.
+    #character Kudelia
+        Yes. Do be careful.
+
+#background Street
+    #character Ride
+        It's awfully quiet. There aren't any Gjallarhorn soldiers in the city, unlike our main base.
+    #camera on(Ched)
+    #character Orga
+        Yeah, they probably have all their troops over there now.
+
+#background Corridor
+    #character chr(Orga, Ride)
+        #action face direction(right)
+        #action walk to(Ched)
+
+    #character Ride
+        It doesn't matter anyone, does it?
+    #character Orga
+        You're in a good mood.
+    #character Ride
+        Of course!
+
+    #camera on(Ride)
+    #character Ride
+        Everyone will be saved, and we've found out Takaki's doing great, I got to do my best, too!
+        (I'm also do-much-better knight!)
+
+    #character Orga
+        #action smile
+        Yeah, you are right.
+
+#background Street
+    #character Orga
+        Everything we've built up so far wasn't for nothing.
+    #character chr(Orga, Ride)
+        #action walk_stop
+
+    #character Orga
+        And from now on, as long as we don't stop, the road will continue!
+    
+    #move Car into(Street) direction(from: left_edge, to: center)
+    #playsound brake
+
+    #character chr(Orga, Ched)
+        #action face to(Car)
+
+    #camera on(Car) view(back)
+    #character chr(object: people, source: Car)
+        #action shoot
+    #character Ched
+        #action get_hit
+
+    #camera on(Ride)
+    #character Orga
+        #action protect target(Ride)
+        #action get_hit
+
+    #character chr(object: people, source: Car)
+        #action get_hit
+
+    #camera on(Orga)
+    #character Ride
+        Boss! What are you doing!? BOSS!!
+
+    #character Orga
+        #action shoot
+        Huh-aaaaaaahhhhhhhh!!!!! 
+    #character chr(object: people, source: Car)
+        #action get_hit
+        Ah!
+
+    #move Car out(Street) direction(from: center, to: right_edge)
+    
+    #camera on(Orga)
+    #character Orga
+        Huh... I'm a pretty good shot, huh?
+    #camera on(Ride, Ched)
+    #character Ride
+        B- boss...
+    #character Orga
+        #action bleed
+    #camera on(object: blood, source: Orga)
+
+    #camera on(Ched, Orga, Ride)
+    #character Orga
+        How come you're stammering like that... Ride!
+
+    #playsound freesia\
+        comment("kibo no hana~")
+
+    #character Orga
+        #action stand_up speed(slowly)
+
+    #character Ride
+        But... but!
+    #character Orga
+        I'm the Boss of Tekkadan, Orga Itsuka, this is nothing to me.
+    #character Ride
+        #action shed_tear
+        No... not for me...
+
+    #camera on(Orga)
+    #character Orga
+        Protecting my members is my job!
+    #character Ched
+        #action shed_tear
+
+    #character Ride
+        But...!
+    #character Orga
+        Shut up and let's go!
+
+        #camera on(Orga)
+        #action walk direction(front) speed(slowly)
+        Everyone's waiting, besides...
+
+        I finally understand now, Mika, we don't need any destinations, we just need to keep moving forward.
+        As long as we don't stop, the road will continue!
+
+#background Memory
+    #character Mikazuki
+        I won't let you apologize.
+    #character Orga
+        Yeah.
+
+        #camera on(Orga)
+        I know.
+
+#background Street
+    #character Orga
+        I'm not stopping.
+
+        #camera on(Sky)
+        As long as you all don't stop, I'll be at the end waiting for you! 
+        
+        #action walk_stop
+        #action fall_down
+    #camera on(object: blood, source: Orga) view(up)
+    #character Orga
+        ...So hear me well, ... don't you ever stop......
+        #camera on(object: finger, source: Orga)
+    #character Mikazuki
+        Orga?

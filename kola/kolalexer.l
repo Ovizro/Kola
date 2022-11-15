@@ -14,9 +14,11 @@ letter  [A-Za-z]
 letter_ ({letter}|_)
 digit   [0-9]
 uint    ([1-9]{digit}*|0)
+sigint  (-?{uint})
 hex     0x[0-9A-Za-z]+
 bin     0b[01]+
-float   (-?{digit}+)(\.{digit}+)?(e-?{digit}+)?
+point   \.{digit}+
+float   (({sigint}\.?{digit}*)|{point})(e-?{digit}+)?
 literal {letter_}({letter_}|{digit})*
 string  \"([^\"]|\\\r?\n|\\\")*\"
 text    [^#\n\r \t]((.|\\\n)*[^\r\n\\ \t])?
@@ -47,7 +49,7 @@ text    [^#\n\r \t]((.|\\\n)*[^\r\n\\ \t])?
 <ARGUMENT>":"           {return(CLN);}
 <ARGUMENT>\,            {return(CMA);}
 
-<ARGUMENT>{uint}        {return(NUM);}
+<ARGUMENT>{sigint}      {return(NUM);}
 <ARGUMENT>{hex}         {return(NUM_H);}
 <ARGUMENT>{bin}         {return(NUM_B);}
 <ARGUMENT>{float}       {return(NUM_F);}
