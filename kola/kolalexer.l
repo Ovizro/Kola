@@ -4,7 +4,6 @@
     #include <string.h>
     #include "_helper.h"
 
-
     #define ECHO yyterminate()
 %}
 
@@ -18,10 +17,10 @@ sigint  (-?{uint})
 hex     0x[0-9A-Za-z]+
 bin     0b[01]+
 point   \.{digit}+
-float   (({sigint}\.?{digit}*)|{point})(e-?{digit}+)?
+float   (({sigint}\.?{digit}*)|{point})(e|E-?{digit}+)?
 literal {letter_}({letter_}|{digit})*
-string  \"([^\"]|\\\r?\n|\\\")*\"
-text    [^#\n\r \t]((.|\\\n)*[^\r\n\\ \t])?
+string  \"([^\"]|(\\\r?\n)|(\\\"))*\"
+text    [^#\n\r \t]((.|\\\r?\n)*[^\r\n\\ \t])?
 
 %s COMMAND
 %s ARGUMENT

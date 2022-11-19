@@ -168,6 +168,42 @@ class EnvEnter(BaseEnv):
             return wrapper(func)
         else:
             return wrapper
+    
+    @overload
+    def env_text(self, func: Callable[..., Any], **kwds) -> Command: ...
+    @overload
+    def env_text(self, *, method: Literal["static", "class", "default"] = ...,
+                envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
+    def env_text(self, func: Optional[Callable] = None, **kwds) -> Union[Callable[[Callable], Command], Command]:
+        """
+        Define a text command only can be used in current environment
+        """
+        def wrapper(wrapped_func: Callable[..., Any]) -> Command:
+            cmd = Command("@text", wrapped_func, suppression=True, **kwds)
+            self.command_set_extra.add(cmd)
+            return cmd
+        if callable(func):
+            return wrapper(func)
+        else:
+            return wrapper
+    
+    @overload
+    def env_number(self, func: Callable[..., Any], **kwds) -> Command: ...
+    @overload
+    def env_number(self, *, method: Literal["static", "class", "default"] = ...,
+                envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
+    def env_number(self, func: Optional[Callable] = None, **kwds) -> Union[Callable[[Callable], Command], Command]:
+        """
+        Define a number command only can be used in current environment
+        """
+        def wrapper(wrapped_func: Callable[..., Any]) -> Command:
+            cmd = Command("@number", wrapped_func, suppression=True, **kwds)
+            self.command_set_extra.add(cmd)
+            return cmd
+        if callable(func):
+            return wrapper(func)
+        else:
+            return wrapper
 
 
 class EnvExit(BaseEnv):
@@ -285,24 +321,6 @@ class KoiLang(metaclass=KoiLangMeta):
         command_set = self.__class__.get_command_set(self)
         self._stack = EnvNode("__init__", command_set)
         self.back = None
-
-    def __getitem__(self, key: str) -> Callable:
-        # sourcery skip: use-named-expression
-        command = _klvm_get(self, key, None)
-        if not command:
-            raise KeyError(f"command '{key}' not found")
-        return command
-        
-    def __contains__(self, key: str) -> bool:
-        return _klvm_get(self, key, None) is not None
-
-    def __len__(self) -> int:
-        length = 0
-        stack = self._stack
-        while stack:
-            length += 1
-            stack = stack.next
-        return length
     
     def get_env(self, name: str) -> Union[Dict[str, Callable], "KoiLang"]:
         stack = self._stack
@@ -313,7 +331,7 @@ class KoiLang(metaclass=KoiLangMeta):
         raise KeyError(f"environment {name} not found")
     
     def get(self, key: str, default: Optional[Callable] = None) -> Optional[Callable]:
-        return _klvm_get(self, key, default)
+        return self.__get(key, default)
     
     def update(self, other: Union[Mapping[str, Callable], Iterable[Tuple[str, Callable]]], **kwds) -> None:
         self._stack.command_set.update(other, **kwds)
@@ -336,6 +354,66 @@ class KoiLang(metaclass=KoiLangMeta):
             yield from stack.command_set.items()
             stack = stack.next
     
+    def push(self, name: str, commands: Union[Dict[str, Callable], "KoiLang", Set[Command]]) -> None:
+        if isinstance(commands, set):
+            commands = self.__class__.eval_commands(commands, self)
+        elif isinstance(commands, KoiLang):
+            commands.at_start(self)
+        self._stack = EnvNode(name, commands, self._stack)
+    
+    def pop(self) -> Tuple[str, Union[Dict[str, Callable], "KoiLang"]]:
+        if self._stack.next is None:
+            raise KoiLangCommandError("cannot pop inital stack")
+        top = self.top
+        if isinstance(top[1], KoiLang):
+            top[1].at_end()
+        self._stack = self._stack.next
+        return top
+    
+    def at_start(self, parent: Optional["KoiLang"] = None) -> None:
+        """
+        Parser initalize method. Called before parsing start.
+        """
+        command_set = self.__class__.get_command_set(self)
+        self._stack = EnvNode("__init__", command_set)
+        self.back = parent
+    
+    def at_end(self) -> None:
+        """
+        Parser finalize method. Called after parsing end.
+        """
+
+    def parse(self, lexer: Union[BaseLexer, str]) -> None:
+        """
+        Parse kola text or lexer from other method.
+        Simple reload it to add more functions.
+        """
+        if isinstance(lexer, str):
+            lexer = StringLexer(lexer)
+
+        self.at_start()
+        Parser(lexer, self).exec()
+        self.at_end()
+
+    def parse_file(self, path: str, **kwds) -> Any:
+        return self.parse(FileLexer(path), **kwds)
+
+    def parse_command(self, cmd: str, **kwds) -> Any:
+        return self.parse(StringLexer(cmd, stat=1), **kwds)
+
+    def parse_args(self, args: str) -> Tuple[tuple, Dict[str, Any]]:
+        return Parser(StringLexer(args, stat=2), self).parse_args()
+    
+    def __get(self, key: str, default: Optional[Callable]) -> Optional[Callable]:
+        # sourcery skip: use-named-expression
+        stack = self._stack
+        while stack:
+            command = stack.command_set.get(key, None)
+            if command:
+                return command
+            stack = stack.next
+        return default
+
     @property
     def top(self) -> Tuple[str, Union[Dict[str, Callable], "KoiLang"]]:
         return self._stack[:2]
@@ -347,47 +425,26 @@ class KoiLang(metaclass=KoiLangMeta):
             cur = cur.back
         return cur
     
-    def push(self, name: str, commands: Union[Dict[str, Callable], "KoiLang", Set[Command]]) -> None:
-        if isinstance(commands, set):
-            commands = self.__class__.eval_commands(commands, self)
-        elif isinstance(commands, KoiLang):
-            commands.back = self
-        self._stack = EnvNode(name, commands, self._stack)
-    
-    def pop(self) -> Tuple[str, Union[Dict[str, Callable], "KoiLang"]]:
-        if self._stack.next is None:
-            raise KoiLangCommandError("cannot pop inital stack")
-        top = self.top
-        self._stack = self._stack.next
-        return top
+    def __getitem__(self, key: str) -> Callable:
+        # sourcery skip: use-named-expression
+        command = self.__get(key, None)
+        if not command:
+            raise KeyError(f"command '{key}' not found")
+        return command
+        
+    def __contains__(self, key: str) -> bool:
+        return self.__get(key, None) is not None
 
-    def parse(self, lexer: Union[BaseLexer, str]) -> None:
-        if isinstance(lexer, str):
-            lexer = StringLexer(lexer)
-        Parser(lexer, self).exec()
+    def __len__(self) -> int:
+        length = 0
+        stack = self._stack
+        while stack:
+            length += 1
+            stack = stack.next
+        return length
 
-    def parse_file(self, path: str, **kwds) -> Any:
-        return self.parse(FileLexer(path), **kwds)
-
-    def parse_command(self, cmd: str, **kwds) -> Any:
-        return self.parse(StringLexer(cmd, stat=1), **kwds)
-
-    def parse_args(self, args: str) -> Tuple[tuple, Dict[str, Any]]:
-        return Parser(StringLexer(args, stat=2), self).parse_args()
-    
     def __repr__(self) -> str:
         return f"<KoiLang {self.__class__.__qualname__} object in environment {self.top[0]}>"
-
-
-def _klvm_get(vmobj: KoiLang, key: str, default: Optional[Callable]) -> Optional[Callable]:
-    # sourcery skip: use-named-expression
-    stack = vmobj._stack
-    while stack:
-        command = stack.command_set.get(key, None)
-        if command:
-            return command
-        stack = stack.next
-    return default
 
 
 @overload
@@ -440,35 +497,16 @@ def kola_number(func: Optional[Callable[..., Any]] = None, **kwds) -> Union[Comm
 @overload
 def kola_env(func: Callable[..., Any], **kwds) -> EnvEnter: ...
 @overload
-def kola_env(func: Optional[str] = None, *, cmd_name: str = ..., method: Literal["static", "class", "default"] = ..., alias: Union[Iterable[str], str] = ...,
+def kola_env(func: Optional[str] = None, *, env_name: str = ..., method: Literal["static", "class", "default"] = ..., alias: Union[Iterable[str], str] = ...,
             envs: Union[Iterable[str], str] = ..., command_set: Union[Dict[str, Callable], "KoiLang"] = ...) -> Callable[[Callable[..., Any]], EnvEnter]: ...
 def kola_env(func: Union[Callable[..., Any], str, None] = None, 
-            *, cmd_name: Optional[str] = None, **kwds) -> Union[EnvEnter, Callable[[Callable], EnvEnter]]:
+            *, env_name: Optional[str] = None, **kwds) -> Union[EnvEnter, Callable[[Callable], EnvEnter]]:
     def wrapper(wrapped_func: Callable[..., Any]) -> EnvEnter:
         if isinstance(func, str):
-            env_name = func
+            name = func
         else:
-            env_name = wrapped_func.__name__
-        return EnvEnter(cmd_name or wrapped_func.__name__, wrapped_func, env_name=env_name, **kwds)
-    if callable(func):
-        return wrapper(func)
-    else:
-        return wrapper
-
-
-@overload
-def kola_env_exit(func: Callable[..., Any], **kwds) -> EnvExit: ...
-@overload
-def kola_env_exit(func: Optional[str] = None, *, cmd_name: str = ..., alias: Union[Iterable[str], str] = ...,
-                method: Literal["static", "class", "default"] = ...) -> Callable[[Callable[..., Any]], EnvExit]: ...
-def kola_env_exit(func: Union[Callable[..., Any], str, None] = None, *,
-                cmd_name: Optional[str] = None, **kwds) -> Union[EnvExit, Callable[[Callable], EnvExit]]:
-    def wrapper(wrapped_func: Callable[..., Any]) -> EnvExit:
-        if isinstance(func, str):
-            env_name = func
-        else:
-            env_name = wrapped_func.__name__
-        return EnvExit(cmd_name or wrapped_func.__name__, wrapped_func, env_name=env_name, **kwds)
+            name = wrapped_func.__name__
+        return EnvEnter(name, wrapped_func, env_name=env_name, **kwds)
     if callable(func):
         return wrapper(func)
     else:

@@ -11,7 +11,7 @@ class KolaTest(KoiLang):
     def step1(num: float) -> bool:
         return abs(num - 1.01) < 0.0001
     
-    @kola_env("env1")
+    @kola_env(env_name="env1")
     def step_2(self, *, key1, key2) -> tuple:
         return key1, key2
     
@@ -42,7 +42,7 @@ class KolaTest(KoiLang):
 class TestKlvm(TestCase):
     def test_env(self) -> None:
         string = """
-            #step_1 0.101e1
+            #step_1 0.101E1
             #step_2 key1(hello, "world") key2(abc)
             #step_3
             #step_4

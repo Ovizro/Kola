@@ -126,9 +126,13 @@ cdef class BaseLexer:
         elif syn == CMD or syn == LITERAL:
             val = PyUnicode_FromStringAndSize(yytext, yyleng)
         elif syn == TEXT:
-            val = PyUnicode_FromStringAndSize(yytext, yyleng).replace("\\\n", '').replace("\\\r\n", '')
+            val = PyUnicode_FromStringAndSize(yytext, yyleng)
+            val = <str>filter_text(val)
         elif syn == STRING:
-            val = PyUnicode_FromStringAndSize(yytext + 1, yyleng - 2).replace("\\\n", '').replace("\\\r\n", '')
+            try:
+                val = decode_string(yytext + 1, yyleng - 2)
+            except Exception as e:
+                kola_set_errcause(KoiLangSyntaxError, 4, self._filename, self.lineno, yytext, e)
         elif syn == 0:
             self.set_error()
         elif syn == EOF:
