@@ -239,7 +239,7 @@ class EnvClsEnter(BaseEnv):
             **kwds
         ) -> None:
         super().__init__(name, func, env_name=env_name or command_set_class.__name__, **kwds)
-        self.auto_pop = bool(exit_entry)
+        self.auto_pop = not exit_entry
         self.command_set_class = command_set_class
         if isinstance(exit_entry, str):
             self.exit_entry = (exit_entry,)
@@ -250,7 +250,7 @@ class EnvClsEnter(BaseEnv):
         if self.auto_pop and vmobj.top[0] == self.env_name:
             vmobj.pop()
 
-        cmd_set = self.command_set_class()
+        cmd_set = self.command_set_class(parent=vmobj)
         vmobj.push(self.env_name, cmd_set)
         for i in self.exit_entry:
             func: Callable = getattr(cmd_set, i)
@@ -317,10 +317,10 @@ class KoiLang(metaclass=KoiLangMeta):
 
     back: Optional["KoiLang"]
 
-    def __init__(self) -> None:
+    def __init__(self, parent: Optional["KoiLang"] = None) -> None:
         command_set = self.__class__.get_command_set(self)
         self._stack = EnvNode("__init__", command_set)
-        self.back = None
+        self.back = parent
     
     def get_env(self, name: str) -> Union[Dict[str, Callable], "KoiLang"]:
         stack = self._stack
@@ -358,7 +358,7 @@ class KoiLang(metaclass=KoiLangMeta):
         if isinstance(commands, set):
             commands = self.__class__.eval_commands(commands, self)
         elif isinstance(commands, KoiLang):
-            commands.at_start(self)
+            commands.at_start()
         self._stack = EnvNode(name, commands, self._stack)
     
     def pop(self) -> Tuple[str, Union[Dict[str, Callable], "KoiLang"]]:
@@ -370,13 +370,10 @@ class KoiLang(metaclass=KoiLangMeta):
         self._stack = self._stack.next
         return top
     
-    def at_start(self, parent: Optional["KoiLang"] = None) -> None:
+    def at_start(self) -> None:
         """
         Parser initalize method. Called before parsing start.
         """
-        command_set = self.__class__.get_command_set(self)
-        self._stack = EnvNode("__init__", command_set)
-        self.back = parent
     
     def at_end(self) -> None:
         """

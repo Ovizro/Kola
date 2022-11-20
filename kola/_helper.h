@@ -177,7 +177,7 @@ static PyObject* _decode_utf8(const char **sPtr, const char *end)
         s++;
     }
     *sPtr = s;
-    return PyUnicode_DecodeUTF8(t, s - t, "replace");
+    return PyUnicode_DecodeUTF8(t, s - t, NULL);
 }
 
 // from cpython:string_parser.decode_unicode_with_escapes
@@ -199,7 +199,7 @@ static PyObject* decode_string(const char* s, Py_ssize_t len) {
     char *p;
     p = buf = PyBytes_AsString(u);
     if (p == NULL) {
-        goto end;
+        return NULL;
     }
     const char *end = s + len;
     while (s < end) {
@@ -232,7 +232,7 @@ static PyObject* decode_string(const char* s, Py_ssize_t len) {
             w = _decode_utf8(&s, end);
             if (w == NULL) {
                 Py_DECREF(u);
-                goto end;
+                return NULL;
             }
             kind = PyUnicode_KIND(w);
             data = PyUnicode_DATA(w);
@@ -252,10 +252,7 @@ static PyObject* decode_string(const char* s, Py_ssize_t len) {
     }
     len = p - buf;
     s = buf;
-    v = PyUnicode_DecodeUnicodeEscape(s, len, "strict");
-
-end:
-    Py_XDECREF(u);
+    v = PyUnicode_DecodeUnicodeEscape(s, len, NULL);
     return v;
 }
 

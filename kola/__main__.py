@@ -13,11 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from io import StringIO
 import os
 import sys
 from argparse import ArgumentParser
 from traceback import print_exc
-from typing import Callable
+from typing import Any, Callable, Optional
 
 from .lexer import BaseLexer, FileLexer, StringLexer
 from .parser import Parser
@@ -51,8 +52,8 @@ cmd_debugger = _CommandDebugger()
 
 
 class KoiLangMain(KoiLang):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, parent: Optional[KoiLang] = None) -> None:
+        super().__init__(parent)
         self.vars = {}
 
     @kola_command
@@ -73,7 +74,7 @@ class KoiLangMain(KoiLang):
     
     @kola_command("get")
     def get_(self, key: str) -> None:
-        print(self.vars.get(key, None))
+        print(self.get_var(key))
     
     @kola_command
     def set(self, **kwds) -> None:
@@ -98,7 +99,7 @@ class KoiLangMain(KoiLang):
     def remove(self, path: str) -> None:
         os.remove(path)
     
-    @kola_command(envs="__init__")
+    @kola_command
     def load(self, path: str, type: str = "kola", *, encoding: str = "utf-8") -> None:
         if type == "kola":
             self.parse_file(path)
@@ -110,10 +111,28 @@ class KoiLangMain(KoiLang):
 
     @kola_command
     def reset(self) -> None:
-        self.command_set = self.__class__.get_command_set(self)
-
+        while self._stack.name != "__init__":
+            self.pop()
+            
     @kola_text
     def text(self, text: str) -> None:
+        s = StringIO()
+        i = 0
+        while i < len(text):
+            if text[i] == '$':
+                i += 1
+                j = i
+                while text[i] not in ['\n', ' ', '\t']:
+                    i += 1
+                    if i >= len(text):
+                        break
+                key = text[j: i]
+                val = self.get_var(key) or ''
+                s.write(val)
+            else:
+                s.write(text[i])
+                i += 1
+        text = s.getvalue()
         if hasattr(self, "file"):
             self.file.write(text)
         else:
@@ -122,7 +141,16 @@ class KoiLangMain(KoiLang):
     @kola_command
     def exit(self, code: int = 0) -> None:
         sys.exit(code)
-
+    
+    def get_var(self, key: str) -> Any:
+        if key == "__name__":
+            return "KoiLangMainClass"
+        elif key == '__top__':
+            return self.top[0]
+        elif key == "__dir__":
+            return ', '.join(i.__name__ for i in self.__class__.__command_field__) 
+        else:
+            return self.vars.get(key, None)
 
 parser = ArgumentParser("kola")
 parser.add_argument("file", default=None, nargs="?")
@@ -142,7 +170,7 @@ else:
 
 if namespace.debug == "token":
     if lexer is None:
-        print(f"KoiLang Token Debugger {__version__} on {sys.platform}")
+        print(f"KoiLang Token Debugger {__version__} on Python {sys.version}")
         lexer = BaseLexer()
     while True:
         try:
@@ -158,7 +186,7 @@ elif namespace.debug == "command":
     if lexer:
         Parser(lexer, cmd_debugger).exec()
     else:
-        print(f"KoiLang Command Debugger {__version__} on {sys.platform}")
+        print(f"KoiLang Command Debugger {__version__} on Python {sys.version}")
         while True:
             try:
                 sys.stdout.write("$kola: ")
@@ -184,7 +212,7 @@ else:
     if lexer:
         command_set.parse(lexer)
     else:
-        print(f"KoiLang Runner {__version__} on {sys.platform}")
+        print(f"KoiLang Runner {__version__} on Python {sys.version}")
         while True:
             try:
                 sys.stdout.write("$kola: ")
