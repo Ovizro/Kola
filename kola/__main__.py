@@ -107,7 +107,7 @@ class KoiLangMain(KoiLang):
             cmd_set = _load_script(path, encoding=encoding)
             self.push(cmd_set.__name__, cmd_set())
         else:
-            raise KoiLangCommandError("load type only supports 'kola' and 'script'")
+            raise ValueError("load type only supports 'kola' and 'script'")
 
     @kola_command
     def reset(self) -> None:
@@ -128,7 +128,7 @@ class KoiLangMain(KoiLang):
                         break
                 key = text[j: i]
                 val = self.get_var(key) or ''
-                s.write(val)
+                s.write(str(val))
             else:
                 s.write(text[i])
                 i += 1

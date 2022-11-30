@@ -60,7 +60,7 @@ class Command(object):
             vmobj: KoiLang = args[0]
             env_name, _ = vmobj.top
             if env_name not in self.envs:
-                raise ValueError(f"unmatched environment {env_name}")
+                raise KoiLangCommandError(f"unmatched environment {env_name}")
         return self.__func__(*args, **kwds)
     
     def __repr__(self) -> str:
@@ -383,7 +383,6 @@ class KoiLang(metaclass=KoiLangMeta):
     def parse(self, lexer: Union[BaseLexer, str]) -> None:
         """
         Parse kola text or lexer from other method.
-        Simple reload it to add more functions.
         """
         if isinstance(lexer, str):
             lexer = StringLexer(lexer)

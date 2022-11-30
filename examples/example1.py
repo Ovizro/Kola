@@ -1,13 +1,8 @@
 import os
-from typing import Union
-from kola import KoiLang, BaseLexer, kola_command, kola_text, kola_env
+from kola import KoiLang, kola_command, kola_text, kola_env
 
 
 class MultiFileManager(KoiLang):
-    def __init__(self) -> None:
-        super().__init__()
-        self._file = None
-    
     @kola_env
     def space(self, name: str) -> None:
         path = name.replace('.', '/')
@@ -41,8 +36,10 @@ class MultiFileManager(KoiLang):
             raise OSError("write texts before the file open")
         self._file.write(text)
     
-    def parse(self, lexer: Union[BaseLexer, str]) -> None:
-        super().parse(lexer)
+    def at_start(self) -> None:
+        self._file = None
+    
+    def at_end(self) -> None:
         self.end()
 
 

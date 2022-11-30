@@ -25,13 +25,9 @@ class KolaTest(KoiLang):
 
     @kola_env_class("env2") # type: ignore
     class KolaTestEnv(KoiLang):
-        def __init__(self) -> None:
-            super().__init__()
-            self.l_num = []
-        
         @kola_text
         def enter(self, text: str) -> str:
-            self.l_num.append(text)
+            self.l_num = [text]
             return text
         
         @kola_command

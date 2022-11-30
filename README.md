@@ -19,10 +19,53 @@ From source code:
 
 KoiLang is a markup language while is easy to read for people.
 There is an simple example.
+```
+#background Street
+    #camera on(Orga)
+    #character Orga
+        Huh... I'm a pretty good shot, huh?
+    #camera on(Ride, Ched)
+    #character Ride
+        B- boss...
+    #character Orga
+        #action bleed
+    #camera on(object: blood, source: Orga)
 
-    #hello KoiLang
-    I am glad to meet you!
-    
+    #camera on(Ched, Orga, Ride)
+    #character Orga
+        How come you're stammering like that... Ride!
+
+    #playsound freesia
+
+    #character Orga
+        #action stand_up speed(slowly)
+
+    #character Ride
+        But... but!
+    #character Orga
+        I'm the Boss of Tekkadan, Orga Itsuka, this is nothing to me.
+    #character Ride
+        #action shed_tear
+        No... not for me...
+
+    #camera on(Orga)
+    #character Orga
+        Protecting my members is my job!
+    #character Ched
+        #action shed_tear
+
+    #character Ride
+        But...!
+    #character Orga
+        Shut up and let's go!
+
+        #camera on(Orga)
+        #action walk direction(front) speed(slowly)
+        Everyone's waiting, besides...
+
+        I finally understand now, Mika, we don't need any destinations, we just need to keep moving forward.
+        As long as we don't stop, the road will continue!
+```
     
 In KoiLang, file is divided into 'command' part and 'text' part.
 The formation of command part is like C preprocessor directive,
@@ -99,27 +142,10 @@ Then, we make a script to explain how to do with these commands:
 
 ```py
 import os
-from typing import Union
-from kola import KoiLang, BaseLexer, kola_command, kola_text
+from kola import KoiLang, kola_command, kola_text, kola_env
 
 
 class MultiFileManager(KoiLang):
-    def __init__(self) -> None:
-        super().__init__()
-        self._file = None
-    
-    @kola_command
-    def space(self, name: str) -> None:
-        path = name.replace('.', '/')
-        if not os.path.isdir(path):
-            os.makedirs(path)
-        os.chdir(path)
-    
-    @kola_command
-    def endspace(self) -> None:
-        os.chdir("..")
-        self.end()
-    
     @kola_command
     def file(self, path: str, encoding: str = "utf-8") -> None:
         if self._file:
@@ -141,8 +167,10 @@ class MultiFileManager(KoiLang):
             raise OSError("write texts before the file open")
         self._file.write(text)
     
-    def parse(self, lexer: Union[BaseLexer, str]) -> None:
-        super().parse(lexer)
+    def at_start(self) -> None:
+        self._file = None
+    
+    def at_end(self) -> None:
         self.end()
 ```
 
@@ -176,6 +204,8 @@ It seems amusing? Well, if you make a python script as this:
 
 ```py
 vmobj = MultiFileManager()
+
+vmobj.at_start() # begin parsing
 vmobj.file("hello.txt", encoding="utf-8")
 vmobj.text("Hello world!")
 vmobj.text("And there are all my friends.")
@@ -189,7 +219,7 @@ vmobj.file("Alice.txt")
 vmobj.text("Hello Alice.")
 
 vmobj.endspace()
-vmobj.end() # from parse
+vmobj.at_end() # end parsing
 ```
 the same result will be get. This is the python script corresponding to the previous kola file. What we have done is to make KoiLang interpreter know the correspondence between kola commands and python functions.
 
@@ -237,8 +267,6 @@ And register the function `endspace` as the exit command of environment `space`:
 def endspace(self) -> None:
     ...
 ```
-
-> Notice: `@kola_env` has the similar arguments to the `@kola_command`, but the first string argument in `@kola_env` is the **environment name**, not **command name** in kola files. Use `@kola_env(cmd_name="new_name")` to define the command name.
 
 And other commands wanted to use in the `space` environment can be defined as:
 
