@@ -81,15 +81,6 @@ cdef class BaseLexer:
     def __dealloc__(self):
         self.close()
     
-    cpdef void ensure(self):
-        """
-        synchronize buffer data in yylex
-        """
-        global yylineno
-        yy_switch_to_buffer(self.buffer)
-        yylineno = self.lineno
-        set_stat(self.stat)
-    
     cpdef void close(self):
         yy_delete_buffer(self.buffer)
         self.buffer = NULL
@@ -105,34 +96,51 @@ cdef class BaseLexer:
             errno = 10
         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, yytext)
     
+    cdef void ensure(self):
+        """
+        synchronize buffer data in yylex
+        """
+        global yylineno
+        yy_switch_to_buffer(self.buffer)
+        yylineno = self.lineno
+        set_stat(self.stat)
+    
+    cdef (int, const char*, Py_ssize_t) next_syn(self):
+        self.ensure()
+        cdef int syn = yylex()
+        self.lineno = yylineno
+        self.stat = get_stat()
+        return syn, yytext, yyleng
+    
     cdef Token next_token(self):
         if self.buffer == NULL:
             raise OSError("operation on closed lexer")
 
-        self.ensure()
         cdef:
-            int syn = yylex()
-            object val = None
-        self.lineno = yylineno
-        self.stat = get_stat()
+            int syn
+            const char* text
+            Py_ssize_t text_len
+        syn, text, text_len = self.next_syn()
+        
+        val = None
         if syn == NUM or syn == CMD_N:
-            val = PyLong_FromString(yytext, NULL, 10)
+            val = PyLong_FromString(text, NULL, 10)
         elif syn == NUM_H:
-            val = PyLong_FromString(yytext, NULL, 16)
+            val = PyLong_FromString(text, NULL, 16)
         elif syn == NUM_B:
-            val = PyLong_FromString(yytext, NULL, 2)
+            val = PyLong_FromString(text, NULL, 2)
         elif syn == NUM_F:
-            val = PyFloat_FromString(yytext)
+            val = PyFloat_FromString(text)
         elif syn == CMD or syn == LITERAL:
-            val = PyUnicode_FromStringAndSize(yytext, yyleng)
+            val = PyUnicode_FromStringAndSize(text, text_len)
         elif syn == TEXT:
-            val = PyUnicode_FromStringAndSize(yytext, yyleng)
+            val = PyUnicode_FromStringAndSize(text, text_len)
             val = <str>filter_text(val)
         elif syn == STRING:
             try:
-                val = decode_string(yytext + 1, yyleng - 2)
+                val = decode_string(text + 1, text_len - 2)
             except Exception as e:
-                kola_set_errcause(KoiLangSyntaxError, 4, self._filename, self.lineno, yytext, e)
+                kola_set_errcause(KoiLangSyntaxError, 4, self._filename, self.lineno, text, e)
         elif syn == 0:
             self.set_error()
         elif syn == EOF:

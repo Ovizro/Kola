@@ -53,9 +53,10 @@ cdef class BaseLexer:
         int lineno
         int stat
 
-    cpdef void ensure(self)
     cpdef void close(self)
     cdef void set_error(self) except *
+    cdef void ensure(self)
+    cdef (int, const char*, Py_ssize_t) next_syn(self)
     cdef Token next_token(self)
 
 
