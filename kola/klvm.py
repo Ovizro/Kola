@@ -1,10 +1,12 @@
 from types import MethodType
+from typing import (Any, Callable, Dict, Generator, Iterable, Mapping,
+                    NamedTuple, Optional, Set, Tuple, Type, Union, cast,
+                    overload)
 from typing_extensions import Literal
-from typing import Any, Callable, Dict, Generator, Iterable, Mapping, NamedTuple, Optional, Set, Tuple, Type, Union, cast, overload
 
-from .lexer import BaseLexer, StringLexer, FileLexer
-from .parser import Parser
 from .exception import KoiLangCommandError
+from .lexer import BaseLexer, FileLexer, StringLexer
+from .parser import Parser
 
 
 class EnvNode(NamedTuple):
@@ -17,14 +19,14 @@ class Command(object):
     __slots__ = ["__name__", "__func__", "method_type", "envs", "suppression", "alias"]
 
     def __init__(
-            self, name: str,
-            func: Callable,
-            *,
-            method: Literal["static", "class", "default"] = "default",
-            envs: Union[Iterable[str], str] = tuple(),
-            alias: Union[Iterable[str], str] = tuple(),
-            suppression: bool = False
-        ) -> None:
+        self, name: str,
+        func: Callable,
+        *,
+        method: Literal["static", "class", "default"] = "default",
+        envs: Union[Iterable[str], str] = tuple(),
+        alias: Union[Iterable[str], str] = tuple(),
+        suppression: bool = False
+    ) -> None:
         self.__name__ = name
         self.__func__ = func
         self.method_type = method
@@ -71,14 +73,14 @@ class BaseEnv(Command):
     __slots__ = ["env_name"]
 
     def __init__(
-            self,
-            name: str,
-            func: Callable,
-            *,
-            method: Literal["static", "class", "default"] = "default",
-            env_name: Optional[str] = None,
-            **kwds
-        ) -> None:
+        self,
+        name: str,
+        func: Callable,
+        *,
+        method: Literal["static", "class", "default"] = "default",
+        env_name: Optional[str] = None,
+        **kwds
+    ) -> None:
         super().__init__(name, func, method=method, **kwds)
         self.env_name = env_name or name
 
@@ -103,14 +105,14 @@ class EnvEnter(BaseEnv):
     __slots__ = ["command_set", "command_set_extra", "auto_pop"]
 
     def __init__(
-            self,
-            name: str,
-            func: Callable,
-            *,
-            command_set: Union[Dict[str, Callable], "KoiLang", None] = None,
-            auto_pop: bool = True,
-            **kwds
-        ) -> None:
+        self,
+        name: str,
+        func: Callable,
+        *,
+        command_set: Union[Dict[str, Callable], "KoiLang", None] = None,
+        auto_pop: bool = True,
+        **kwds
+    ) -> None:
         super().__init__(name, func, **kwds)
         self.command_set = command_set
         self.auto_pop = auto_pop
@@ -126,10 +128,14 @@ class EnvEnter(BaseEnv):
 
     @overload
     def exit_command(self, func: Callable[..., Any], **kwds) -> Command: ...
-    @overload
+    @overload  # noqa: E301
     def exit_command(self, func: Optional[str] = None, *, method: Literal["static", "class", "default"] = ...,
-                alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
-    def exit_command(self, func: Union[Callable, str, None] = None, **kwds) -> Union[Callable[[Callable], Command], Command]:
+                     alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
+    def exit_command(  # noqa: E301
+        self,
+        func: Union[Callable, str, None] = None,
+        **kwds
+    ) -> Union[Callable[[Callable], Command], Command]:
         """
         Define a command to exit current environment
         """
@@ -149,10 +155,20 @@ class EnvEnter(BaseEnv):
     
     @overload
     def env_command(self, func: Callable[..., Any], **kwds) -> Command: ...
-    @overload
-    def env_command(self, func: Optional[str] = None, *, method: Literal["static", "class", "default"] = ...,
-                envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
-    def env_command(self, func: Union[Callable, str, None] = None, **kwds) -> Union[Callable[[Callable], Command], Command]:
+    @overload  # noqa: E301
+    def env_command(
+        self,
+        func: Optional[str] = None,
+        *,
+        method: Literal["static", "class", "default"] = ...,
+        envs: Union[Iterable[str], str] = ...,
+        alias: Union[Iterable[str], str] = ...
+    ) -> Callable[[Callable[..., Any]], Command]: ...
+    def env_command(  # noqa: E301
+        self,
+        func: Union[Callable, str, None] = None,
+        **kwds
+    ) -> Union[Callable[[Callable], Command], Command]:
         """
         Define a command only can be used in current environment
         """
@@ -171,10 +187,19 @@ class EnvEnter(BaseEnv):
     
     @overload
     def env_text(self, func: Callable[..., Any], **kwds) -> Command: ...
-    @overload
-    def env_text(self, *, method: Literal["static", "class", "default"] = ...,
-                envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
-    def env_text(self, func: Optional[Callable] = None, **kwds) -> Union[Callable[[Callable], Command], Command]:
+    @overload  # noqa: E301
+    def env_text(
+        self,
+        *,
+        method: Literal["static", "class", "default"] = ...,
+        envs: Union[Iterable[str], str] = ...,
+        alias: Union[Iterable[str], str] = ...
+    ) -> Callable[[Callable[..., Any]], Command]: ...
+    def env_text(  # noqa: E301
+        self,
+        func: Optional[Callable] = None,
+        **kwds
+    ) -> Union[Callable[[Callable], Command], Command]:
         """
         Define a text command only can be used in current environment
         """
@@ -189,10 +214,19 @@ class EnvEnter(BaseEnv):
     
     @overload
     def env_number(self, func: Callable[..., Any], **kwds) -> Command: ...
-    @overload
-    def env_number(self, *, method: Literal["static", "class", "default"] = ...,
-                envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
-    def env_number(self, func: Optional[Callable] = None, **kwds) -> Union[Callable[[Callable], Command], Command]:
+    @overload  # noqa: E301
+    def env_number(
+        self,
+        *,
+        method: Literal["static", "class", "default"] = ...,
+        envs: Union[Iterable[str], str] = ...,
+        alias: Union[Iterable[str], str] = ...
+    ) -> Callable[[Callable[..., Any]], Command]: ...
+    def env_number(  # noqa: E301
+        self,
+        func: Optional[Callable] = None,
+        **kwds
+    ) -> Union[Callable[[Callable], Command], Command]:
         """
         Define a number command only can be used in current environment
         """
@@ -210,13 +244,13 @@ class EnvExit(BaseEnv):
     __slots__ = []
 
     def __init__(
-            self,
-            name: str,
-            func: Callable,
-            *,
-            env_name: str,
-            **kwds
-        ) -> None:
+        self,
+        name: str,
+        func: Callable,
+        *,
+        env_name: str,
+        **kwds
+    ) -> None:
         super().__init__(name, func, env_name=env_name, envs=env_name, **kwds)
     
     def __call__(self, vmobj: "KoiLang", *args: Any, **kwds: Any) -> Any:
@@ -229,15 +263,15 @@ class EnvClsEnter(BaseEnv):
     __slots__ = ["auto_pop", "command_set_class", "exit_entry"]
 
     def __init__(
-            self, 
-            name: str,
-            func: Callable,
-            *,
-            command_set_class: Type["KoiLang"],
-            env_name: Optional[str] = None,
-            exit_entry: Union[str, Iterable[str]] = tuple(),
-            **kwds
-        ) -> None:
+        self,
+        name: str,
+        func: Callable,
+        *,
+        command_set_class: Type["KoiLang"],
+        env_name: Optional[str] = None,
+        exit_entry: Union[str, Iterable[str]] = tuple(),
+        **kwds
+    ) -> None:
         super().__init__(name, func, env_name=env_name or command_set_class.__name__, **kwds)
         self.auto_pop = not exit_entry
         self.command_set_class = command_set_class
@@ -265,16 +299,17 @@ class KoiLangMeta(type):
     """
     __command_field__: Set[Command]
 
-    def __new__(cls, name: str, base: Tuple[type, ...], attr: Dict[str, Any]):
-        __command_field__ = {
-            i for i in attr.values() if isinstance(i, Command)
-        }
+    def __new__(cls, name: str, base: Tuple[type, ...], attr: Dict[str, Any], **kwds):
+        __command_field__ = set()
         for i in base:
             if isinstance(i, KoiLangMeta):
                 __command_field__.update(i.__command_field__)
+        for i in attr.values():
+            if isinstance(i, Command):
+                __command_field__.add(i)
         attr["__command_field__"] = __command_field__
 
-        return super().__new__(cls, name, base, attr)
+        return super().__new__(cls, name, base, attr, **kwds)
     
     @staticmethod
     def eval_commands(field: Set[Command], ins: Any) -> Dict[str, Callable]:
@@ -288,10 +323,20 @@ class KoiLangMeta(type):
 
     @overload
     def register_command(self, func: Callable[..., Any], **kwds) -> Command: ...
-    @overload
-    def register_command(self, func: Optional[str] = None, *, method: Literal["static", "class", "default"] = ...,
-                envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
-    def register_command(self, func: Union[Callable, str, None] = None, **kwds) -> Union[Callable[[Callable], Command], Command]:
+    @overload  # noqa: E301
+    def register_command(
+        self,
+        func: Optional[str] = None,
+        *,
+        method: Literal["static", "class", "default"] = ...,
+        envs: Union[Iterable[str], str] = ...,
+        alias: Union[Iterable[str], str] = ...
+    ) -> Callable[[Callable[..., Any]], Command]: ...
+    def register_command(  # noqa: E301
+        self,
+        func: Union[Callable, str, None] = None,
+        **kwds
+    ) -> Union[Callable[[Callable], Command], Command]:
         def wrapper(wrapped_func: Callable[..., Any]) -> Command:
             if isinstance(func, str):
                 name = func
@@ -318,6 +363,7 @@ class KoiLang(metaclass=KoiLangMeta):
     back: Optional["KoiLang"]
 
     def __init__(self, parent: Optional["KoiLang"] = None) -> None:
+        super().__init__()
         command_set = self.__class__.get_command_set(self)
         self._stack = EnvNode("__init__", command_set)
         self.back = parent
@@ -445,11 +491,18 @@ class KoiLang(metaclass=KoiLangMeta):
 
 @overload
 def kola_command(func: Callable[..., Any], **kwds) -> Command: ...
-@overload
-def kola_command(func: Optional[str] = None, *, method: Literal["static", "class", "default"] = ...,
-                envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
-def kola_command(func: Union[Callable[..., Any], str, None] = None,
-                **kwds) -> Union[Command, Callable[[Callable], Command]]:
+@overload  # noqa: E302
+def kola_command(
+    func: Optional[str] = None,
+    *,
+    method: Literal["static", "class", "default"] = ...,
+    envs: Union[Iterable[str], str] = ...,
+    alias: Union[Iterable[str], str] = ...
+) -> Callable[[Callable[..., Any]], Command]: ...
+def kola_command(  # noqa: E302
+    func: Union[Callable[..., Any], str, None] = None,
+    **kwds
+) -> Union[Command, Callable[[Callable], Command]]:
     def wrapper(wrapped_func: Callable[..., Any]) -> Command:
         if isinstance(func, str):
             name = func
@@ -464,10 +517,17 @@ def kola_command(func: Union[Callable[..., Any], str, None] = None,
 
 @overload
 def kola_text(func: Callable[..., Any], **kwds) -> Command: ...
-@overload
-def kola_text(*, method: Literal["static", "class", "default"] = ..., envs: Union[Iterable[str], str] = ...,
-            alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
-def kola_text(func: Optional[Callable[..., Any]] = None, **kwds) -> Union[Command, Callable[[Callable], Command]]:
+@overload  # noqa: E302
+def kola_text(
+    *,
+    method: Literal["static", "class", "default"] = ...,
+    envs: Union[Iterable[str], str] = ...,
+    alias: Union[Iterable[str], str] = ...
+) -> Callable[[Callable[..., Any]], Command]: ...
+def kola_text(  # noqa: E302
+    func: Optional[Callable[..., Any]] = None,
+    **kwds
+) -> Union[Command, Callable[[Callable], Command]]:
     def wrapper(wrapped_func: Callable[..., Any]) -> Command:
         return Command("@text", wrapped_func, **kwds)
     if callable(func):
@@ -478,10 +538,17 @@ def kola_text(func: Optional[Callable[..., Any]] = None, **kwds) -> Union[Comman
 
 @overload
 def kola_number(func: Callable[..., Any], **kwds) -> Command: ...
-@overload
-def kola_number(*, method: Literal["static", "class", "default"] = ..., envs: Union[Iterable[str], str] = ...,
-            alias: Union[Iterable[str], str] = ...) -> Callable[[Callable[..., Any]], Command]: ...
-def kola_number(func: Optional[Callable[..., Any]] = None, **kwds) -> Union[Command, Callable[[Callable], Command]]:
+@overload  # noqa: E302
+def kola_number(
+    *,
+    method: Literal["static", "class", "default"] = ...,
+    envs: Union[Iterable[str], str] = ...,
+    alias: Union[Iterable[str], str] = ...
+) -> Callable[[Callable[..., Any]], Command]: ...
+def kola_number(  # noqa: E302
+    func: Optional[Callable[..., Any]] = None,
+    **kwds
+) -> Union[Command, Callable[[Callable], Command]]:
     def wrapper(wrapped_func: Callable[..., Any]) -> Command:
         return Command("@number", wrapped_func, **kwds)
     if callable(func):
@@ -492,11 +559,22 @@ def kola_number(func: Optional[Callable[..., Any]] = None, **kwds) -> Union[Comm
 
 @overload
 def kola_env(func: Callable[..., Any], **kwds) -> EnvEnter: ...
-@overload
-def kola_env(func: Optional[str] = None, *, env_name: str = ..., method: Literal["static", "class", "default"] = ..., alias: Union[Iterable[str], str] = ...,
-            envs: Union[Iterable[str], str] = ..., command_set: Union[Dict[str, Callable], "KoiLang"] = ...) -> Callable[[Callable[..., Any]], EnvEnter]: ...
-def kola_env(func: Union[Callable[..., Any], str, None] = None, 
-            *, env_name: Optional[str] = None, **kwds) -> Union[EnvEnter, Callable[[Callable], EnvEnter]]:
+@overload  # noqa: E302
+def kola_env(
+    func: Optional[str] = None,
+    *,
+    env_name: str = ...,
+    method: Literal["static", "class", "default"] = ...,
+    alias: Union[Iterable[str], str] = ...,
+    envs: Union[Iterable[str], str] = ...,
+    command_set: Union[Dict[str, Callable], "KoiLang"] = ...
+) -> Callable[[Callable[..., Any]], EnvEnter]: ...
+def kola_env(  # noqa: E302
+    func: Union[Callable[..., Any], str, None] = None,
+    *,
+    env_name: Optional[str] = None,
+    **kwds
+) -> Union[EnvEnter, Callable[[Callable], EnvEnter]]:
     def wrapper(wrapped_func: Callable[..., Any]) -> EnvEnter:
         if isinstance(func, str):
             name = func
@@ -511,11 +589,22 @@ def kola_env(func: Union[Callable[..., Any], str, None] = None,
 
 @overload
 def kola_env_class(kola_cls: Type[KoiLang], **kwds) -> EnvClsEnter: ...
-@overload
-def kola_env_class(kola_cls: Optional[str] = None, *, enter: str = ..., alias: Union[Iterable[str], str] = ...,
-                exit: Union[str, Iterable[str], None] = ..., envs: Union[str, Tuple[str,...]]) -> Callable[[Type[KoiLang]], EnvClsEnter]: ...
-def kola_env_class(kola_cls: Union[Type[KoiLang], str, None] = None, *, enter: str = "enter", 
-                exit: Union[str, Iterable[str], None] = None, **kwds) -> Union[Callable[[Type[KoiLang]], EnvClsEnter], EnvClsEnter]:
+@overload  # noqa: E302
+def kola_env_class(
+    kola_cls: Optional[str] = None,
+    *,
+    enter: str = ...,
+    alias: Union[Iterable[str], str] = ...,
+    exit: Union[str, Iterable[str], None] = ...,
+    envs: Union[str, Tuple[str, ...]] = ...
+) -> Callable[[Type[KoiLang]], EnvClsEnter]: ...
+def kola_env_class(  # noqa: E302
+    kola_cls: Union[Type[KoiLang], str, None] = None,
+    *,
+    enter: str = "enter",
+    exit: Union[str, Iterable[str], None] = None,
+    **kwds
+) -> Union[Callable[[Type[KoiLang]], EnvClsEnter], EnvClsEnter]:
     def wrapper(wrapped_class: Type[KoiLang]) -> EnvClsEnter:
         if isinstance(kola_cls, str):
             env_name = kola_cls

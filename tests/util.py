@@ -7,4 +7,5 @@ class _CommandTest:
             return key, args, kwds
         return wrapper
 
+
 cmd_test = _CommandTest()

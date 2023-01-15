@@ -15,6 +15,7 @@ limitations under the License.
 """
 import os
 import re
+import sys
 import warnings
 from setuptools import setup, Extension
 
@@ -61,7 +62,10 @@ setup(
     packages=["kola"],
     python_requires=">=3.6",
     package_data={'':["*.pyi", "*.pxd", "*.h"]},
-    install_requires=["typing_extensions"],
+    install_requires=[
+        "typing_extensions>=4.0" if sys.version_info >= (3, 7)
+            else "typing_extensions>=4.0,<4.2"
+    ],
     ext_modules=extensions,
 
     classifiers=[

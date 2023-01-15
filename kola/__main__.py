@@ -29,7 +29,7 @@ from . import __version__
 
 
 def _load_script(path: str, encoding: str = "utf-8") -> KoiLangMeta:
-    vdict = {} 
+    vdict = {}
     with open(path, encoding=encoding) as f:
         exec(
             compile(f.read(), path, "exec"),
@@ -47,6 +47,7 @@ class _CommandDebugger:
         def wrapper(*args, **kwds) -> None:
             print(f"cmd: {key} with args {args} kwds {kwds}")
         return wrapper
+
 
 cmd_debugger = _CommandDebugger()
 
@@ -148,9 +149,10 @@ class KoiLangMain(KoiLang):
         elif key == '__top__':
             return self.top[0]
         elif key == "__dir__":
-            return ', '.join(i.__name__ for i in self.__class__.__command_field__) 
+            return ', '.join(i.__name__ for i in self.__class__.__command_field__)
         else:
             return self.vars.get(key, None)
+
 
 parser = ArgumentParser("kola")
 parser.add_argument("file", default=None, nargs="?")
@@ -227,4 +229,3 @@ else:
                 break
             except KoiLangError:
                 print_exc()
-    

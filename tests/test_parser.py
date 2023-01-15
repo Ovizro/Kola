@@ -19,7 +19,7 @@ class TestParser(TestCase):
             """
         )
         self.assertEqual(
-            [i[0] for i in Parser(lexer, cmd_test)], 
+            [i[0] for i in Parser(lexer, cmd_test)],
             ["hello", "@text"]
         )
         
@@ -37,7 +37,7 @@ class TestParser(TestCase):
             #test t(.0e-2)
             """
         )
-        Parser(lexer, cmd_test)
+        Parser(lexer, cmd_test).exec()
     
     def test_recovery(self) -> None:
         lexer = StringLexer(
@@ -53,7 +53,7 @@ class TestParser(TestCase):
             parser.exec()
         
         self.assertEqual(
-            [i[1][0] for i in parser], 
+            [i[1][0] for i in parser],
             ["KoiLang 其他字段", "I am glad to meet you."]
         )
     

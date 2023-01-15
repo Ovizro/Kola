@@ -141,6 +141,9 @@ cdef class Parser:
         while not self.t_cache is None:
             self.exec_once()
 
+    def eof(self):
+        return self.stat == 255
+    
     def __iter__(self):
         return self
     
