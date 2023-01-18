@@ -416,31 +416,34 @@ class KoiLang(metaclass=KoiLangMeta):
         self._stack = self._stack.next
         return top
     
-    def at_start(self) -> None:
+    def at_start(self, **kwds) -> None:
         """
         Parser initalize method. Called before parsing start.
         """
     
-    def at_end(self) -> None:
+    def at_end(self, **kwds) -> None:
         """
         Parser finalize method. Called after parsing end.
         """
 
-    def parse(self, lexer: Union[BaseLexer, str]) -> None:
+    def parse(self, lexer: Union[BaseLexer, str], **kwds: Any) -> None:
         """
         Parse kola text or lexer from other method.
         """
         if isinstance(lexer, str):
             lexer = StringLexer(lexer)
 
-        self.at_start()
-        Parser(lexer, self).exec()
-        self.at_end()
+        self.at_start(**kwds)
+        try:
+            Parser(lexer, self).exec()
+        finally:
+            ret = self.at_end(*kwds)
+        return ret
 
-    def parse_file(self, path: str, **kwds) -> Any:
+    def parse_file(self, path: str, **kwds: Any) -> Any:
         return self.parse(FileLexer(path), **kwds)
 
-    def parse_command(self, cmd: str, **kwds) -> Any:
+    def parse_command(self, cmd: str, **kwds: Any) -> Any:
         return self.parse(StringLexer(cmd, stat=1), **kwds)
 
     def parse_args(self, args: str) -> Tuple[tuple, Dict[str, Any]]:
