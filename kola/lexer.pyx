@@ -140,7 +140,7 @@ cdef class BaseLexer:
             try:
                 val = decode_string(text + 1, text_len - 2)
             except Exception as e:
-                kola_set_errcause(KoiLangSyntaxError, 4, self._filename, self.lineno, text, e)
+                kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
         elif syn == 0:
             self.set_error()
         elif syn == EOF:

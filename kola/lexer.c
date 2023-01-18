@@ -4854,7 +4854,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
  *             try:
  *                 val = decode_string(text + 1, text_len - 2)             # <<<<<<<<<<<<<<
  *             except Exception as e:
- *                 kola_set_errcause(KoiLangSyntaxError, 4, self._filename, self.lineno, text, e)
+ *                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
  */
         __pyx_t_7 = decode_string((__pyx_v_text + 1), (__pyx_v_text_len - 2)); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 141, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_7);
@@ -4881,7 +4881,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
  *             try:
  *                 val = decode_string(text + 1, text_len - 2)
  *             except Exception as e:             # <<<<<<<<<<<<<<
- *                 kola_set_errcause(KoiLangSyntaxError, 4, self._filename, self.lineno, text, e)
+ *                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
  *         elif syn == 0:
  */
       __pyx_t_4 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])));
@@ -4898,13 +4898,13 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
           /* "kola/lexer.pyx":143
  *                 val = decode_string(text + 1, text_len - 2)
  *             except Exception as e:
- *                 kola_set_errcause(KoiLangSyntaxError, 4, self._filename, self.lineno, text, e)             # <<<<<<<<<<<<<<
+ *                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)             # <<<<<<<<<<<<<<
  *         elif syn == 0:
  *             self.set_error()
  */
           __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_KoiLangSyntaxError); if (unlikely(!__pyx_t_13)) __PYX_ERR(1, 143, __pyx_L15_error)
           __Pyx_GOTREF(__pyx_t_13);
-          kola_set_errcause(__pyx_t_13, 4, __pyx_v_self->_filename, __pyx_v_self->lineno, __pyx_v_text, __pyx_v_e); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 143, __pyx_L15_error)
+          kola_set_errcause(__pyx_t_13, 5, __pyx_v_self->_filename, __pyx_v_self->lineno, __pyx_v_text, __pyx_v_e); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 143, __pyx_L15_error)
           __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
         }
 
@@ -4912,7 +4912,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
  *             try:
  *                 val = decode_string(text + 1, text_len - 2)
  *             except Exception as e:             # <<<<<<<<<<<<<<
- *                 kola_set_errcause(KoiLangSyntaxError, 4, self._filename, self.lineno, text, e)
+ *                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
  *         elif syn == 0:
  */
         /*finally:*/ {
@@ -4993,7 +4993,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
     case 0:
 
     /* "kola/lexer.pyx":145
- *                 kola_set_errcause(KoiLangSyntaxError, 4, self._filename, self.lineno, text, e)
+ *                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
  *         elif syn == 0:
  *             self.set_error()             # <<<<<<<<<<<<<<
  *         elif syn == EOF:
@@ -5003,7 +5003,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
 
     /* "kola/lexer.pyx":144
  *             except Exception as e:
- *                 kola_set_errcause(KoiLangSyntaxError, 4, self._filename, self.lineno, text, e)
+ *                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
  *         elif syn == 0:             # <<<<<<<<<<<<<<
  *             self.set_error()
  *         elif syn == EOF:

@@ -5,6 +5,7 @@ cdef class Parser:
     def __init__(self, BaseLexer lexer not None, command_set not None):
         self.lexer = lexer
         self.command_set = command_set
+        self.t_cache = lexer.next_token()
     
     cpdef void push(self, Token n):
         n.next = self.stack_top
@@ -17,7 +18,7 @@ cdef class Parser:
         self.stack_top = n.next
         return n
     
-    cdef void set_error(self, int errorno = 16) except *:
+    cdef void set_error(self, int errorno = 16, bint recovery = True) except *:
         cdef:
             int lineno = 1
             const char* text = ""
@@ -26,8 +27,8 @@ cdef class Parser:
             lineno = self.t_cache.lineno
             if errorno == 16:
                 errorno = (self.stat << 4) + cur.syn
-            text = <char*>cur.raw_val
-        while not self.t_cache is None and not CMD <= self.t_cache.syn <= TEXT:
+            text = <const char*>cur.raw_val
+        while recovery and not self.t_cache is None and not CMD <= self.t_cache.syn <= TEXT:
             self.t_cache = self.lexer.next_token()
         kola_set_error(KoiLangSyntaxError, errorno,
             self.lexer._filename, lineno, text)
@@ -91,7 +92,7 @@ cdef class Parser:
         if not self.stack_top is None:
             self.t_cache = self.stack_top
             self.stack_top = None
-            self.set_error()
+            self.set_error(16, False)
 
         self.t_cache = i
         return tuple(args), kwds
@@ -105,10 +106,7 @@ cdef class Parser:
 
         token = self.t_cache
         if token is None:
-            token = self.lexer.next_token()
-            if token is None:
-                self.stat = 255
-                return
+            return
         
         args = self.parse_args()
         kwds = <dict>args[1]
@@ -133,25 +131,31 @@ cdef class Parser:
         except KoiLangError:
             raise
         except Exception as e:
-            kola_set_errcause(KoiLangCommandError, 3, 
-                self.lexer._filename, token.lineno, token.raw_val, e)
+            if token.syn != TEXT:
+                kola_set_errcause(KoiLangCommandError, 3, 
+                    self.lexer._filename, token.lineno, token.raw_val, e)
+            else:
+                kola_set_errcause(KoiLangCommandError, 4, 
+                    self.lexer._filename, token.lineno, token.raw_val, e)
     
     cpdef void exec(self) except *:
-        self.exec_once()
         while not self.t_cache is None:
             self.exec_once()
 
     def eof(self):
-        return self.stat == 255
+        return self.t_cache is None
     
     def __iter__(self):
         return self
     
     def __next__(self):
-        ret = self.exec_once()
-        if self.stat == 255:
+        if self.t_cache is None:
             raise StopIteration
+        ret = self.exec_once()
         return ret
+    
+    def __class_getitem__(cls, params):
+        return cls
     
     def __repr__(self):
         return PyUnicode_FromFormat("<kola parser in file \"%s\">", self.lexer._filename)

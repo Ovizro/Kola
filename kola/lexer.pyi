@@ -1,4 +1,4 @@
-from typing import Any, Final
+from typing import Any, Final, final
 
 
 S_CMD: int
@@ -16,6 +16,7 @@ S_SLP: int
 S_SRP: int
 
 
+@final
 class Token:
     syn: Final[int]
     val: Final[Any]

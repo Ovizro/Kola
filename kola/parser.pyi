@@ -7,6 +7,7 @@ from .lexer import BaseLexer, Token
 class SupportGetCommand(Protocol):
     def __getitem__(self, key: str) -> Callable: ...
 
+
 T_CmdSet = TypeVar("T_CmdSet", bound=SupportGetCommand)
 T_Lexer = TypeVar("T_Lexer", bound=BaseLexer)
 

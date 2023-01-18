@@ -63,6 +63,8 @@ static const char* get_format(int code) {
     case 3:
         ERR_MSG(an error occured during handling command '%s');
     case 4:
+        ERR_MSG(an error occured during handling text '%s');
+    case 5:
         ERR_MSG(cannot decode string %s);
     case 10:
         ERR_MSG(end of line in incurrect place);
