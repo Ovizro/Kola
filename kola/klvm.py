@@ -437,7 +437,7 @@ class KoiLang(metaclass=KoiLangMeta):
         try:
             Parser(lexer, self).exec()
         finally:
-            ret = self.at_end(*kwds)
+            ret = self.at_end(**kwds)
         return ret
 
     def parse_file(self, path: str, **kwds: Any) -> Any:
