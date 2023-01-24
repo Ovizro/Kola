@@ -187,9 +187,11 @@ cdef class FileLexer(BaseLexer):
 
     def __cinit__(self, __path, *, str encoding not None = "utf-8", uint8_t stat = 0):
         self._filenameo = __path
-        cdef PyObject* addr
-        self.fp = kola_open(__path, &addr, 'r')
-        self._filename = unicode2string(<str>addr, NULL)
+        cdef PyObject* p_addr
+        self.fp = kola_open(__path, &p_addr, 'r')
+        p = <object>p_addr
+        self._filenameb = <bytes>p if isinstance(p, bytes) else (<str>p).encode()
+        self._filename = self._filenameb
         self.buffer = yy_create_buffer(self.fp, BUFFER_SIZE)
     
     cpdef void close(self):
