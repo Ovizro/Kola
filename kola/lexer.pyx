@@ -1,4 +1,4 @@
-# distutils: sources = kola/lex.yy.c
+# distutils: sources = [kola/lex.yy.c, kola/unicode_handler.c]
 cimport cython
 from .exception import KoiLangSyntaxError
 
@@ -30,18 +30,18 @@ cdef class Token:
     sure enough arguments provided.
     """
     def __cinit__(
-            self,
-            TokenSyn syn,
-            val = None,
-            *,
-            int lineno = 0,
-            bytes raw_val = None
-        ):
+        self,
+        TokenSyn syn,
+        val = None,
+        *,
+        int lineno = 0,
+        bytes raw_val = None
+    ):
         self.syn = syn
         self.val = val
 
-        self.lineno = lineno or yylineno
-        self.raw_val = raw_val or PyBytes_FromStringAndSize(yytext, yyleng)
+        self.lineno = lineno
+        self.raw_val = bytes(val) if raw_val is None else raw_val
     
     def __eq__(self, other):
         return self is other or self.syn == other
@@ -67,13 +67,15 @@ cdef class BaseLexer:
     """
     KoiLang lexer reading from stdin
     """
-    def __cinit__(self, *args, uint8_t stat = 0):
+
+    def __cinit__(self, *args, str encoding not None = "utf-8", uint8_t stat = 0):
         if type(self) is BaseLexer:
             if args:
                 PyErr_Format(TypeError, "__cinit__() takes exactly 0 positional arguments (%d given)", len(args))
             self.buffer = yy_create_buffer(stdin, BUFFER_SIZE)
         self._filename = "<stdin>"
         self.lineno = 1
+        self.encoding = encoding
         if stat > 2:
             raise ValueError("lexer state must be between 0 and 2")
         self.stat = stat
@@ -120,8 +122,9 @@ cdef class BaseLexer:
             int syn
             const char* text
             Py_ssize_t text_len
+            const char* encoding
         syn, text, text_len = self.next_syn()
-        
+
         val = None
         if syn == NUM or syn == CMD_N:
             val = PyLong_FromString(text, NULL, 10)
@@ -134,18 +137,27 @@ cdef class BaseLexer:
         elif syn == CMD or syn == LITERAL:
             val = PyUnicode_FromStringAndSize(text, text_len)
         elif syn == TEXT:
-            val = PyUnicode_FromStringAndSize(text, text_len)
-            val = <str>filter_text(val)
+            encoding = unicode2string(self.encoding, NULL)
+            s = PyUnicode_Decode(text, text_len, encoding, NULL)
+            val = <str>filter_text(s)
         elif syn == STRING:
+            encoding = unicode2string(self.encoding, NULL)
+            if strcmp(encoding, "utf-8") != 0:
+                s = PyUnicode_Decode(text, text_len, encoding, NULL)
+                text = unicode2string(s, &text_len)
             try:
-                val = decode_string(text + 1, text_len - 2)
+                val = decode_escapes(text + 1, text_len - 2)
             except Exception as e:
                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
         elif syn == 0:
             self.set_error()
         elif syn == EOF:
             return None
-        return Token(syn, val)
+        return Token(
+            syn, val,
+            lineno=self.lineno,
+            raw_val=PyBytes_FromStringAndSize(text, text_len)
+        )
 
     @property
     def filename(self):
@@ -154,10 +166,6 @@ cdef class BaseLexer:
     @property
     def closed(self):
         return self.buffer == NULL
-    
-    @property
-    def _cur_text(self):
-        return PyUnicode_FromStringAndSize(yytext, yyleng)
     
     def __iter__(self):
         return self
@@ -176,14 +184,12 @@ cdef class FileLexer(BaseLexer):
     """
     KoiLang lexer reading from file
     """
-    def __cinit__(self, str filename not None, *, uint8_t stat = 0):
-        self._filenameo = filename.encode()
-        self._filename = <char*>self._filenameo
 
-        self.fp = fopen(self._filename, "r")
-        if self.fp == NULL:
-            PyErr_Format(OSError, "fail to open %s", self._filename)
-
+    def __cinit__(self, __path, *, str encoding not None = "utf-8", uint8_t stat = 0):
+        self._filenameo = __path
+        cdef PyObject* addr
+        self.fp = kola_open(__path, &addr, 'r')
+        self._filename = unicode2string(<str>addr, NULL)
         self.buffer = yy_create_buffer(self.fp, BUFFER_SIZE)
     
     cpdef void close(self):
@@ -192,13 +198,20 @@ cdef class FileLexer(BaseLexer):
         if self.fp:
             fclose(self.fp)
             self.fp = NULL
+    
+    @property
+    def filename(self):
+        return self._filenameo
 
 
 cdef class StringLexer(BaseLexer):
     """
     KoiLang lexer reading from string provided
     """
-    def __cinit__(self, str content not None, *, uint8_t stat = 0):
+    def __cinit__(self, content not None, *, str encoding not None = "utf-8", uint8_t stat = 0):
         self._filename = "<string>"
-        self.content = content.encode()
+        if isinstance(content, str):
+            self.content = (<str>content).encode()
+        else:
+            self.content = content
         self.buffer = yy_scan_bytes(self.content, len(self.content))

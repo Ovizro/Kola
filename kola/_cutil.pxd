@@ -1,7 +1,8 @@
+from libc.stdio cimport FILE
 from libc.stdint cimport uint8_t
 from cpython cimport PyObject
 
-cdef extern from "_helper.h":
+cdef extern from "_cutil.h":
     enum TokenSyn:
         CMD
         CMD_N
@@ -20,5 +21,8 @@ cdef extern from "_helper.h":
     void kola_set_error(object exc_type, int errorno, const char* filename, int lineno, const char* text) except *
     void kola_set_errcause(object exc_type, int errorno, const char* filename, int lineno, const char* text, object cause) except *
 
-    str decode_string(const char* string, Py_ssize_t len)
+    const char* unicode2string(str __s, Py_ssize_t* s_len) except NULL
+    str decode_escapes(const char* string, Py_ssize_t len)
     PyObject* filter_text(str string) except NULL
+
+    FILE* kola_open(object raw_path, PyObject** out, const char* mod) except NULL

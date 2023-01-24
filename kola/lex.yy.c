@@ -453,7 +453,7 @@ char *yytext;
 #define INITIAL 0
 #line 4 "kola/kolalexer.l"
     #include <string.h>
-    #include "_helper.h"
+    #include "_cutil.h"
 
     #define ECHO yyterminate()
 #define COMMAND 1

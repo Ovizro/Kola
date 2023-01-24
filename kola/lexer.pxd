@@ -1,16 +1,16 @@
 from libc.stdio cimport stdin, FILE, fopen, fclose, EOF
-from libc.string cimport strchr
+from libc.string cimport strchr, strcmp
 from cpython cimport PyObject, PyLong_FromString, PyFloat_FromString, PyUnicode_FromStringAndSize, \
-    PyBytes_FromStringAndSize, PyErr_Format, PY_MINOR_VERSION
+    PyBytes_FromStringAndSize, PyUnicode_Decode, PyErr_Format, PY_MINOR_VERSION
 
-from ._helper cimport *
+from ._cutil cimport *
 
 
-cdef extern from *:
+cdef extern from "Python.h":
     str PyUnicode_FromFormat(const char*, ...)
 
 
-cdef extern from "_helper.h":
+cdef extern from *:
     struct yy_buffer_state:
         pass
     ctypedef yy_buffer_state *YY_BUFFER_STATE
@@ -47,9 +47,10 @@ cdef class Token:
 
 cdef class BaseLexer:
     cdef:
-        char* _filename
+        const char* _filename
         YY_BUFFER_STATE buffer
     cdef readonly:
+        str encoding
         int lineno
         int stat
 
@@ -62,7 +63,8 @@ cdef class BaseLexer:
 
 cdef class FileLexer(BaseLexer):
     cdef:
-        bytes _filenameo
+        object _filenameo
+        bytes _filenameb
         FILE* fp
     
     cpdef void close(self)

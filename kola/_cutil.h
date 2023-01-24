@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <Python.h>
 
+#ifdef MS_WINDOWS
+#include <Windows.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -170,127 +174,57 @@ static void __inline kola_set_errcause(PyObject* exc_type, int errorno,
     #endif
 }
 
-static PyObject* _decode_utf8(const char **sPtr, const char *end)
-{
-    const char *s;
-    const char *t;
-    t = s = *sPtr;
-    while (s < end && (*s & 0x80)) {
-        s++;
+static __inline FILE* kola_open(PyObject* raw_path, PyObject** out, char* mode) {
+    PyObject* stringobj = NULL;
+    FILE* fp;
+#ifdef MS_WINDOWS
+    DWORD dwNum = MultiByteToWideChar(CP_ACP, 0, mode, -1, NULL, 0); 
+    wchar_t* wmode = (wchar_t*)malloc(dwNum * sizeof(wchar_t));
+    MultiByteToWideChar(CP_ACP, 0, mode, -1, wmode, dwNum);
+    Py_UNICODE *widename = NULL;
+    if (!PyUnicode_FSDecoder(raw_path, &stringobj)) {
+        free(wmode);
+        return NULL;
     }
-    *sPtr = s;
-    return PyUnicode_DecodeUTF8(t, s - t, NULL);
+    widename = PyUnicode_AsWideCharString(stringobj, NULL);
+    if (widename == NULL) {
+        free(wmode);
+        return NULL;
+    }
+    fp = _wfopen(widename, wmode);
+    free(wmode);
+#else
+    const char *name = NULL;
+    if (!PyUnicode_FSConverter(nameobj, &stringobj)) {
+        return NULL;
+    }
+    name = PyBytes_AS_STRING(stringobj);
+    fp = fopen(name, mode);
+#endif
+    if (fp == NULL) {
+        PyErr_Format(PyExc_OSError, "fail to open '%S'", raw_path);
+    }
+    *out = stringobj;
+    return fp;
+}
+
+static __inline const char* unicode2string(PyObject* __s, Py_ssize_t* s_len) {
+    Py_ssize_t _s_len;
+    if (!s_len)
+        s_len = &_s_len;
+    const char* s = PyUnicode_AsUTF8AndSize(__s, s_len);
+    if (s == NULL)
+        return NULL;
+    else if (strlen(s) != (size_t)*s_len) {
+        PyErr_SetString(PyExc_ValueError, "embedded null character");
+        return NULL;
+    }
+    return s;
 }
 
 // from cpython:string_parser.decode_unicode_with_escapes
-static PyObject* decode_string(const char* s, Py_ssize_t len) {
-    PyObject *v = NULL;
-
-    /* check for integer overflow */
-    if (len > SIZE_MAX / 6) {
-        return NULL;
-    }
-    /* "ä" (2 bytes) may become "\U000000E4" (10 bytes), or 1:5
-       "\ä" (3 bytes) may become "\u005c\U000000E4" (16 bytes), or ~1:6 */
-    PyObject *u = PyBytes_FromStringAndSize((char *)NULL, len * 6);
-    if (u == NULL) {
-        return NULL;
-    }
-
-    char *buf;
-    char *p;
-    p = buf = PyBytes_AsString(u);
-    if (p == NULL) {
-        return NULL;
-    }
-    const char *end = s + len;
-    while (s < end) {
-        if (*s == '\\') {
-            *p++ = *s++;
-            if (s >= end || *s & 0x80) {
-                strcpy(p, "u005c");
-                p += 5;
-                if (s >= end) {
-                    break;
-                }
-            } else if (s + 1 < end && *s == '\r' && s[1] == '\n') {
-                s += 2;
-                if (s >= end) {
-                    break;
-                }
-            } else if (*s == '\n') {
-                s++;
-                if (s >= end) {
-                    break;
-                }
-            }
-        }
-        if (*s & 0x80) {
-            PyObject *w;
-            int kind;
-            const void *data;
-            Py_ssize_t w_len;
-            Py_ssize_t i;
-            w = _decode_utf8(&s, end);
-            if (w == NULL) {
-                Py_DECREF(u);
-                return NULL;
-            }
-            kind = PyUnicode_KIND(w);
-            data = PyUnicode_DATA(w);
-            w_len = PyUnicode_GET_LENGTH(w);
-            for (i = 0; i < w_len; i++) {
-                Py_UCS4 chr = PyUnicode_READ(kind, data, i);
-                sprintf(p, "\\U%08x", chr);
-                p += 10;
-            }
-            /* Should be impossible to overflow */
-            assert(p - buf <= PyBytes_GET_SIZE(u));
-            Py_DECREF(w);
-        }
-        else {
-            *p++ = *s++;
-        }
-    }
-    len = p - buf;
-    s = buf;
-    v = PyUnicode_DecodeUnicodeEscape(s, len, NULL);
-    return v;
-}
-
-static PyObject* filter_text(PyObject* string) {
-    Py_ssize_t len = PyUnicode_GET_LENGTH(string);
-    Py_ssize_t offset = 0;
-    for (Py_ssize_t i = 0; i < len; ++i) {
-        Py_UCS4 chr = PyUnicode_READ_CHAR(string, i);
-        if (chr == '\\') {
-            offset++;
-            Py_UCS4 tc = PyUnicode_READ_CHAR(string, ++i);
-            switch (tc) {
-            case '\n':
-                offset++;
-                break;
-            case '\r':
-                if (PyUnicode_ReadChar(string, i + 1) == '\n') {
-                    i++;
-                    offset += 2;
-                    break;
-                }
-            default:
-                if (PyUnicode_WriteChar(string, i - offset, '\\') == -1) goto bad;
-                if (PyUnicode_WriteChar(string, i - offset, tc) == -1) goto bad;
-                break;
-            }
-        } else if (offset) {
-            if (PyUnicode_WriteChar(string, i - offset, chr) == -1) goto bad;
-        }
-    }
-    if (offset)
-        PyUnicode_Resize(&string, len - offset);
-    return string;
-bad:
-    return NULL;
-}
+PyObject* decode_escapes(const char* s, Py_ssize_t len);
+PyObject* filter_text(PyObject* string);
 #endif
 
 #ifdef __cplusplus

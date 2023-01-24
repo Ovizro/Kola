@@ -2,7 +2,7 @@
 
 %{
     #include <string.h>
-    #include "_helper.h"
+    #include "_cutil.h"
 
     #define ECHO yyterminate()
 %}
