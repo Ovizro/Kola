@@ -174,7 +174,7 @@ static void __inline kola_set_errcause(PyObject* exc_type, int errorno,
     #endif
 }
 
-static __inline FILE* kola_open(PyObject* raw_path, PyObject** out, char* mode) {
+static __inline FILE* kola_open(PyObject* raw_path, PyObject** out, const char* mode) {
     PyObject* stringobj = NULL;
     FILE* fp;
 #ifdef MS_WINDOWS
@@ -195,7 +195,7 @@ static __inline FILE* kola_open(PyObject* raw_path, PyObject** out, char* mode) 
     free(wmode);
 #else
     const char *name = NULL;
-    if (!PyUnicode_FSConverter(nameobj, &stringobj)) {
+    if (!PyUnicode_FSConverter(raw_path, &stringobj)) {
         return NULL;
     }
     name = PyBytes_AS_STRING(stringobj);
