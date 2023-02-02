@@ -1,6 +1,10 @@
 #include "Python.h"
 #include "_cutil.h"
 
+#ifdef HAVE_WCHAR_H
+    #include <wchar.h>
+#endif
+
 PyObject* _decode_utf8(const char **sPtr, const char *end)
 {
     const char *s;
@@ -45,11 +49,13 @@ PyObject* decode_escapes(const char* s, Py_ssize_t len) {
                     break;
                 }
             } else if (s + 1 < end && *s == '\r' && s[1] == '\n') {
+                p--;
                 s += 2;
                 if (s >= end) {
                     break;
                 }
             } else if (*s == '\n') {
+                p--;
                 s++;
                 if (s >= end) {
                     break;

@@ -1,41 +1,301 @@
+from libc.stdio cimport fopen, fclose, fputc, fputs
 from libc.string cimport strlen
-from cpython cimport Py_BuildValue, PyUnicode_FSConverter, PyErr_Format, PyErr_SetString, PyUnicode_AsEncodedString
+from cpython cimport PyObject, PySequence_Check, PyMapping_Check, PyErr_Format, PyErr_SetString,\
+    PyUnicode_FindChar, PyUnicode_FromStringAndSize, PyUnicode_AsEncodedString
+
+import re
 
 
-KLW_NEWLINE = '\n'
+cdef extern from *:
+    """
+    #define _MAX_INDENT_CACHE 8
+    static const char* _indent_string = "        ";
+    """
+    Py_ssize_t _MAX_INDENT_CACHE
+    const char* _indent_string
 
 
-cdef class KoiLangWriter:
+cdef object literal_pattarn = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+cdef inline void _write_writeritemlike(BaseWriter writer, object obj) except *:
+    cdef PyObject* kw_method = _PyType_Lookup(type(obj), "__kola_write__")
+    if kw_method == NULL:
+        PyErr_Format(TypeError, "unsupport type '%s'", get_type_qualname(obj))
+    (<object>kw_method)(writer)
+
+cdef bint _write_base_item(BaseWriter writer, object value) except -1:
+    if isinstance(value, str):
+        writer.raw_write(repr(<str>value))
+    elif isinstance(value, bytes):
+        writer.raw_write_string(<const char*>(<bytes>value), len(<bytes>value))
+    elif isinstance(value, (int, float)):
+        writer.raw_write(str(value))
+    elif isinstance(value, BaseWriterItem):
+        if value.is_complex:
+            return False
+        _write_writeritemlike(writer, value)
+    else:
+        return False
+    return True
+
+
+cdef void _write_complex_item(BaseWriter writer, str key, object value, bint split_line = False) except *:
+    writer.raw_write(key)
+    writer.raw_write_char(ord('('))
+    if split_line:
+        writer.newline(True)
+    if not _write_base_item(writer, value):
+        if isinstance(value, list):
+            if not value:
+                raise ValueError("empty list is not a valid kola item")
+            for i in <list>value:
+                if not _write_base_item(writer, i):
+                    PyErr_Format(TypeError, "'%s' object is not a base kola item", get_type_qualname(i))
+                if split_line:
+                    writer.raw_write_char(ord(','))
+                    writer.newline(True)
+                else:
+                    writer.raw_write_string(", ", 2)
+        elif isinstance(value, dict):
+            if not value:
+                raise ValueError("empty dict is not a valid kola item")
+            for k, v in (<dict>value).items():
+                writer.raw_write(k)
+                writer.raw_write_string(": ", 2)
+                if not _write_base_item(writer, v):
+                    PyErr_Format(TypeError, "'%s' object is not a base kola item", get_type_qualname(v))
+                if split_line:
+                    writer.raw_write_char(ord(','))
+                    writer.newline(True)
+                else:
+                    writer.raw_write_string(", ", 2)
+        else:
+            if not value.is_complex:
+                pass
+    if split_line:
+        writer.newline(True)
+    writer.raw_write_char(ord(')'))
+
+
+cdef class BaseWriterItem(object):
+    @property
+    def is_complex(self):
+        return False
+
+    cpdef void __kola_write__(self, BaseWriter writer) except *:
+        raise NotImplementedError
+    
+    def __repr__(self):
+        return PyUnicode_FromFormat("<kola writer item at %p>", <void*>self)
+
+
+cdef class FormatItem(BaseWriterItem):
+    def __init__(self, value, str spec not None):
+        self.value = value
+        self.spec = spec
+    
+    cpdef void __kola_write__(self, BaseWriter writer) except *:
+        writer.raw_write(format(self.value, self.spec))
+
+
+cdef class ComplexItem(BaseWriterItem):
+    def __init__(self, str name not None, value):
+        if not (isinstance(value, (str, int, float)) or PySequence_Check(value) or PyMapping_Check(value)):
+            PyErr_Format(TypeError, "unsupport type '%s'", get_type_qualname(value))
+        if literal_pattarn.match(name) is None:
+            PyErr_Format(ValueError, "'%U' is not a valid item name", <PyObject*>name)
+        self.name = name
+        self.value = value
+        
+    @property
+    def is_complex(self):
+        return True
+    
+    cpdef void __kola_write__(self, BaseWriter writer) except *:
+        _write_complex_item(writer, self.name, self.value)
+    
+
+cdef class BaseWriter(object):
+    def __cinit__(self, *args, uint8_t indent = 4, **kwds):
+        self.indent = indent
+        self.cur_indent = 0
+    
+    def __init__(self, uint8_t indent = 4):
+        if type(self) is BaseWriter:
+            raise NotImplementedError
+    
+    def __dealloc__(self):
+        self.close()
+    
+    cpdef void raw_write(self, str text) except *:
+        raise NotImplementedError
+    
+    cdef void raw_write_string(self, const char* string, Py_ssize_t length = -1) except *:
+        if length < 0:
+            length = <Py_ssize_t>strlen(string)
+        self.raw_write(PyUnicode_FromStringAndSize(string, length))
+    
+    cdef void raw_write_char(self, char ch) except *:
+        cdef char cstring[2]
+        cstring[0] = ch
+        cstring[1] = 0
+        self.raw_write_string(cstring, 1)
+    
+    cpdef void close(self):
+        pass
+    
+    cpdef void inc_indent(self):
+        self.cur_indent += self.indent
+    
+    cpdef void dec_indent(self) except *:
+        if self.cur_indent < self.indent:
+            raise ValueError("writer indentation should be less than 0")
+        self.cur_indent -= self.indent
+    
+    cpdef void write_indent(self) except *:
+        cdef Py_ssize_t i = self.cur_indent
+        if i == 0:
+            return
+        while i > _MAX_INDENT_CACHE:
+            self.raw_write_string(_indent_string, _MAX_INDENT_CACHE)
+            i -= _MAX_INDENT_CACHE
+        self.raw_write_string(_indent_string + _MAX_INDENT_CACHE - i, i)
+    
+    cpdef void newline(self, bint concat_prev = False) except *:
+        if concat_prev:
+            self.raw_write_string("\\\n", 2)
+        else:
+            self.raw_write_string("\n", 1)
+        self.write_indent()
+    
+    def write_text(self, str text not None):
+        text = text.replace('\n', '\\\n')
+        self.raw_write(text)
+        self.newline()
+    
+    def write_command(self, str __name not None, *args, **kwds):
+        self.raw_write_char(ord('#'))
+        self.raw_write(__name)
+
+        self.inc_indent()
+        cdef PyObject* tmp
+        try:
+            for i in args:
+                self.raw_write_char(ord(' '))
+                if isinstance(i, BaseWriterItem):
+                    (<BaseWriterItem>i).__kola_write__(self)
+                elif isinstance(i, str):
+                    self.raw_write(repr(<str>i))
+                elif isinstance(i, (int, float)):
+                    self.raw_write(str(i))
+                else:
+                    tmp = _PyType_Lookup(type(i), "__kola_write__")
+                    if tmp == NULL:
+                        PyErr_Format(TypeError, "unsupport type '%s'", get_type_qualname(i))
+                    (<object>tmp)(self)
+        finally:
+            self.dec_indent()
+        self.newline()
+
+    @property
+    def closed(self):
+        return False
+
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        self.close()
+    
+
+cdef class FileWriter(BaseWriter):
     def __cinit__(
         self,
         __path,
+        *args,
         str encoding not None = "utf-8",
-        uint8_t indent = 4
+        **kwds
     ):
-        self.path = path
+        self.path = __path
+        self.fp = kola_open(__path, NULL, 'w')
         self.encoding = encoding
-        self.indent = indent
-        self.cur_indent = 0
-        self.fp = NULL
     
-    def __dealloc__(self):
-        if self.fp != NULL:
-            fclose(self.fp)
+    def __init__(self, __path, encoding = "utf-8", indent = None):
+        pass
     
-    cpdef void open(self) except *:
-        path = PyOS_FSPath(__path)
-        cdef bytes p = <bytes>path if isinstance(path, bytes) else PyUnicode_EncodeFSDefault(path)
-        self.fp = fopen(p, "w")
+    cpdef void raw_write(self, str text) except *:
+        cdef:
+            const char* encoding = unicode2string(self.encoding, NULL)
+            bytes tb = PyUnicode_AsEncodedString(text, encoding, NULL)
+        self.raw_write_string(tb)
+    
+    cdef void raw_write_string(self, const char* string, Py_ssize_t length = -1) except *:
         if self.fp == NULL:
-            PyErr_Format(OSError, "fail to open '%s'", self._filename)
+            raise OSError("operation on closed writer")
+        with nogil:
+            fputs(string, self.fp)
+
+    cdef void raw_write_char(self, char ch) except *:
+        if self.fp == NULL:
+            raise OSError("operation on closed writer")
+        with nogil:
+            fputc(ch, self.fp)
     
     cpdef void close(self):
-        fclose(self.fp)
+        if self.fp != NULL:
+            with nogil:
+                fclose(self.fp)
         self.fp = NULL
     
-    cpdef Py_ssize_t _raw_write(self, bytes __text not None) except -1:
-        if self.fp == NULL:
-            PyErr_Format(OSError, "%S is not writable", <void*>self)
-        cdef const char* encoding = unicode2string(self.encoding, NULL)
-        fputs(self.fp, text)
-        
+    @property
+    def closed(self):
+        return self.fp == NULL
+
+
+cdef class StringWriter(BaseWriter):
+    cdef:
+        bint _closed
+        _PyUnicodeWriter writer
+    
+    def __cinit__(self, *args, **kwds):
+        self._closed = False
+        _PyUnicodeWriter_Init(&self.writer)
+        self.writer.overallocate = True
+    
+    cpdef void raw_write(self, str text) except *:
+        if self._closed:
+            raise OSError("operation on closed writer")
+        _PyUnicodeWriter_WriteStr(&self.writer, text)
+    
+    cdef void raw_write_string(self, const char* string, Py_ssize_t length = -1) except *:
+        if self._closed:
+            raise OSError("operation on closed writer")
+        if length < 0:
+            length = <Py_ssize_t>strlen(string)
+        _PyUnicodeWriter_WriteASCIIString(&self.writer, string, length)
+    
+    cdef void raw_write_char(self, char ch) except *:
+        if self._closed:
+            raise OSError("operation on closed writer")
+        _PyUnicodeWriter_WriteChar(&self.writer, ch)
+    
+    cpdef void close(self):
+        self._closed = True
+        _PyUnicodeWriter_Dealloc(&self.writer)
+    
+    cpdef str getvalue(self):
+        if self._closed:
+            raise OSError("operation on closed writer")
+        cdef str intermediate = _PyUnicodeWriter_Finish(&self.writer)
+        self._closed = True
+
+        _PyUnicodeWriter_Init(&self.writer)
+        self.writer.overallocate = True
+        _PyUnicodeWriter_WriteStr(&self.writer, intermediate)
+        self._closed = False
+        return intermediate
+    
+    @property
+    def closed(self):
+        return self._closed

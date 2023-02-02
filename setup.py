@@ -38,10 +38,14 @@ FILE_SUFFIX = ".pyx" if USE_CYTHON else ".c"
 
 extensions = [
     Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX, "kola/lex.yy.c", "kola/unicode_handler.c"]),
-    Extension("kola.parser", ["kola/parser" + FILE_SUFFIX])
+    Extension("kola.parser", ["kola/parser" + FILE_SUFFIX]),
+    Extension("kola.writer", ["kola/writer" + FILE_SUFFIX])
 ]
 if USE_CYTHON:
     from Cython.Build import cythonize
+    from Cython.Compiler import Options
+
+    Options.fast_fail = True
     extensions = cythonize(extensions, annotate=True, compiler_directives={"language_level": "3"})
 
 

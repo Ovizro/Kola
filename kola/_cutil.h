@@ -53,7 +53,22 @@ YY_BUFFER_STATE yy_scan_string(const char *yy_str);
 YY_BUFFER_STATE yy_scan_bytes(const char *bytes, int len);
 #endif
 
+
 #ifdef Py_PYTHON_H
+
+#define get_type_qualname(obj) (Py_TYPE(obj)->tp_name)
+
+static __inline const char* get_type_name(PyObject* obj) {
+    const char* qualname = get_type_qualname(obj);
+    const char* name = strrchr(qualname, '.');
+    if (name == NULL) {
+        name = qualname;
+    } else {
+        name += 1;
+    }
+    return name;
+}
+
 #define ERR_CASE(syn, act) case (act << 4) + syn
 #define ERR_MSG(msg) return "[%d] " # msg
 
@@ -69,9 +84,11 @@ static const char* get_format(int code) {
     case 4:
         ERR_MSG(an error occured during handling text '%s');
     case 5:
-        ERR_MSG(cannot decode string %s);
+        ERR_MSG(cannot decode string '%s');
     case 10:
         ERR_MSG(end of line in incurrect place);
+    case 16:
+        ERR_MSG(unclosed parentheses);
     case 28:
         ERR_MSG(keyword must be a literal);
     case 201:
@@ -178,47 +195,55 @@ static __inline FILE* kola_open(PyObject* raw_path, PyObject** out, const char* 
     PyObject* stringobj = NULL;
     FILE* fp;
 #ifdef MS_WINDOWS
+    wchar_t wmode[10];
     DWORD dwNum = MultiByteToWideChar(CP_ACP, 0, mode, -1, NULL, 0); 
-    wchar_t* wmode = (wchar_t*)malloc(dwNum * sizeof(wchar_t));
+    if (dwNum > 9) {
+        PyErr_Format(PyExc_ValueError, "invalid mode: %.200s", mode);
+        return NULL;
+    }
     MultiByteToWideChar(CP_ACP, 0, mode, -1, wmode, dwNum);
     Py_UNICODE *widename = NULL;
     if (!PyUnicode_FSDecoder(raw_path, &stringobj)) {
-        free(wmode);
         return NULL;
     }
     widename = PyUnicode_AsWideCharString(stringobj, NULL);
     if (widename == NULL) {
-        free(wmode);
         return NULL;
     }
+
+    Py_BEGIN_ALLOW_THREADS
     fp = _wfopen(widename, wmode);
-    free(wmode);
+    Py_END_ALLOW_THREADS
 #else
     const char *name = NULL;
     if (!PyUnicode_FSConverter(raw_path, &stringobj)) {
         return NULL;
     }
     name = PyBytes_AS_STRING(stringobj);
+
+    Py_BEGIN_ALLOW_THREADS
     fp = fopen(name, mode);
+    Py_END_ALLOW_THREADS
 #endif
     if (fp == NULL) {
         PyErr_Format(PyExc_OSError, "fail to open '%S'", raw_path);
     }
-    *out = stringobj;
+    if (out)
+        *out = stringobj;
     return fp;
 }
 
 static __inline const char* unicode2string(PyObject* __s, Py_ssize_t* s_len) {
     Py_ssize_t _s_len;
-    if (!s_len)
-        s_len = &_s_len;
-    const char* s = PyUnicode_AsUTF8AndSize(__s, s_len);
+    const char* s = PyUnicode_AsUTF8AndSize(__s, &_s_len);
     if (s == NULL)
         return NULL;
-    else if (strlen(s) != (size_t)*s_len) {
+    else if (strlen(s) != (size_t)_s_len) {
         PyErr_SetString(PyExc_ValueError, "embedded null character");
         return NULL;
     }
+    if (s_len)
+        *s_len = _s_len;
     return s;
 }
 

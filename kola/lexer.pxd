@@ -1,7 +1,5 @@
 from libc.stdio cimport stdin, FILE, fopen, fclose, EOF
-from libc.string cimport strchr, strcmp
-from cpython cimport PyObject, PyLong_FromString, PyFloat_FromString, PyUnicode_FromStringAndSize, \
-    PyBytes_FromStringAndSize, PyUnicode_Decode, PyErr_Format, PY_MINOR_VERSION
+from cpython cimport PyObject
 
 from ._cutil cimport *
 

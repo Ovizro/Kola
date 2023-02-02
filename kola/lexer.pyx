@@ -1,5 +1,9 @@
 # distutils: sources = [kola/lex.yy.c, kola/unicode_handler.c]
 cimport cython
+from libc.string cimport strchr, strcmp
+from cpython cimport Py_DECREF, PyLong_FromString, PyFloat_FromString, PyUnicode_FromStringAndSize, \
+    PyBytes_FromStringAndSize, PyUnicode_Decode, PyErr_Format
+
 from .exception import KoiLangSyntaxError
 
 
@@ -29,6 +33,7 @@ cdef class Token:
     Don't instantiate this class directly unless you make
     sure enough arguments provided.
     """
+
     def __cinit__(
         self,
         TokenSyn syn,
@@ -63,22 +68,25 @@ cdef class Token:
             return PyUnicode_FromFormat("<token %d: %R>", self.syn, <void*>self.val)
     
 
-cdef class BaseLexer:
+cdef class BaseLexer(object):
     """
     KoiLang lexer reading from stdin
     """
 
-    def __cinit__(self, *args, str encoding not None = "utf-8", uint8_t stat = 0):
-        if type(self) is BaseLexer:
-            if args:
-                PyErr_Format(TypeError, "__cinit__() takes exactly 0 positional arguments (%d given)", len(args))
-            self.buffer = yy_create_buffer(stdin, BUFFER_SIZE)
-        self._filename = "<stdin>"
+    def __cinit__(self, *args, uint8_t stat = 0, **kwds):
+        self.buffer = NULL
         self.lineno = 1
-        self.encoding = encoding
+        self.encoding = "utf-8"
         if stat > 2:
             raise ValueError("lexer state must be between 0 and 2")
         self.stat = stat
+    
+    def __init__(self, str encoding not None = "utf-8", uint8_t stat = 0):
+        if self.buffer:
+            yy_delete_buffer(self.buffer)
+        self._filename = "<stdin>"
+        self.buffer = yy_create_buffer(stdin, BUFFER_SIZE)
+        self.encoding = encoding
     
     def __dealloc__(self):
         self.close()
@@ -177,7 +185,10 @@ cdef class BaseLexer:
         return token
     
     def __repr__(self):
-        return PyUnicode_FromFormat("<kola lexer in file \"%s\" line %d>", self._filename, self.lineno)
+        if self.buffer == NULL:
+            return PyUnicode_FromFormat("<kola lexer in file \"%s\" closed>", self._filename, self.lineno)
+        else:
+            return PyUnicode_FromFormat("<kola lexer in file \"%s\" line %d>", self._filename, self.lineno)
 
 
 cdef class FileLexer(BaseLexer):
@@ -185,14 +196,20 @@ cdef class FileLexer(BaseLexer):
     KoiLang lexer reading from file
     """
 
-    def __cinit__(self, __path, *, str encoding not None = "utf-8", uint8_t stat = 0):
+    def __init__(self, __path not None, *, str encoding not None = "utf-8", stat = None):
+        if self.buffer:
+            self.close()
+
         self._filenameo = __path
         cdef PyObject* p_addr
         self.fp = kola_open(__path, &p_addr, 'r')
         p = <object>p_addr
         self._filenameb = <bytes>p if isinstance(p, bytes) else (<str>p).encode()
         self._filename = self._filenameb
+        Py_DECREF(p)
+
         self.buffer = yy_create_buffer(self.fp, BUFFER_SIZE)
+        self.encoding = encoding
     
     cpdef void close(self):
         yy_delete_buffer(self.buffer)
@@ -210,10 +227,14 @@ cdef class StringLexer(BaseLexer):
     """
     KoiLang lexer reading from string provided
     """
-    def __cinit__(self, content not None, *, str encoding not None = "utf-8", uint8_t stat = 0):
+
+    def __init__(self, content not None, *, str encoding not None = "utf-8", stat = None):
+        if self.buffer:
+            yy_delete_buffer(self.buffer)
         self._filename = "<string>"
         if isinstance(content, str):
             self.content = (<str>content).encode()
         else:
             self.content = content
         self.buffer = yy_scan_bytes(self.content, len(self.content))
+        self.encoding = encoding
