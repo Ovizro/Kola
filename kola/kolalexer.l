@@ -16,8 +16,8 @@ uint    ([1-9]{digit}*|0)
 sigint  (-?{uint})
 hex     0x[0-9A-Za-z]+
 bin     0b[01]+
-point   \.{digit}+
-float   (({sigint}\.?{digit}*)|{point})((e|E)-?{digit}+)?
+float_e (e|E)-?{digit}+
+float   ((({sigint}\.{digit}*)|(-?\.{digit}+)){float_e}?)|({sigint}{float_e})
 literal {letter_}({letter_}|{digit})*
 string  \"([^\"]|(\\\r?\n)|(\\\"))*\"
 text    [^#\n\r \t]((.|\\\r?\n)*[^\r\n\\ \t])?

@@ -1,12 +1,15 @@
+from functools import partial
+import os
 from types import MethodType
 from typing import (Any, Callable, Dict, Generator, Iterable, Mapping,
                     NamedTuple, Optional, Set, Tuple, Type, Union, cast,
                     overload)
-from typing_extensions import Literal
+from typing_extensions import Literal, Self
 
 from .exception import KoiLangCommandError
 from .lexer import BaseLexer, FileLexer, StringLexer
 from .parser import Parser
+from .writer import BaseWriter, FileWriter, StringWriter
 
 
 class EnvNode(NamedTuple):
@@ -16,10 +19,11 @@ class EnvNode(NamedTuple):
 
 
 class Command(object):
-    __slots__ = ["__name__", "__func__", "method_type", "envs", "suppression", "alias"]
+    __slots__ = ["__name__", "__func__", "method_type", "envs", "suppression", "alias", "writer_func"]
 
     def __init__(
-        self, name: str,
+        self,
+        name: str,
         func: Callable,
         *,
         method: Literal["static", "class", "default"] = "default",
@@ -37,6 +41,10 @@ class Command(object):
         self.envs = (envs,) if isinstance(envs, str) else tuple(envs)
         self.alias = (alias,) if isinstance(alias, str) else tuple(alias)
         self.suppression = suppression
+        if self.__name__ == "@text":
+            self.writer_func = partial(BaseWriter.write_text)
+        else:
+            self.writer_func = partial(BaseWriter.write_command, name=name)
 
     def bind(self, ins: Optional["KoiLang"], owner: Optional[Type["KoiLang"]] = None) -> Callable:
         """binding command function with an instance"""
@@ -53,6 +61,10 @@ class Command(object):
             yield self.__name__, bound_func
             for i in self.alias:
                 yield i, bound_func
+    
+    def writer(self, func: Callable) -> Self:
+        self.writer_func = func
+        return self
 
     def __get__(self, instance: Any, owner: type) -> Callable:
         return self.bind(instance, cast(Type[KoiLang], owner))
@@ -66,7 +78,7 @@ class Command(object):
         return self.__func__(*args, **kwds)
     
     def __repr__(self) -> str:
-        return f"<KoiLang command {self.__name__} with {self.__func__}>"
+        return f"<kola command {self.__name__} with {self.__func__}>"
 
 
 class BaseEnv(Command):
@@ -98,7 +110,7 @@ class BaseEnv(Command):
             return super().__call__(vmobj, *args, **kwds)
 
     def __repr__(self) -> str:
-        return f"<KoiLang command {self.__name__} with {self.__func__} on '{self.env_name}'>"
+        return f"<kola command {self.__name__} with {self.__func__} on '{self.env_name}'>"
 
 
 class EnvEnter(BaseEnv):
@@ -293,6 +305,43 @@ class EnvClsEnter(BaseEnv):
         return super().__call__(cmd_set, *args, **kwds)
 
 
+class KoiLangClassWriter:
+    def __init__(
+        self,
+        command_set: "KoiLangMeta",
+        *,
+        path: Union[str, bytes, os.PathLike, None] = None,
+        encoding: str = "utf-8",
+        indent: int = 4
+    ) -> None:
+        self.__command_set = command_set
+        if path:
+            self._raw_writer = FileWriter(path, encoding=encoding, indent=indent)
+        else:
+            self._raw_writer = StringWriter(indent=indent)
+    
+    def __getattr__(self, name: str) -> Callable:
+        for i in self.__command_set.__command_field__:
+            if i.__name__ == name:
+                return i.writer_func
+        else:
+            raise AttributeError(f"'{name}' is not a valid command name")
+    
+    def newline(self) -> None:
+        self._raw_writer.newline()
+    
+    def getvalue(self) -> str:
+        assert isinstance(self._raw_writer, StringWriter)
+        return self._raw_writer.getvalue()
+
+    def __enter__(self) -> Self:
+        self._raw_writer.__enter__()
+        return self
+
+    def __exit__(self, *args) -> None:
+        self._raw_writer.__exit__(*args)
+
+
 class KoiLangMeta(type):
     """
     Metaclass for KoiLang class
@@ -350,8 +399,17 @@ class KoiLangMeta(type):
         else:
             return wrapper
     
+    def writer(
+        self,
+        path: Union[str, bytes, os.PathLike, None],
+        *,
+        encoding: str = 'utf-8',
+        indent: int = 4
+    ) -> KoiLangClassWriter:
+        return KoiLangClassWriter(self, path=path, encoding=encoding, indent=indent)
+    
     def __repr__(self) -> str:
-        return f"<KoiLang command set '{self.__qualname__}'>"
+        return f"<kola command set '{self.__qualname__}'>"
 
 
 class KoiLang(metaclass=KoiLangMeta):
@@ -489,7 +547,7 @@ class KoiLang(metaclass=KoiLangMeta):
         return length
 
     def __repr__(self) -> str:
-        return f"<KoiLang {self.__class__.__qualname__} object in environment {self.top[0]}>"
+        return f"<kola {self.__class__.__qualname__} object in environment {self.top[0]}>"
 
 
 @overload

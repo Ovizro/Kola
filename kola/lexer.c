@@ -975,6 +975,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <stdio.h>
 #include "pythread.h"
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include "_cutil.h"
 #ifdef _OPENMP
@@ -1245,7 +1246,7 @@ struct __pyx_opt_args_7cpython_11contextvars_get_value_no_default {
 struct __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t;
 typedef struct __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t;
 
-/* "kola/lexer.pxd":58
+/* "kola/lexer.pxd":54
  *     cdef void set_error(self) except *
  *     cdef void ensure(self)
  *     cdef (int, const char*, Py_ssize_t) next_syn(self)             # <<<<<<<<<<<<<<
@@ -1258,7 +1259,7 @@ struct __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t {
   Py_ssize_t f2;
 };
 
-/* "kola/lexer.pxd":34
+/* "kola/lexer.pxd":30
  * 
  * 
  * cdef class Token:             # <<<<<<<<<<<<<<
@@ -1276,7 +1277,7 @@ struct __pyx_obj_4kola_5lexer_Token {
 };
 
 
-/* "kola/lexer.pxd":46
+/* "kola/lexer.pxd":42
  * 
  * 
  * cdef class BaseLexer:             # <<<<<<<<<<<<<<
@@ -1294,7 +1295,7 @@ struct __pyx_obj_4kola_5lexer_BaseLexer {
 };
 
 
-/* "kola/lexer.pxd":62
+/* "kola/lexer.pxd":58
  * 
  * 
  * cdef class FileLexer(BaseLexer):             # <<<<<<<<<<<<<<
@@ -1309,7 +1310,7 @@ struct __pyx_obj_4kola_5lexer_FileLexer {
 };
 
 
-/* "kola/lexer.pxd":71
+/* "kola/lexer.pxd":67
  * 
  * 
  * cdef class StringLexer(BaseLexer):             # <<<<<<<<<<<<<<
@@ -3520,7 +3521,7 @@ static PyObject *__pyx_pf_4kola_5lexer_5Token_6__repr__(struct __pyx_obj_4kola_5
   return __pyx_r;
 }
 
-/* "kola/lexer.pxd":38
+/* "kola/lexer.pxd":34
  *         Token next     # used in grammar parser
  *     cdef readonly:
  *         TokenSyn syn             # <<<<<<<<<<<<<<
@@ -3551,7 +3552,7 @@ static PyObject *__pyx_pf_4kola_5lexer_5Token_3syn___get__(struct __pyx_obj_4kol
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_enum__TokenSyn(__pyx_v_self->syn); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 38, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_enum__TokenSyn(__pyx_v_self->syn); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3568,7 +3569,7 @@ static PyObject *__pyx_pf_4kola_5lexer_5Token_3syn___get__(struct __pyx_obj_4kol
   return __pyx_r;
 }
 
-/* "kola/lexer.pxd":39
+/* "kola/lexer.pxd":35
  *     cdef readonly:
  *         TokenSyn syn
  *         object val             # <<<<<<<<<<<<<<
@@ -3606,7 +3607,7 @@ static PyObject *__pyx_pf_4kola_5lexer_5Token_3val___get__(struct __pyx_obj_4kol
   return __pyx_r;
 }
 
-/* "kola/lexer.pxd":40
+/* "kola/lexer.pxd":36
  *         TokenSyn syn
  *         object val
  *         bytes raw_val             # <<<<<<<<<<<<<<
@@ -3644,7 +3645,7 @@ static PyObject *__pyx_pf_4kola_5lexer_5Token_7raw_val___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "kola/lexer.pxd":41
+/* "kola/lexer.pxd":37
  *         object val
  *         bytes raw_val
  *         int lineno             # <<<<<<<<<<<<<<
@@ -3675,7 +3676,7 @@ static PyObject *__pyx_pf_4kola_5lexer_5Token_6lineno___get__(struct __pyx_obj_4
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->lineno); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 41, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->lineno); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 37, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5743,7 +5744,7 @@ static PyObject *__pyx_pf_4kola_5lexer_9BaseLexer_12__repr__(struct __pyx_obj_4k
   return __pyx_r;
 }
 
-/* "kola/lexer.pxd":51
+/* "kola/lexer.pxd":47
  *         YY_BUFFER_STATE buffer
  *     cdef readonly:
  *         str encoding             # <<<<<<<<<<<<<<
@@ -5781,7 +5782,7 @@ static PyObject *__pyx_pf_4kola_5lexer_9BaseLexer_8encoding___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "kola/lexer.pxd":52
+/* "kola/lexer.pxd":48
  *     cdef readonly:
  *         str encoding
  *         int lineno             # <<<<<<<<<<<<<<
@@ -5812,7 +5813,7 @@ static PyObject *__pyx_pf_4kola_5lexer_9BaseLexer_6lineno___get__(struct __pyx_o
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->lineno); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 52, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->lineno); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 48, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5829,7 +5830,7 @@ static PyObject *__pyx_pf_4kola_5lexer_9BaseLexer_6lineno___get__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "kola/lexer.pxd":53
+/* "kola/lexer.pxd":49
  *         str encoding
  *         int lineno
  *         int stat             # <<<<<<<<<<<<<<
@@ -5860,7 +5861,7 @@ static PyObject *__pyx_pf_4kola_5lexer_9BaseLexer_4stat___get__(struct __pyx_obj
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->stat); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 53, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->stat); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -7030,7 +7031,7 @@ static int __pyx_pf_4kola_5lexer_11StringLexer___init__(struct __pyx_obj_4kola_5
   return __pyx_r;
 }
 
-/* "kola/lexer.pxd":72
+/* "kola/lexer.pxd":68
  * 
  * cdef class StringLexer(BaseLexer):
  *     cdef readonly bytes content             # <<<<<<<<<<<<<<

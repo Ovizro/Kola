@@ -4,6 +4,13 @@ from cpython cimport PyObject, PySequence_Check, PyMapping_Check, PyErr_Format, 
     PyUnicode_FindChar, PyUnicode_FromStringAndSize, PyUnicode_AsEncodedString
 
 import re
+from typing_extensions import Protocol, runtime_checkable
+
+
+@runtime_checkable
+class WriterItemLike(Protocol):
+    def __kola_write__(self, __writer: BaseWriter, __level: int) -> None:
+        pass
 
 
 cdef extern from *:
@@ -18,72 +25,81 @@ cdef extern from *:
 cdef object literal_pattarn = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
-cdef inline void _write_writeritemlike(BaseWriter writer, object obj) except *:
+cdef inline void _write_writeritemlike(BaseWriter writer, object obj, ItemLevel level) except *:
+    if isinstance(obj, BaseWriterItem):
+        (<BaseWriterItem>obj).__kola_write__(writer, level)
+        return
+
     cdef PyObject* kw_method = _PyType_Lookup(type(obj), "__kola_write__")
     if kw_method == NULL:
         PyErr_Format(TypeError, "unsupport type '%s'", get_type_qualname(obj))
-    (<object>kw_method)(writer)
+    (<object>kw_method)(obj, writer, level)
 
 cdef bint _write_base_item(BaseWriter writer, object value) except -1:
+    cdef str lt
     if isinstance(value, str):
-        writer.raw_write(repr(<str>value))
+        if literal_pattarn.match(value) is None:
+            lt = <str>repr(<str>value)
+            PyUnicode_WriteChar(lt, 0, ord('"'))
+            PyUnicode_WriteChar(lt, len(lt) - 1, ord('"'))
+        else:
+            lt = <str>value
+        writer.raw_write(lt)
     elif isinstance(value, bytes):
         writer.raw_write_string(<const char*>(<bytes>value), len(<bytes>value))
     elif isinstance(value, (int, float)):
         writer.raw_write(str(value))
-    elif isinstance(value, BaseWriterItem):
-        if value.is_complex:
-            return False
-        _write_writeritemlike(writer, value)
     else:
         return False
     return True
 
+cdef inline void _write_base_item_wrapped(BaseWriter writer, object value) except *:
+    if not _write_base_item(writer, value):
+        _write_writeritemlike(writer, value, BASE_ITEM)
 
 cdef void _write_complex_item(BaseWriter writer, str key, object value, bint split_line = False) except *:
+    cdef bint is_first = True
     writer.raw_write(key)
     writer.raw_write_char(ord('('))
     if split_line:
+        writer.inc_indent()
         writer.newline(True)
-    if not _write_base_item(writer, value):
-        if isinstance(value, list):
-            if not value:
-                raise ValueError("empty list is not a valid kola item")
-            for i in <list>value:
-                if not _write_base_item(writer, i):
-                    PyErr_Format(TypeError, "'%s' object is not a base kola item", get_type_qualname(i))
-                if split_line:
-                    writer.raw_write_char(ord(','))
-                    writer.newline(True)
-                else:
+    try:
+        if not _write_base_item(writer, value):
+            if isinstance(value, list):
+                if not value:
+                    raise ValueError("empty list is not a valid kola item")
+                _write_base_item_wrapped(writer, (<list>value)[0])
+                for i in range(1, len(<list>value)):
                     writer.raw_write_string(", ", 2)
-        elif isinstance(value, dict):
-            if not value:
-                raise ValueError("empty dict is not a valid kola item")
-            for k, v in (<dict>value).items():
-                writer.raw_write(k)
-                writer.raw_write_string(": ", 2)
-                if not _write_base_item(writer, v):
-                    PyErr_Format(TypeError, "'%s' object is not a base kola item", get_type_qualname(v))
-                if split_line:
-                    writer.raw_write_char(ord(','))
-                    writer.newline(True)
-                else:
-                    writer.raw_write_string(", ", 2)
-        else:
-            if not value.is_complex:
-                pass
-    if split_line:
-        writer.newline(True)
+                    if split_line:
+                        writer.newline(True)
+                    _write_base_item_wrapped(writer, (<list>value)[i])
+            elif isinstance(value, dict):
+                if not value:
+                    raise ValueError("empty dict is not a valid kola item")
+                for k, v in (<dict>value).items():
+                    if not is_first:
+                        writer.raw_write_string(", ", 2)
+                        if split_line:
+                            writer.newline(True)
+                    else:
+                        is_first = False
+                    _write_base_item_wrapped(writer, k)
+                    writer.raw_write_string(": ", 2)
+                    _write_base_item_wrapped(writer, v)
+            else:
+                _write_writeritemlike(writer, value, COMPLEX_ITEM)
+    finally:
+        if split_line:
+            writer.dec_indent()
+            writer.newline(True)
     writer.raw_write_char(ord(')'))
+    writer.line_beginning = False
 
 
 cdef class BaseWriterItem(object):
-    @property
-    def is_complex(self):
-        return False
-
-    cpdef void __kola_write__(self, BaseWriter writer) except *:
+    cpdef void __kola_write__(self, BaseWriter writer, ItemLevel level) except *:
         raise NotImplementedError
     
     def __repr__(self):
@@ -95,31 +111,49 @@ cdef class FormatItem(BaseWriterItem):
         self.value = value
         self.spec = spec
     
-    cpdef void __kola_write__(self, BaseWriter writer) except *:
+    cpdef void __kola_write__(self, BaseWriter writer, ItemLevel level) except *:
+        if level == FULL_CMD:
+            raise ValueError("format item cannot be usec as a full command")
         writer.raw_write(format(self.value, self.spec))
 
 
-cdef class ComplexItem(BaseWriterItem):
-    def __init__(self, str name not None, value):
+cdef class ComplexArg(BaseWriterItem):
+    def __init__(self, str name not None, value, *, bint split_line = False):
         if not (isinstance(value, (str, int, float)) or PySequence_Check(value) or PyMapping_Check(value)):
             PyErr_Format(TypeError, "unsupport type '%s'", get_type_qualname(value))
         if literal_pattarn.match(name) is None:
             PyErr_Format(ValueError, "'%U' is not a valid item name", <PyObject*>name)
         self.name = name
         self.value = value
+        self.split_line = split_line
         
-    @property
-    def is_complex(self):
-        return True
-    
-    cpdef void __kola_write__(self, BaseWriter writer) except *:
-        _write_complex_item(writer, self.name, self.value)
+    cpdef void __kola_write__(self, BaseWriter writer, ItemLevel level) except *:
+        if level != ARG_ITEM:
+            raise ValueError("complex argument should only be used in argument level")
+        _write_complex_item(writer, self.name, self.value, self.split_line)
+
+
+cdef class NewlineItem(BaseWriterItem):
+    cpdef void __kola_write__(self, BaseWriter writer, ItemLevel level) except *:
+        if level == FULL_CMD:
+            writer.newline()
+        else:
+            writer.newline(True)
+
+
+WF_BASE_ITEM = BASE_ITEM
+WF_COMPLEX_ITEM = COMPLEX_ITEM
+WF_ARG_ITEM = ARG_ITEM
+WF_FULL_CMD = FULL_CMD
+
+WI_NEWLINE = i_newline = NewlineItem()
     
 
 cdef class BaseWriter(object):
     def __cinit__(self, *args, uint8_t indent = 4, **kwds):
         self.indent = indent
         self.cur_indent = 0
+        self.line_beginning = True
     
     def __init__(self, uint8_t indent = 4):
         if type(self) is BaseWriter:
@@ -168,35 +202,62 @@ cdef class BaseWriter(object):
         else:
             self.raw_write_string("\n", 1)
         self.write_indent()
+        self.line_beginning = True
     
     def write_text(self, str text not None):
         text = text.replace('\n', '\\\n')
         self.raw_write(text)
         self.newline()
     
-    def write_command(self, str __name not None, *args, **kwds):
-        self.raw_write_char(ord('#'))
-        self.raw_write(__name)
+    def write_command(self, name not None, *args, **kwds):
+        cdef:
+            int number_name
+            char cache[12]
+        if isinstance(name, str):
+            if literal_pattarn.match(name) is None:
+                PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>name)
+            self.raw_write_char(ord('#'))
+            self.raw_write(name)
+        elif isinstance(name, int):
+            number_name = <int>name
+            if number_name < 0:
+                raise ValueError("the numeric command must be a non-negative integer")
+            cache[0] = ord('#')
+            itoa(number_name, cache + 1, 10)
+            self.raw_write_string(cache)
+        else:
+            PyErr_Format(
+                TypeError,
+                "argumnet 'name' must be a str or an integer, not '%s'",
+                get_type_qualname(name)
+            )
 
+        self.line_beginning = False
         self.inc_indent()
-        cdef PyObject* tmp
         try:
             for i in args:
-                self.raw_write_char(ord(' '))
-                if isinstance(i, BaseWriterItem):
-                    (<BaseWriterItem>i).__kola_write__(self)
-                elif isinstance(i, str):
-                    self.raw_write(repr(<str>i))
-                elif isinstance(i, (int, float)):
-                    self.raw_write(str(i))
+                if not self.line_beginning:
+                    self.raw_write_char(ord(' '))
                 else:
-                    tmp = _PyType_Lookup(type(i), "__kola_write__")
-                    if tmp == NULL:
-                        PyErr_Format(TypeError, "unsupport type '%s'", get_type_qualname(i))
-                    (<object>tmp)(self)
+                    self.line_beginning = False
+                if not _write_base_item(self, i):
+                    _write_writeritemlike(self, i, ARG_ITEM)
+
+            for k, v in kwds.items():
+                if not self.line_beginning:
+                    self.raw_write_char(ord(' '))
+                else:
+                    self.line_beginning = False
+                _write_complex_item(self, k, v)
         finally:
             self.dec_indent()
         self.newline()
+    
+    def write(self, command not None):
+        if isinstance(command, str):
+            return self.write_text(command)
+        else:
+            _write_writeritemlike(self, command, FULL_CMD)
 
     @property
     def closed(self):
@@ -208,18 +269,25 @@ cdef class BaseWriter(object):
     def __exit__(self, *args):
         self.close()
     
+    def __repr__(self):
+        cdef const char* format = "<kola writer object closed at %p>" if self.closed else "<kola writer object at %p>"
+        return PyUnicode_FromFormat(format, <PyObject*>self)
+    
 
 cdef class FileWriter(BaseWriter):
     def __cinit__(
         self,
         __path,
         *args,
-        str encoding not None = "utf-8",
+        str encoding = "utf-8",
         **kwds
     ):
         self.path = __path
         self.fp = kola_open(__path, NULL, 'w')
-        self.encoding = encoding
+        if encoding is None:
+            self.encoding = "utf-8"
+        else:
+            self.encoding = encoding
     
     def __init__(self, __path, encoding = "utf-8", indent = None):
         pass
@@ -254,10 +322,6 @@ cdef class FileWriter(BaseWriter):
 
 
 cdef class StringWriter(BaseWriter):
-    cdef:
-        bint _closed
-        _PyUnicodeWriter writer
-    
     def __cinit__(self, *args, **kwds):
         self._closed = False
         _PyUnicodeWriter_Init(&self.writer)

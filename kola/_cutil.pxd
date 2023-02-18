@@ -2,6 +2,10 @@ from libc.stdio cimport FILE
 from libc.stdint cimport uint8_t, uint64_t
 from cpython cimport PyObject
 
+
+cdef extern from "<stdlib.h>":
+    char* itoa(int value, char* buffer, int radix)
+
 cdef extern from "<stdarg.h>":
     ctypedef struct va_list
     void va_start(va_list ap, const char* last_arg) nogil
@@ -13,6 +17,8 @@ cdef extern from "Python.h":
     ctypedef uint64_t Py_UCS4
     
     str PyUnicode_FromFormat(const char* format, ...)
+    int PyUnicode_WriteChar(
+        str unicode, Py_ssize_t index, Py_UCS4 character) except -1
 
     enum PyUnicode_Kind:
         PyUnicode_WCHAR_KIND = 0

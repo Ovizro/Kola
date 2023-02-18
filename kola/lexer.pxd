@@ -4,10 +4,6 @@ from cpython cimport PyObject
 from ._cutil cimport *
 
 
-cdef extern from "Python.h":
-    str PyUnicode_FromFormat(const char*, ...)
-
-
 cdef extern from *:
     struct yy_buffer_state:
         pass
