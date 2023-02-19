@@ -21,7 +21,6 @@ from traceback import print_exc
 from typing import Any, Callable, Optional
 
 from .lexer import BaseLexer, FileLexer, StringLexer
-from .parser import Parser
 from .klvm import KoiLang, KoiLangMeta, kola_command, kola_env, kola_text
 from .exception import KoiLangCommandError, KoiLangError
 
@@ -42,14 +41,11 @@ def _load_script(path: str, encoding: str = "utf-8") -> KoiLangMeta:
         raise TypeError("no KoiLang command set found")
 
 
-class _CommandDebugger:
+class _CommandDebugger(KoiLang):
     def __getitem__(self, key: str) -> Callable[..., None]:
         def wrapper(*args, **kwds) -> None:
             print(f"cmd: {key} with args {args} kwds {kwds}")
         return wrapper
-
-
-cmd_debugger = _CommandDebugger()
 
 
 class KoiLangMain(KoiLang):
@@ -154,78 +150,67 @@ class KoiLangMain(KoiLang):
             return self.vars.get(key, None)
 
 
-parser = ArgumentParser("kola")
-parser.add_argument("file", default=None, nargs="?")
-parser.add_argument("-i", "--inline", help="parse inline string")
-parser.add_argument("-s", "--script", help="parser script")
-parser.add_argument("-d", "--debug", help="dubugger type", choices=["token", "command"])
+def _read_stdin() -> str:
+    sys.stdout.write("$kola: ")
+    sys.stdout.flush()
+    s = sys.stdin.readline()
+    while s.endswith("\\\n"):
+        sys.stdout.write("$...: ")
+        sys.stdout.flush()
+        s += sys.stdin.readline()
+    return s
 
-namespace = parser.parse_args()
 
+if __name__ == "__main__":
+    parser = ArgumentParser("kola")
+    parser.add_argument("file", default=None, nargs="?")
+    parser.add_argument("-i", "--inline", help="parse inline string")
+    parser.add_argument("-s", "--script", help="parser script")
+    parser.add_argument("-d", "--debug", help="dubugger type", choices=["token", "command"])
+    parser.add_argument("--encoding", help="file encoding", default="utf-8")
 
-if namespace.file:
-    lexer = FileLexer(namespace.file)
-elif namespace.inline:
-    lexer = StringLexer(namespace.inline)
-else:
-    lexer = None
+    namespace = parser.parse_args()
 
-if namespace.debug == "token":
-    if lexer is None:
-        print(f"KoiLang Token Debugger {__version__} on Python {sys.version}")
-        lexer = BaseLexer()
-    while True:
-        try:
-            for i in lexer:
-                print(i)
-            break
-        except KeyboardInterrupt:
-            break
-        except KoiLangError:
-            print_exc()
-
-elif namespace.debug == "command":
-    if lexer:
-        Parser(lexer, cmd_debugger).exec()
+    if namespace.file:
+        lexer = FileLexer(namespace.file)
+    elif namespace.inline:
+        lexer = StringLexer(namespace.inline)
     else:
-        print(f"KoiLang Command Debugger {__version__} on Python {sys.version}")
+        lexer = None
+
+    runner_type = "Runner"
+    if namespace.debug == "token":
+        runner_type = "Token Debugger"
+        if lexer is None:
+            print(f"KoiLang {runner_type} {__version__} on Python {sys.version}")
+            lexer = BaseLexer()
         while True:
             try:
-                sys.stdout.write("$kola: ")
-                sys.stdout.flush()
-                i = sys.stdin.readline()
-                while i.endswith("\\\n"):
-                    sys.stdout.write("$...: ")
-                    sys.stdout.flush()
-                    i += sys.stdin.readline()
-                Parser(StringLexer(i), cmd_debugger).exec_once()
+                for i in lexer:
+                    print(i)
+                break
             except KeyboardInterrupt:
                 break
             except KoiLangError:
                 print_exc()
-    
-else:
-    if namespace.script:
-        command_cls = _load_script(namespace.script)
     else:
-        command_cls = KoiLangMain
+        if namespace.debug == "command":
+            command_cls = _CommandDebugger
+            runner_type = "Command Debugger"
+        elif namespace.script:
+            command_cls = _load_script(namespace.script)
+        else:
+            command_cls = KoiLangMain
 
-    command_set = command_cls()
-    if lexer:
-        command_set.parse(lexer)
-    else:
-        print(f"KoiLang Runner {__version__} on Python {sys.version}")
-        while True:
-            try:
-                sys.stdout.write("$kola: ")
-                sys.stdout.flush()
-                i = sys.stdin.readline()
-                while i.endswith("\\\n"):
-                    sys.stdout.write("$... : ")
-                    sys.stdout.flush()
-                    i += sys.stdin.readline()
-                command_set.parse(i)
-            except KeyboardInterrupt:
-                break
-            except KoiLangError:
-                print_exc()
+        command_set = command_cls()
+        if lexer:
+            command_set.parse(lexer)
+        else:
+            print(f"KoiLang {runner_type} {__version__} on Python {sys.version}")
+            while True:
+                try:
+                    command_set.parse(_read_stdin())
+                except KeyboardInterrupt:
+                    break
+                except KoiLangError:
+                    print_exc()
