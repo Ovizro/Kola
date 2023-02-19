@@ -42,9 +42,10 @@ class Command(object):
         self.alias = (alias,) if isinstance(alias, str) else tuple(alias)
         self.suppression = suppression
         if self.__name__ == "@text":
-            self.writer_func = partial(BaseWriter.write_text)
+            self.writer_func = BaseWriter.write_text
         else:
-            self.writer_func = partial(BaseWriter.write_command, name=name)
+            self.writer_func = lambda writer, *args, **kwds: \
+                writer.write_command(name, *args, **kwds)
 
     def bind(self, ins: Optional["KoiLang"], owner: Optional[Type["KoiLang"]] = None) -> Callable:
         """binding command function with an instance"""
@@ -323,7 +324,7 @@ class KoiLangClassWriter:
     def __getattr__(self, name: str) -> Callable:
         for i in self.__command_set.__command_field__:
             if i.__name__ == name:
-                return i.writer_func
+                return partial(i.writer_func, self._raw_writer)
         else:
             raise AttributeError(f"'{name}' is not a valid command name")
     
@@ -401,7 +402,7 @@ class KoiLangMeta(type):
     
     def writer(
         self,
-        path: Union[str, bytes, os.PathLike, None],
+        path: Union[str, bytes, os.PathLike, None] = None,
         *,
         encoding: str = 'utf-8',
         indent: int = 4

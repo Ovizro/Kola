@@ -209,17 +209,17 @@ cdef class BaseWriter(object):
         self.raw_write(text)
         self.newline()
     
-    def write_command(self, name not None, *args, **kwds):
+    def write_command(self, __name not None, *args, **kwds):
         cdef:
             int number_name
             char cache[12]
-        if isinstance(name, str):
-            if literal_pattarn.match(name) is None:
-                PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>name)
+        if isinstance(__name, str):
+            if literal_pattarn.match(__name) is None:
+                PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>__name)
             self.raw_write_char(ord('#'))
-            self.raw_write(name)
-        elif isinstance(name, int):
-            number_name = <int>name
+            self.raw_write(__name)
+        elif isinstance(__name, int):
+            number_name = <int>__name
             if number_name < 0:
                 raise ValueError("the numeric command must be a non-negative integer")
             cache[0] = ord('#')
@@ -228,8 +228,8 @@ cdef class BaseWriter(object):
         else:
             PyErr_Format(
                 TypeError,
-                "argumnet 'name' must be a str or an integer, not '%s'",
-                get_type_qualname(name)
+                "argumnet '__name' must be a str or an integer, not '%s'",
+                get_type_qualname(__name)
             )
 
         self.line_beginning = False
@@ -255,7 +255,7 @@ cdef class BaseWriter(object):
     
     def write(self, command not None):
         if isinstance(command, str):
-            return self.write_text(command)
+            self.write_text(command)
         else:
             _write_writeritemlike(self, command, FULL_CMD)
 

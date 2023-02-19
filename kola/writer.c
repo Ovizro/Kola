@@ -2569,6 +2569,7 @@ static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_indent[] = "indent";
 static const char __pyx_k_module[] = "__module__";
 static const char __pyx_k_name_2[] = "__name__";
+static const char __pyx_k_name_3[] = "__name";
 static const char __pyx_k_pickle[] = "pickle";
 static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_return[] = "return";
@@ -2637,6 +2638,7 @@ static const char __pyx_k_WF_COMPLEX_ITEM[] = "WF_COMPLEX_ITEM";
 static const char __pyx_k_kola_writer_pyx[] = "kola\\writer.pyx";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
+static const char __pyx_k_BaseWriter__name[] = "_BaseWriter__name";
 static const char __pyx_k_BaseWriter_close[] = "BaseWriter.close";
 static const char __pyx_k_BaseWriter_write[] = "BaseWriter.write";
 static const char __pyx_k_FileWriter__path[] = "_FileWriter__path";
@@ -2707,6 +2709,7 @@ static PyObject *__pyx_n_s_BaseWriter___enter;
 static PyObject *__pyx_n_s_BaseWriter___exit;
 static PyObject *__pyx_n_s_BaseWriter___reduce_cython;
 static PyObject *__pyx_n_s_BaseWriter___setstate_cython;
+static PyObject *__pyx_n_s_BaseWriter__name;
 static PyObject *__pyx_n_s_BaseWriter_close;
 static PyObject *__pyx_n_s_BaseWriter_dec_indent;
 static PyObject *__pyx_n_s_BaseWriter_inc_indent;
@@ -2816,6 +2819,7 @@ static PyObject *__pyx_n_s_module;
 static PyObject *__pyx_n_s_mro_entries;
 static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_n_s_name_2;
+static PyObject *__pyx_n_s_name_3;
 static PyObject *__pyx_n_s_new;
 static PyObject *__pyx_n_s_newline;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
@@ -2902,7 +2906,7 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_12dec_indent(struct __pyx_o
 static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_14write_indent(struct __pyx_obj_4kola_6writer_BaseWriter *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_16newline(struct __pyx_obj_4kola_6writer_BaseWriter *__pyx_v_self, int __pyx_v_concat_prev); /* proto */
 static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_18write_text(struct __pyx_obj_4kola_6writer_BaseWriter *__pyx_v_self, PyObject *__pyx_v_text); /* proto */
-static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __pyx_obj_4kola_6writer_BaseWriter *__pyx_v_self, PyObject *__pyx_v_name, PyObject *__pyx_v_args, PyObject *__pyx_v_kwds); /* proto */
+static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __pyx_obj_4kola_6writer_BaseWriter *__pyx_v_self, PyObject *__pyx_v__BaseWriter__name, PyObject *__pyx_v_args, PyObject *__pyx_v_kwds); /* proto */
 static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_22write(struct __pyx_obj_4kola_6writer_BaseWriter *__pyx_v_self, PyObject *__pyx_v_command); /* proto */
 static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_6closed___get__(CYTHON_UNUSED struct __pyx_obj_4kola_6writer_BaseWriter *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_24__enter__(struct __pyx_obj_4kola_6writer_BaseWriter *__pyx_v_self); /* proto */
@@ -3049,6 +3053,7 @@ typedef struct {
   PyObject *__pyx_n_s_BaseWriter___exit;
   PyObject *__pyx_n_s_BaseWriter___reduce_cython;
   PyObject *__pyx_n_s_BaseWriter___setstate_cython;
+  PyObject *__pyx_n_s_BaseWriter__name;
   PyObject *__pyx_n_s_BaseWriter_close;
   PyObject *__pyx_n_s_BaseWriter_dec_indent;
   PyObject *__pyx_n_s_BaseWriter_inc_indent;
@@ -3158,6 +3163,7 @@ typedef struct {
   PyObject *__pyx_n_s_mro_entries;
   PyObject *__pyx_n_s_name;
   PyObject *__pyx_n_s_name_2;
+  PyObject *__pyx_n_s_name_3;
   PyObject *__pyx_n_s_new;
   PyObject *__pyx_n_s_newline;
   PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
@@ -3333,6 +3339,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_BaseWriter___exit);
   Py_CLEAR(clear_module_state->__pyx_n_s_BaseWriter___reduce_cython);
   Py_CLEAR(clear_module_state->__pyx_n_s_BaseWriter___setstate_cython);
+  Py_CLEAR(clear_module_state->__pyx_n_s_BaseWriter__name);
   Py_CLEAR(clear_module_state->__pyx_n_s_BaseWriter_close);
   Py_CLEAR(clear_module_state->__pyx_n_s_BaseWriter_dec_indent);
   Py_CLEAR(clear_module_state->__pyx_n_s_BaseWriter_inc_indent);
@@ -3442,6 +3449,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_mro_entries);
   Py_CLEAR(clear_module_state->__pyx_n_s_name);
   Py_CLEAR(clear_module_state->__pyx_n_s_name_2);
+  Py_CLEAR(clear_module_state->__pyx_n_s_name_3);
   Py_CLEAR(clear_module_state->__pyx_n_s_new);
   Py_CLEAR(clear_module_state->__pyx_n_s_newline);
   Py_CLEAR(clear_module_state->__pyx_kp_s_no_default___reduce___due_to_non);
@@ -3604,6 +3612,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_BaseWriter___exit);
   Py_VISIT(traverse_module_state->__pyx_n_s_BaseWriter___reduce_cython);
   Py_VISIT(traverse_module_state->__pyx_n_s_BaseWriter___setstate_cython);
+  Py_VISIT(traverse_module_state->__pyx_n_s_BaseWriter__name);
   Py_VISIT(traverse_module_state->__pyx_n_s_BaseWriter_close);
   Py_VISIT(traverse_module_state->__pyx_n_s_BaseWriter_dec_indent);
   Py_VISIT(traverse_module_state->__pyx_n_s_BaseWriter_inc_indent);
@@ -3713,6 +3722,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_mro_entries);
   Py_VISIT(traverse_module_state->__pyx_n_s_name);
   Py_VISIT(traverse_module_state->__pyx_n_s_name_2);
+  Py_VISIT(traverse_module_state->__pyx_n_s_name_3);
   Py_VISIT(traverse_module_state->__pyx_n_s_new);
   Py_VISIT(traverse_module_state->__pyx_n_s_newline);
   Py_VISIT(traverse_module_state->__pyx_kp_s_no_default___reduce___due_to_non);
@@ -3872,6 +3882,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_BaseWriter___exit __pyx_mstate_global->__pyx_n_s_BaseWriter___exit
 #define __pyx_n_s_BaseWriter___reduce_cython __pyx_mstate_global->__pyx_n_s_BaseWriter___reduce_cython
 #define __pyx_n_s_BaseWriter___setstate_cython __pyx_mstate_global->__pyx_n_s_BaseWriter___setstate_cython
+#define __pyx_n_s_BaseWriter__name __pyx_mstate_global->__pyx_n_s_BaseWriter__name
 #define __pyx_n_s_BaseWriter_close __pyx_mstate_global->__pyx_n_s_BaseWriter_close
 #define __pyx_n_s_BaseWriter_dec_indent __pyx_mstate_global->__pyx_n_s_BaseWriter_dec_indent
 #define __pyx_n_s_BaseWriter_inc_indent __pyx_mstate_global->__pyx_n_s_BaseWriter_inc_indent
@@ -3981,6 +3992,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_mro_entries __pyx_mstate_global->__pyx_n_s_mro_entries
 #define __pyx_n_s_name __pyx_mstate_global->__pyx_n_s_name
 #define __pyx_n_s_name_2 __pyx_mstate_global->__pyx_n_s_name_2
+#define __pyx_n_s_name_3 __pyx_mstate_global->__pyx_n_s_name_3
 #define __pyx_n_s_new __pyx_mstate_global->__pyx_n_s_new
 #define __pyx_n_s_newline __pyx_mstate_global->__pyx_n_s_newline
 #define __pyx_kp_s_no_default___reduce___due_to_non __pyx_mstate_global->__pyx_kp_s_no_default___reduce___due_to_non
@@ -10486,7 +10498,7 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_18write_text(struct __pyx_o
  *         self.raw_write(text)
  *         self.newline()             # <<<<<<<<<<<<<<
  * 
- *     def write_command(self, name not None, *args, **kwds):
+ *     def write_command(self, __name not None, *args, **kwds):
  */
   ((struct __pyx_vtabstruct_4kola_6writer_BaseWriter *)__pyx_v_self->__pyx_vtab)->newline(__pyx_v_self, 0, NULL); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 210, __pyx_L1_error)
 
@@ -10515,7 +10527,7 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_18write_text(struct __pyx_o
 /* "kola/writer.pyx":212
  *         self.newline()
  * 
- *     def write_command(self, name not None, *args, **kwds):             # <<<<<<<<<<<<<<
+ *     def write_command(self, __name not None, *args, **kwds):             # <<<<<<<<<<<<<<
  *         cdef:
  *             int number_name
  */
@@ -10536,7 +10548,7 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ) {
-  PyObject *__pyx_v_name = 0;
+  PyObject *__pyx_v__BaseWriter__name = 0;
   PyObject *__pyx_v_args = 0;
   PyObject *__pyx_v_kwds = 0;
   #if !CYTHON_METH_FASTCALL
@@ -10560,9 +10572,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_GOTREF(__pyx_v_args);
   {
     #if CYTHON_USE_MODULE_STATE
-    PyObject **__pyx_pyargnames[] = {&__pyx_n_s_name,0};
+    PyObject **__pyx_pyargnames[] = {&__pyx_n_s_BaseWriter__name,0};
     #else
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_name,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_BaseWriter__name,0};
     #endif
     PyObject* values[1] = {0};
     if (__pyx_kwds) {
@@ -10576,7 +10588,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       kw_args = __Pyx_NumKwargs_FASTCALL(__pyx_kwds);
       switch (__pyx_nargs) {
         case  0:
-        if (likely((values[0] = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_name)) != 0)) kw_args--;
+        if (likely((values[0] = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_BaseWriter__name)) != 0)) kw_args--;
         else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 212, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
@@ -10590,7 +10602,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
     } else {
       values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
     }
-    __pyx_v_name = values[0];
+    __pyx_v__BaseWriter__name = values[0];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
@@ -10602,10 +10614,10 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(((PyObject *)__pyx_v_name) == Py_None)) {
-    PyErr_Format(PyExc_TypeError, "Argument '%.200s' must not be None", "name"); __PYX_ERR(0, 212, __pyx_L1_error)
+  if (unlikely(((PyObject *)__pyx_v__BaseWriter__name) == Py_None)) {
+    PyErr_Format(PyExc_TypeError, "Argument '%.200s' must not be None", "__name"); __PYX_ERR(0, 212, __pyx_L1_error)
   }
-  __pyx_r = __pyx_pf_4kola_6writer_10BaseWriter_20write_command(((struct __pyx_obj_4kola_6writer_BaseWriter *)__pyx_v_self), __pyx_v_name, __pyx_v_args, __pyx_v_kwds);
+  __pyx_r = __pyx_pf_4kola_6writer_10BaseWriter_20write_command(((struct __pyx_obj_4kola_6writer_BaseWriter *)__pyx_v_self), __pyx_v__BaseWriter__name, __pyx_v_args, __pyx_v_kwds);
 
   /* function exit code */
   goto __pyx_L0;
@@ -10618,7 +10630,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __pyx_obj_4kola_6writer_BaseWriter *__pyx_v_self, PyObject *__pyx_v_name, PyObject *__pyx_v_args, PyObject *__pyx_v_kwds) {
+static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __pyx_obj_4kola_6writer_BaseWriter *__pyx_v_self, PyObject *__pyx_v__BaseWriter__name, PyObject *__pyx_v_args, PyObject *__pyx_v_kwds) {
   int __pyx_v_number_name;
   char __pyx_v_cache[12];
   PyObject *__pyx_v_i = NULL;
@@ -10651,19 +10663,19 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
   /* "kola/writer.pyx":216
  *             int number_name
  *             char cache[12]
- *         if isinstance(name, str):             # <<<<<<<<<<<<<<
- *             if literal_pattarn.match(name) is None:
- *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>name)
+ *         if isinstance(__name, str):             # <<<<<<<<<<<<<<
+ *             if literal_pattarn.match(__name) is None:
+ *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>__name)
  */
-  __pyx_t_1 = PyUnicode_Check(__pyx_v_name); 
+  __pyx_t_1 = PyUnicode_Check(__pyx_v__BaseWriter__name); 
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
     /* "kola/writer.pyx":217
  *             char cache[12]
- *         if isinstance(name, str):
- *             if literal_pattarn.match(name) is None:             # <<<<<<<<<<<<<<
- *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>name)
+ *         if isinstance(__name, str):
+ *             if literal_pattarn.match(__name) is None:             # <<<<<<<<<<<<<<
+ *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>__name)
  *             self.raw_write_char(ord('#'))
  */
     __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_4kola_6writer_literal_pattarn, __pyx_n_s_match); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 217, __pyx_L1_error)
@@ -10681,7 +10693,7 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
       }
     }
     {
-      PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_v_name};
+      PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_v__BaseWriter__name};
       __pyx_t_3 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+1-__pyx_t_6, 1+__pyx_t_6);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 217, __pyx_L1_error)
@@ -10694,76 +10706,76 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
     if (__pyx_t_1) {
 
       /* "kola/writer.pyx":218
- *         if isinstance(name, str):
- *             if literal_pattarn.match(name) is None:
- *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>name)             # <<<<<<<<<<<<<<
+ *         if isinstance(__name, str):
+ *             if literal_pattarn.match(__name) is None:
+ *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>__name)             # <<<<<<<<<<<<<<
  *             self.raw_write_char(ord('#'))
- *             self.raw_write(name)
+ *             self.raw_write(__name)
  */
-      __pyx_t_7 = PyErr_Format(__pyx_builtin_ValueError, ((char *)"%U is an invalid command name"), ((PyObject *)__pyx_v_name)); if (unlikely(__pyx_t_7 == ((PyObject *)NULL))) __PYX_ERR(0, 218, __pyx_L1_error)
+      __pyx_t_7 = PyErr_Format(__pyx_builtin_ValueError, ((char *)"%U is an invalid command name"), ((PyObject *)__pyx_v__BaseWriter__name)); if (unlikely(__pyx_t_7 == ((PyObject *)NULL))) __PYX_ERR(0, 218, __pyx_L1_error)
 
       /* "kola/writer.pyx":217
  *             char cache[12]
- *         if isinstance(name, str):
- *             if literal_pattarn.match(name) is None:             # <<<<<<<<<<<<<<
- *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>name)
+ *         if isinstance(__name, str):
+ *             if literal_pattarn.match(__name) is None:             # <<<<<<<<<<<<<<
+ *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>__name)
  *             self.raw_write_char(ord('#'))
  */
     }
 
     /* "kola/writer.pyx":219
- *             if literal_pattarn.match(name) is None:
- *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>name)
+ *             if literal_pattarn.match(__name) is None:
+ *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>__name)
  *             self.raw_write_char(ord('#'))             # <<<<<<<<<<<<<<
- *             self.raw_write(name)
- *         elif isinstance(name, int):
+ *             self.raw_write(__name)
+ *         elif isinstance(__name, int):
  */
     ((struct __pyx_vtabstruct_4kola_6writer_BaseWriter *)__pyx_v_self->__pyx_vtab)->raw_write_char(__pyx_v_self, 35); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 219, __pyx_L1_error)
 
     /* "kola/writer.pyx":220
- *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>name)
+ *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>__name)
  *             self.raw_write_char(ord('#'))
- *             self.raw_write(name)             # <<<<<<<<<<<<<<
- *         elif isinstance(name, int):
- *             number_name = <int>name
+ *             self.raw_write(__name)             # <<<<<<<<<<<<<<
+ *         elif isinstance(__name, int):
+ *             number_name = <int>__name
  */
-    if (!(likely(PyUnicode_CheckExact(__pyx_v_name)) || __Pyx_RaiseUnexpectedTypeError("unicode", __pyx_v_name))) __PYX_ERR(0, 220, __pyx_L1_error)
-    ((struct __pyx_vtabstruct_4kola_6writer_BaseWriter *)__pyx_v_self->__pyx_vtab)->raw_write(__pyx_v_self, ((PyObject*)__pyx_v_name), 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 220, __pyx_L1_error)
+    if (!(likely(PyUnicode_CheckExact(__pyx_v__BaseWriter__name)) || __Pyx_RaiseUnexpectedTypeError("unicode", __pyx_v__BaseWriter__name))) __PYX_ERR(0, 220, __pyx_L1_error)
+    ((struct __pyx_vtabstruct_4kola_6writer_BaseWriter *)__pyx_v_self->__pyx_vtab)->raw_write(__pyx_v_self, ((PyObject*)__pyx_v__BaseWriter__name), 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 220, __pyx_L1_error)
 
     /* "kola/writer.pyx":216
  *             int number_name
  *             char cache[12]
- *         if isinstance(name, str):             # <<<<<<<<<<<<<<
- *             if literal_pattarn.match(name) is None:
- *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>name)
+ *         if isinstance(__name, str):             # <<<<<<<<<<<<<<
+ *             if literal_pattarn.match(__name) is None:
+ *                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>__name)
  */
     goto __pyx_L3;
   }
 
   /* "kola/writer.pyx":221
  *             self.raw_write_char(ord('#'))
- *             self.raw_write(name)
- *         elif isinstance(name, int):             # <<<<<<<<<<<<<<
- *             number_name = <int>name
+ *             self.raw_write(__name)
+ *         elif isinstance(__name, int):             # <<<<<<<<<<<<<<
+ *             number_name = <int>__name
  *             if number_name < 0:
  */
-  __pyx_t_1 = PyInt_Check(__pyx_v_name); 
+  __pyx_t_1 = PyInt_Check(__pyx_v__BaseWriter__name); 
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
     /* "kola/writer.pyx":222
- *             self.raw_write(name)
- *         elif isinstance(name, int):
- *             number_name = <int>name             # <<<<<<<<<<<<<<
+ *             self.raw_write(__name)
+ *         elif isinstance(__name, int):
+ *             number_name = <int>__name             # <<<<<<<<<<<<<<
  *             if number_name < 0:
  *                 raise ValueError("the numeric command must be a non-negative integer")
  */
-    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_v_name); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 222, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_v__BaseWriter__name); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 222, __pyx_L1_error)
     __pyx_v_number_name = ((int)__pyx_t_6);
 
     /* "kola/writer.pyx":223
- *         elif isinstance(name, int):
- *             number_name = <int>name
+ *         elif isinstance(__name, int):
+ *             number_name = <int>__name
  *             if number_name < 0:             # <<<<<<<<<<<<<<
  *                 raise ValueError("the numeric command must be a non-negative integer")
  *             cache[0] = ord('#')
@@ -10772,7 +10784,7 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
     if (unlikely(__pyx_t_2)) {
 
       /* "kola/writer.pyx":224
- *             number_name = <int>name
+ *             number_name = <int>__name
  *             if number_name < 0:
  *                 raise ValueError("the numeric command must be a non-negative integer")             # <<<<<<<<<<<<<<
  *             cache[0] = ord('#')
@@ -10785,8 +10797,8 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
       __PYX_ERR(0, 224, __pyx_L1_error)
 
       /* "kola/writer.pyx":223
- *         elif isinstance(name, int):
- *             number_name = <int>name
+ *         elif isinstance(__name, int):
+ *             number_name = <int>__name
  *             if number_name < 0:             # <<<<<<<<<<<<<<
  *                 raise ValueError("the numeric command must be a non-negative integer")
  *             cache[0] = ord('#')
@@ -10822,9 +10834,9 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
 
     /* "kola/writer.pyx":221
  *             self.raw_write_char(ord('#'))
- *             self.raw_write(name)
- *         elif isinstance(name, int):             # <<<<<<<<<<<<<<
- *             number_name = <int>name
+ *             self.raw_write(__name)
+ *         elif isinstance(__name, int):             # <<<<<<<<<<<<<<
+ *             number_name = <int>__name
  *             if number_name < 0:
  */
     goto __pyx_L3;
@@ -10835,18 +10847,18 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
  *         else:
  *             PyErr_Format(             # <<<<<<<<<<<<<<
  *                 TypeError,
- *                 "argumnet 'name' must be a str or an integer, not '%s'",
+ *                 "argumnet '__name' must be a str or an integer, not '%s'",
  */
   /*else*/ {
 
     /* "kola/writer.pyx":232
  *                 TypeError,
- *                 "argumnet 'name' must be a str or an integer, not '%s'",
- *                 get_type_qualname(name)             # <<<<<<<<<<<<<<
+ *                 "argumnet '__name' must be a str or an integer, not '%s'",
+ *                 get_type_qualname(__name)             # <<<<<<<<<<<<<<
  *             )
  * 
  */
-    __pyx_t_7 = PyErr_Format(__pyx_builtin_TypeError, ((char *)"argumnet 'name' must be a str or an integer, not '%s'"), get_type_qualname(__pyx_v_name)); if (unlikely(__pyx_t_7 == ((PyObject *)NULL))) __PYX_ERR(0, 229, __pyx_L1_error)
+    __pyx_t_7 = PyErr_Format(__pyx_builtin_TypeError, ((char *)"argumnet '__name' must be a str or an integer, not '%s'"), get_type_qualname(__pyx_v__BaseWriter__name)); if (unlikely(__pyx_t_7 == ((PyObject *)NULL))) __PYX_ERR(0, 229, __pyx_L1_error)
   }
   __pyx_L3:;
 
@@ -11127,7 +11139,7 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
   /* "kola/writer.pyx":212
  *         self.newline()
  * 
- *     def write_command(self, name not None, *args, **kwds):             # <<<<<<<<<<<<<<
+ *     def write_command(self, __name not None, *args, **kwds):             # <<<<<<<<<<<<<<
  *         cdef:
  *             int number_name
  */
@@ -11155,7 +11167,7 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
  * 
  *     def write(self, command not None):             # <<<<<<<<<<<<<<
  *         if isinstance(command, str):
- *             return self.write_text(command)
+ *             self.write_text(command)
  */
 
 /* Python wrapper */
@@ -11258,7 +11270,7 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_22write(struct __pyx_obj_4k
  * 
  *     def write(self, command not None):
  *         if isinstance(command, str):             # <<<<<<<<<<<<<<
- *             return self.write_text(command)
+ *             self.write_text(command)
  *         else:
  */
   __pyx_t_1 = PyUnicode_Check(__pyx_v_command); 
@@ -11268,11 +11280,10 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_22write(struct __pyx_obj_4k
     /* "kola/writer.pyx":258
  *     def write(self, command not None):
  *         if isinstance(command, str):
- *             return self.write_text(command)             # <<<<<<<<<<<<<<
+ *             self.write_text(command)             # <<<<<<<<<<<<<<
  *         else:
  *             _write_writeritemlike(self, command, FULL_CMD)
  */
-    __Pyx_XDECREF(__pyx_r);
     __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_write_text); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 258, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = NULL;
@@ -11295,21 +11306,20 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_22write(struct __pyx_obj_4k
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
-    __pyx_r = __pyx_t_3;
-    __pyx_t_3 = 0;
-    goto __pyx_L0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
     /* "kola/writer.pyx":257
  * 
  *     def write(self, command not None):
  *         if isinstance(command, str):             # <<<<<<<<<<<<<<
- *             return self.write_text(command)
+ *             self.write_text(command)
  *         else:
  */
+    goto __pyx_L3;
   }
 
   /* "kola/writer.pyx":260
- *             return self.write_text(command)
+ *             self.write_text(command)
  *         else:
  *             _write_writeritemlike(self, command, FULL_CMD)             # <<<<<<<<<<<<<<
  * 
@@ -11318,13 +11328,14 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_22write(struct __pyx_obj_4k
   /*else*/ {
     __pyx_f_4kola_6writer__write_writeritemlike(__pyx_v_self, __pyx_v_command, __pyx_e_4kola_6writer_FULL_CMD); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 260, __pyx_L1_error)
   }
+  __pyx_L3:;
 
   /* "kola/writer.pyx":256
  *         self.newline()
  * 
  *     def write(self, command not None):             # <<<<<<<<<<<<<<
  *         if isinstance(command, str):
- *             return self.write_text(command)
+ *             self.write_text(command)
  */
 
   /* function exit code */
@@ -17543,6 +17554,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, __pyx_k_BaseWriter___exit, sizeof(__pyx_k_BaseWriter___exit), 0, 0, 1, 1},
   {0, __pyx_k_BaseWriter___reduce_cython, sizeof(__pyx_k_BaseWriter___reduce_cython), 0, 0, 1, 1},
   {0, __pyx_k_BaseWriter___setstate_cython, sizeof(__pyx_k_BaseWriter___setstate_cython), 0, 0, 1, 1},
+  {0, __pyx_k_BaseWriter__name, sizeof(__pyx_k_BaseWriter__name), 0, 0, 1, 1},
   {0, __pyx_k_BaseWriter_close, sizeof(__pyx_k_BaseWriter_close), 0, 0, 1, 1},
   {0, __pyx_k_BaseWriter_dec_indent, sizeof(__pyx_k_BaseWriter_dec_indent), 0, 0, 1, 1},
   {0, __pyx_k_BaseWriter_inc_indent, sizeof(__pyx_k_BaseWriter_inc_indent), 0, 0, 1, 1},
@@ -17652,6 +17664,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, __pyx_k_mro_entries, sizeof(__pyx_k_mro_entries), 0, 0, 1, 1},
   {0, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {0, __pyx_k_name_2, sizeof(__pyx_k_name_2), 0, 0, 1, 1},
+  {0, __pyx_k_name_3, sizeof(__pyx_k_name_3), 0, 0, 1, 1},
   {0, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
   {0, __pyx_k_newline, sizeof(__pyx_k_newline), 0, 0, 1, 1},
   {0, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
@@ -17716,6 +17729,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_BaseWriter___exit, __pyx_k_BaseWriter___exit, sizeof(__pyx_k_BaseWriter___exit), 0, 0, 1, 1},
   {&__pyx_n_s_BaseWriter___reduce_cython, __pyx_k_BaseWriter___reduce_cython, sizeof(__pyx_k_BaseWriter___reduce_cython), 0, 0, 1, 1},
   {&__pyx_n_s_BaseWriter___setstate_cython, __pyx_k_BaseWriter___setstate_cython, sizeof(__pyx_k_BaseWriter___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BaseWriter__name, __pyx_k_BaseWriter__name, sizeof(__pyx_k_BaseWriter__name), 0, 0, 1, 1},
   {&__pyx_n_s_BaseWriter_close, __pyx_k_BaseWriter_close, sizeof(__pyx_k_BaseWriter_close), 0, 0, 1, 1},
   {&__pyx_n_s_BaseWriter_dec_indent, __pyx_k_BaseWriter_dec_indent, sizeof(__pyx_k_BaseWriter_dec_indent), 0, 0, 1, 1},
   {&__pyx_n_s_BaseWriter_inc_indent, __pyx_k_BaseWriter_inc_indent, sizeof(__pyx_k_BaseWriter_inc_indent), 0, 0, 1, 1},
@@ -17825,6 +17839,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_mro_entries, __pyx_k_mro_entries, sizeof(__pyx_k_mro_entries), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {&__pyx_n_s_name_2, __pyx_k_name_2, sizeof(__pyx_k_name_2), 0, 0, 1, 1},
+  {&__pyx_n_s_name_3, __pyx_k_name_3, sizeof(__pyx_k_name_3), 0, 0, 1, 1},
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
   {&__pyx_n_s_newline, __pyx_k_newline, sizeof(__pyx_k_newline), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
@@ -17955,7 +17970,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__5);
 
   /* "kola/writer.pyx":224
- *             number_name = <int>name
+ *             number_name = <int>__name
  *             if number_name < 0:
  *                 raise ValueError("the numeric command must be a non-negative integer")             # <<<<<<<<<<<<<<
  *             cache[0] = ord('#')
@@ -18182,11 +18197,11 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "kola/writer.pyx":212
  *         self.newline()
  * 
- *     def write_command(self, name not None, *args, **kwds):             # <<<<<<<<<<<<<<
+ *     def write_command(self, __name not None, *args, **kwds):             # <<<<<<<<<<<<<<
  *         cdef:
  *             int number_name
  */
-  __pyx_tuple__41 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_name, __pyx_n_s_args, __pyx_n_s_kwds, __pyx_n_s_number_name, __pyx_n_s_cache, __pyx_n_s_i, __pyx_n_s_k, __pyx_n_s_v); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_tuple__41 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_name_3, __pyx_n_s_args, __pyx_n_s_kwds, __pyx_n_s_number_name, __pyx_n_s_cache, __pyx_n_s_i, __pyx_n_s_k, __pyx_n_s_v); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 212, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__41);
   __Pyx_GIVEREF(__pyx_tuple__41);
   __pyx_codeobj__42 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__41, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_writer_pyx, __pyx_n_s_write_command, 212, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__42)) __PYX_ERR(0, 212, __pyx_L1_error)
@@ -18196,7 +18211,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *     def write(self, command not None):             # <<<<<<<<<<<<<<
  *         if isinstance(command, str):
- *             return self.write_text(command)
+ *             self.write_text(command)
  */
   __pyx_tuple__43 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_command); if (unlikely(!__pyx_tuple__43)) __PYX_ERR(0, 256, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__43);
@@ -18346,168 +18361,170 @@ static CYTHON_SMALL_CODE int __Pyx_InitConstants(void) {
   if (__Pyx_InitString(__pyx_string_tab[7], &__pyx_n_s_BaseWriter___exit) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[8], &__pyx_n_s_BaseWriter___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[9], &__pyx_n_s_BaseWriter___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[10], &__pyx_n_s_BaseWriter_close) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[11], &__pyx_n_s_BaseWriter_dec_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[12], &__pyx_n_s_BaseWriter_inc_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[13], &__pyx_n_s_BaseWriter_newline) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[14], &__pyx_n_s_BaseWriter_raw_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[15], &__pyx_n_s_BaseWriter_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[16], &__pyx_n_s_BaseWriter_write_command) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[17], &__pyx_n_s_BaseWriter_write_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[18], &__pyx_n_s_BaseWriter_write_text) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[19], &__pyx_n_s_ComplexArg) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[20], &__pyx_n_s_ComplexArg___kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[21], &__pyx_n_s_ComplexArg___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[22], &__pyx_n_s_ComplexArg___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[23], &__pyx_n_s_FileWriter) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[24], &__pyx_n_s_FileWriter___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[25], &__pyx_n_s_FileWriter___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[26], &__pyx_n_s_FileWriter__path) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[27], &__pyx_n_s_FileWriter_close) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[28], &__pyx_n_s_FileWriter_raw_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[29], &__pyx_n_s_FormatItem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[30], &__pyx_n_s_FormatItem___kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[31], &__pyx_n_s_FormatItem___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[32], &__pyx_n_s_FormatItem___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[33], &__pyx_kp_s_Incompatible_checksums_s_vs_0x78) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[34], &__pyx_kp_s_Incompatible_checksums_s_vs_0x83) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[35], &__pyx_kp_s_Incompatible_checksums_s_vs_0xda) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[36], &__pyx_n_s_NewlineItem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[37], &__pyx_n_s_NewlineItem___kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[38], &__pyx_n_s_NewlineItem___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[39], &__pyx_n_s_NewlineItem___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[40], &__pyx_n_s_None) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[41], &__pyx_n_s_NotImplementedError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[42], &__pyx_n_s_OSError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[43], &__pyx_n_s_PickleError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[44], &__pyx_n_s_Protocol) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[45], &__pyx_n_s_StringWriter) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[46], &__pyx_n_s_StringWriter___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[47], &__pyx_n_s_StringWriter___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[48], &__pyx_n_s_StringWriter_close) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[49], &__pyx_n_s_StringWriter_getvalue) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[50], &__pyx_n_s_StringWriter_raw_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[51], &__pyx_n_s_TypeError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[52], &__pyx_n_s_ValueError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[53], &__pyx_n_s_WF_ARG_ITEM) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[54], &__pyx_n_s_WF_BASE_ITEM) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[55], &__pyx_n_s_WF_COMPLEX_ITEM) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[56], &__pyx_n_s_WF_FULL_CMD) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[57], &__pyx_n_s_WI_NEWLINE) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[58], &__pyx_n_s_WriterItemLike) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[59], &__pyx_n_s_WriterItemLike___kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[60], &__pyx_n_s_WriterItemLike__level) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[61], &__pyx_n_s_WriterItemLike__writer) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[62], &__pyx_kp_u__10) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[63], &__pyx_n_s__11) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[64], &__pyx_kp_u__6) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[65], &__pyx_n_s__64) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[66], &__pyx_kp_u__7) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[67], &__pyx_n_s_args) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[68], &__pyx_n_s_asyncio_coroutines) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[69], &__pyx_n_s_cache) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[70], &__pyx_n_s_cline_in_traceback) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[71], &__pyx_n_s_close) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[72], &__pyx_n_s_closed) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[73], &__pyx_n_s_command) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[74], &__pyx_n_s_compile) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[75], &__pyx_kp_u_complex_argument_should_only_be) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[76], &__pyx_n_s_concat_prev) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[77], &__pyx_n_s_dec_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[78], &__pyx_n_s_dict) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[79], &__pyx_n_s_dict_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[80], &__pyx_kp_u_disable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[81], &__pyx_n_s_doc) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[82], &__pyx_kp_u_empty_dict_is_not_a_valid_kola_i) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[83], &__pyx_kp_u_empty_list_is_not_a_valid_kola_i) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[84], &__pyx_kp_u_enable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[85], &__pyx_n_s_encoding) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[86], &__pyx_n_s_enter) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[87], &__pyx_n_s_exit) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[88], &__pyx_n_s_format) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[89], &__pyx_kp_u_format_item_cannot_be_usec_as_a) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[90], &__pyx_kp_u_gc) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[91], &__pyx_n_s_getstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[92], &__pyx_n_s_getvalue) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[93], &__pyx_n_s_i) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[94], &__pyx_n_s_i_newline) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[95], &__pyx_n_s_import) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[96], &__pyx_n_s_inc_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[97], &__pyx_n_s_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[98], &__pyx_n_s_init_subclass) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[99], &__pyx_n_s_initializing) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[100], &__pyx_n_s_int) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[101], &__pyx_n_s_is_coroutine) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[102], &__pyx_kp_u_isenabled) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[103], &__pyx_n_s_items) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[104], &__pyx_n_s_k) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[105], &__pyx_n_s_kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[106], &__pyx_n_u_kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[107], &__pyx_n_s_kola_writer) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[108], &__pyx_kp_s_kola_writer_pyx) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[109], &__pyx_n_s_kwds) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[110], &__pyx_n_s_level) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[111], &__pyx_n_s_level_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[112], &__pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[113], &__pyx_n_s_match) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[114], &__pyx_n_s_metaclass) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[115], &__pyx_n_s_module) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[116], &__pyx_n_s_mro_entries) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[117], &__pyx_n_s_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[118], &__pyx_n_s_name_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[119], &__pyx_n_s_new) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[120], &__pyx_n_s_newline) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[121], &__pyx_kp_s_no_default___reduce___due_to_non) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[122], &__pyx_n_s_number_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[123], &__pyx_kp_u_operation_on_closed_writer) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[124], &__pyx_n_s_pickle) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[125], &__pyx_n_s_prepare) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[126], &__pyx_n_s_pyx_PickleError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[127], &__pyx_n_s_pyx_capi) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[128], &__pyx_n_s_pyx_checksum) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[129], &__pyx_n_s_pyx_result) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[130], &__pyx_n_s_pyx_state) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[131], &__pyx_n_s_pyx_type) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[132], &__pyx_n_s_pyx_unpickle_BaseWriterItem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[133], &__pyx_n_s_pyx_unpickle_ComplexArg) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[134], &__pyx_n_s_pyx_unpickle_FormatItem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[135], &__pyx_n_s_pyx_unpickle_NewlineItem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[136], &__pyx_n_s_pyx_vtable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[137], &__pyx_n_s_qualname) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[138], &__pyx_n_s_range) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[139], &__pyx_n_s_raw_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[140], &__pyx_n_s_re) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[141], &__pyx_n_s_reduce) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[142], &__pyx_n_s_reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[143], &__pyx_n_s_reduce_ex) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[144], &__pyx_n_s_return) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[145], &__pyx_n_s_runtime_checkable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[146], &__pyx_n_s_self) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[147], &__pyx_n_s_set_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[148], &__pyx_n_s_setstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[149], &__pyx_n_s_setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[150], &__pyx_n_s_spec) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[151], &__pyx_n_s_spec_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[152], &__pyx_n_s_split_line) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[153], &__pyx_n_s_state) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[154], &__pyx_kp_s_stringsource) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[155], &__pyx_n_s_super) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[156], &__pyx_n_s_test) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[157], &__pyx_n_s_text) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[158], &__pyx_kp_u_the_numeric_command_must_be_a_no) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[159], &__pyx_n_s_typing_extensions) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[160], &__pyx_n_s_update) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[161], &__pyx_n_s_use_setstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[162], &__pyx_kp_u_utf_8) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[163], &__pyx_n_s_v) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[164], &__pyx_n_s_value) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[165], &__pyx_n_s_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[166], &__pyx_n_s_write_command) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[167], &__pyx_n_s_write_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[168], &__pyx_n_s_write_text) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[169], &__pyx_n_s_writer) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[170], &__pyx_n_s_writer_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[171], &__pyx_kp_u_writer_indentation_should_be_les) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[10], &__pyx_n_s_BaseWriter__name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[11], &__pyx_n_s_BaseWriter_close) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[12], &__pyx_n_s_BaseWriter_dec_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[13], &__pyx_n_s_BaseWriter_inc_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[14], &__pyx_n_s_BaseWriter_newline) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[15], &__pyx_n_s_BaseWriter_raw_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[16], &__pyx_n_s_BaseWriter_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[17], &__pyx_n_s_BaseWriter_write_command) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[18], &__pyx_n_s_BaseWriter_write_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[19], &__pyx_n_s_BaseWriter_write_text) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[20], &__pyx_n_s_ComplexArg) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[21], &__pyx_n_s_ComplexArg___kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[22], &__pyx_n_s_ComplexArg___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[23], &__pyx_n_s_ComplexArg___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[24], &__pyx_n_s_FileWriter) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[25], &__pyx_n_s_FileWriter___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[26], &__pyx_n_s_FileWriter___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[27], &__pyx_n_s_FileWriter__path) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[28], &__pyx_n_s_FileWriter_close) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[29], &__pyx_n_s_FileWriter_raw_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[30], &__pyx_n_s_FormatItem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[31], &__pyx_n_s_FormatItem___kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[32], &__pyx_n_s_FormatItem___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[33], &__pyx_n_s_FormatItem___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[34], &__pyx_kp_s_Incompatible_checksums_s_vs_0x78) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[35], &__pyx_kp_s_Incompatible_checksums_s_vs_0x83) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[36], &__pyx_kp_s_Incompatible_checksums_s_vs_0xda) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[37], &__pyx_n_s_NewlineItem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[38], &__pyx_n_s_NewlineItem___kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[39], &__pyx_n_s_NewlineItem___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[40], &__pyx_n_s_NewlineItem___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[41], &__pyx_n_s_None) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[42], &__pyx_n_s_NotImplementedError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[43], &__pyx_n_s_OSError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[44], &__pyx_n_s_PickleError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[45], &__pyx_n_s_Protocol) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[46], &__pyx_n_s_StringWriter) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[47], &__pyx_n_s_StringWriter___reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[48], &__pyx_n_s_StringWriter___setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[49], &__pyx_n_s_StringWriter_close) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[50], &__pyx_n_s_StringWriter_getvalue) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[51], &__pyx_n_s_StringWriter_raw_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[52], &__pyx_n_s_TypeError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[53], &__pyx_n_s_ValueError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[54], &__pyx_n_s_WF_ARG_ITEM) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[55], &__pyx_n_s_WF_BASE_ITEM) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[56], &__pyx_n_s_WF_COMPLEX_ITEM) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[57], &__pyx_n_s_WF_FULL_CMD) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[58], &__pyx_n_s_WI_NEWLINE) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[59], &__pyx_n_s_WriterItemLike) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[60], &__pyx_n_s_WriterItemLike___kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[61], &__pyx_n_s_WriterItemLike__level) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[62], &__pyx_n_s_WriterItemLike__writer) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[63], &__pyx_kp_u__10) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[64], &__pyx_n_s__11) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[65], &__pyx_kp_u__6) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[66], &__pyx_n_s__64) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[67], &__pyx_kp_u__7) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[68], &__pyx_n_s_args) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[69], &__pyx_n_s_asyncio_coroutines) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[70], &__pyx_n_s_cache) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[71], &__pyx_n_s_cline_in_traceback) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[72], &__pyx_n_s_close) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[73], &__pyx_n_s_closed) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[74], &__pyx_n_s_command) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[75], &__pyx_n_s_compile) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[76], &__pyx_kp_u_complex_argument_should_only_be) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[77], &__pyx_n_s_concat_prev) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[78], &__pyx_n_s_dec_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[79], &__pyx_n_s_dict) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[80], &__pyx_n_s_dict_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[81], &__pyx_kp_u_disable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[82], &__pyx_n_s_doc) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[83], &__pyx_kp_u_empty_dict_is_not_a_valid_kola_i) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[84], &__pyx_kp_u_empty_list_is_not_a_valid_kola_i) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[85], &__pyx_kp_u_enable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[86], &__pyx_n_s_encoding) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[87], &__pyx_n_s_enter) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[88], &__pyx_n_s_exit) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[89], &__pyx_n_s_format) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[90], &__pyx_kp_u_format_item_cannot_be_usec_as_a) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[91], &__pyx_kp_u_gc) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[92], &__pyx_n_s_getstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[93], &__pyx_n_s_getvalue) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[94], &__pyx_n_s_i) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[95], &__pyx_n_s_i_newline) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[96], &__pyx_n_s_import) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[97], &__pyx_n_s_inc_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[98], &__pyx_n_s_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[99], &__pyx_n_s_init_subclass) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[100], &__pyx_n_s_initializing) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[101], &__pyx_n_s_int) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[102], &__pyx_n_s_is_coroutine) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[103], &__pyx_kp_u_isenabled) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[104], &__pyx_n_s_items) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[105], &__pyx_n_s_k) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[106], &__pyx_n_s_kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[107], &__pyx_n_u_kola_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[108], &__pyx_n_s_kola_writer) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[109], &__pyx_kp_s_kola_writer_pyx) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[110], &__pyx_n_s_kwds) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[111], &__pyx_n_s_level) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[112], &__pyx_n_s_level_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[113], &__pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[114], &__pyx_n_s_match) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[115], &__pyx_n_s_metaclass) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[116], &__pyx_n_s_module) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[117], &__pyx_n_s_mro_entries) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[118], &__pyx_n_s_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[119], &__pyx_n_s_name_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[120], &__pyx_n_s_name_3) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[121], &__pyx_n_s_new) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[122], &__pyx_n_s_newline) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[123], &__pyx_kp_s_no_default___reduce___due_to_non) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[124], &__pyx_n_s_number_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[125], &__pyx_kp_u_operation_on_closed_writer) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[126], &__pyx_n_s_pickle) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[127], &__pyx_n_s_prepare) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[128], &__pyx_n_s_pyx_PickleError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[129], &__pyx_n_s_pyx_capi) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[130], &__pyx_n_s_pyx_checksum) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[131], &__pyx_n_s_pyx_result) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[132], &__pyx_n_s_pyx_state) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[133], &__pyx_n_s_pyx_type) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[134], &__pyx_n_s_pyx_unpickle_BaseWriterItem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[135], &__pyx_n_s_pyx_unpickle_ComplexArg) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[136], &__pyx_n_s_pyx_unpickle_FormatItem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[137], &__pyx_n_s_pyx_unpickle_NewlineItem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[138], &__pyx_n_s_pyx_vtable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[139], &__pyx_n_s_qualname) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[140], &__pyx_n_s_range) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[141], &__pyx_n_s_raw_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[142], &__pyx_n_s_re) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[143], &__pyx_n_s_reduce) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[144], &__pyx_n_s_reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[145], &__pyx_n_s_reduce_ex) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[146], &__pyx_n_s_return) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[147], &__pyx_n_s_runtime_checkable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[148], &__pyx_n_s_self) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[149], &__pyx_n_s_set_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[150], &__pyx_n_s_setstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[151], &__pyx_n_s_setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[152], &__pyx_n_s_spec) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[153], &__pyx_n_s_spec_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[154], &__pyx_n_s_split_line) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[155], &__pyx_n_s_state) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[156], &__pyx_kp_s_stringsource) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[157], &__pyx_n_s_super) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[158], &__pyx_n_s_test) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[159], &__pyx_n_s_text) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[160], &__pyx_kp_u_the_numeric_command_must_be_a_no) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[161], &__pyx_n_s_typing_extensions) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[162], &__pyx_n_s_update) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[163], &__pyx_n_s_use_setstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[164], &__pyx_kp_u_utf_8) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[165], &__pyx_n_s_v) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[166], &__pyx_n_s_value) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[167], &__pyx_n_s_write) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[168], &__pyx_n_s_write_command) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[169], &__pyx_n_s_write_indent) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[170], &__pyx_n_s_write_text) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[171], &__pyx_n_s_writer) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[172], &__pyx_n_s_writer_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[173], &__pyx_kp_u_writer_indentation_should_be_les) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   #endif
   #if !CYTHON_USE_MODULE_STATE
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
@@ -19621,7 +19638,7 @@ if (!__Pyx_RefNanny) {
   /* "kola/writer.pyx":212
  *         self.newline()
  * 
- *     def write_command(self, name not None, *args, **kwds):             # <<<<<<<<<<<<<<
+ *     def write_command(self, __name not None, *args, **kwds):             # <<<<<<<<<<<<<<
  *         cdef:
  *             int number_name
  */
@@ -19636,7 +19653,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def write(self, command not None):             # <<<<<<<<<<<<<<
  *         if isinstance(command, str):
- *             return self.write_text(command)
+ *             self.write_text(command)
  */
   __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_6writer_10BaseWriter_23write, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BaseWriter_write, NULL, __pyx_n_s_kola_writer, __pyx_d, ((PyObject *)__pyx_codeobj__44)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 256, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);

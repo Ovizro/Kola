@@ -1,6 +1,8 @@
 import os
 from shutil import rmtree
 from unittest import TestCase
+
+from kola.klvm import KoiLang, kola_command
 from kola.writer import WF_COMPLEX_ITEM, WI_NEWLINE, BaseWriter, ComplexArg, FileWriter, StringWriter, WF_ARG_ITEM
 
 
@@ -60,7 +62,6 @@ class TestWriter(TestCase):
             "#draw Line \\\n    pos0(\\\n        x: 0, \\\n        y: 0\\\n    ) "
             "pos1(x: 16, y: 16) thickness(2) color(255, 255, 255)\n"
         )
-        
     
     def test_item(self) -> None:
         class Item:
@@ -76,4 +77,25 @@ class TestWriter(TestCase):
             )
     
     def test_classwriter(self) -> None:
-        ...
+        class Vm(KoiLang):
+            @kola_command
+            def echo(self, text: str) -> None:
+                print(text)
+            
+            @kola_command
+            def help(self) -> None:
+                print("No, there is no help!")
+            
+            @help.writer
+            def _(writer: BaseWriter) -> None:
+                writer.write_command("help", "In fact, no help can be provided.")
+        
+        with Vm.writer() as w:
+            w.echo("Hello")
+            with self.assertRaises(AttributeError):
+                w.hello()
+            w.help()
+            self.assertEqual(
+                w.getvalue(),
+                "#echo Hello\n#help \"In fact, no help can be provided.\"\n"
+            )
