@@ -973,7 +973,6 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <stdio.h>
 #include <stdint.h>
 #include "pythread.h"
-#include <stdlib.h>
 #include <stdarg.h>
 #include "_cutil.h"
 
@@ -2689,6 +2688,7 @@ static const char __pyx_k_BaseWriterItem___reduce_cython[] = "BaseWriterItem.__r
 static const char __pyx_k_StringWriter___setstate_cython[] = "StringWriter.__setstate_cython__";
 static const char __pyx_k_complex_argument_should_only_be[] = "complex argument should only be used in argument level";
 static const char __pyx_k_format_item_cannot_be_usec_as_a[] = "format item cannot be usec as a full command";
+static const char __pyx_k_the_numeric_command_should_be_a[] = "the numeric command should be a non-negative integer";
 static const char __pyx_k_BaseWriterItem___setstate_cython[] = "BaseWriterItem.__setstate_cython__";
 static const char __pyx_k_Incompatible_checksums_s_vs_0x78[] = "Incompatible checksums (%s vs 0x78fc06c = (spec, value))";
 static const char __pyx_k_Incompatible_checksums_s_vs_0x83[] = "Incompatible checksums (%s vs 0x8326c3f = (name, split_line, value))";
@@ -2696,7 +2696,6 @@ static const char __pyx_k_Incompatible_checksums_s_vs_0xda[] = "Incompatible che
 static const char __pyx_k_empty_dict_is_not_a_valid_kola_i[] = "empty dict is not a valid kola item";
 static const char __pyx_k_empty_list_is_not_a_valid_kola_i[] = "empty list is not a valid kola item";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
-static const char __pyx_k_the_numeric_command_must_be_a_no[] = "the numeric command must be a non-negative integer";
 static const char __pyx_k_writer_indentation_should_be_les[] = "writer indentation should be less than 0";
 #if !CYTHON_USE_MODULE_STATE
 static PyObject *__pyx_kp_u_A_Za_z__A_Za_z0_9;
@@ -2859,7 +2858,7 @@ static PyObject *__pyx_kp_s_stringsource;
 static PyObject *__pyx_n_s_super;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_text;
-static PyObject *__pyx_kp_u_the_numeric_command_must_be_a_no;
+static PyObject *__pyx_kp_u_the_numeric_command_should_be_a;
 static PyObject *__pyx_n_s_typing_extensions;
 static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_use_setstate;
@@ -3203,7 +3202,7 @@ typedef struct {
   PyObject *__pyx_n_s_super;
   PyObject *__pyx_n_s_test;
   PyObject *__pyx_n_s_text;
-  PyObject *__pyx_kp_u_the_numeric_command_must_be_a_no;
+  PyObject *__pyx_kp_u_the_numeric_command_should_be_a;
   PyObject *__pyx_n_s_typing_extensions;
   PyObject *__pyx_n_s_update;
   PyObject *__pyx_n_s_use_setstate;
@@ -3489,7 +3488,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_super);
   Py_CLEAR(clear_module_state->__pyx_n_s_test);
   Py_CLEAR(clear_module_state->__pyx_n_s_text);
-  Py_CLEAR(clear_module_state->__pyx_kp_u_the_numeric_command_must_be_a_no);
+  Py_CLEAR(clear_module_state->__pyx_kp_u_the_numeric_command_should_be_a);
   Py_CLEAR(clear_module_state->__pyx_n_s_typing_extensions);
   Py_CLEAR(clear_module_state->__pyx_n_s_update);
   Py_CLEAR(clear_module_state->__pyx_n_s_use_setstate);
@@ -3762,7 +3761,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_super);
   Py_VISIT(traverse_module_state->__pyx_n_s_test);
   Py_VISIT(traverse_module_state->__pyx_n_s_text);
-  Py_VISIT(traverse_module_state->__pyx_kp_u_the_numeric_command_must_be_a_no);
+  Py_VISIT(traverse_module_state->__pyx_kp_u_the_numeric_command_should_be_a);
   Py_VISIT(traverse_module_state->__pyx_n_s_typing_extensions);
   Py_VISIT(traverse_module_state->__pyx_n_s_update);
   Py_VISIT(traverse_module_state->__pyx_n_s_use_setstate);
@@ -4032,7 +4031,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_super __pyx_mstate_global->__pyx_n_s_super
 #define __pyx_n_s_test __pyx_mstate_global->__pyx_n_s_test
 #define __pyx_n_s_text __pyx_mstate_global->__pyx_n_s_text
-#define __pyx_kp_u_the_numeric_command_must_be_a_no __pyx_mstate_global->__pyx_kp_u_the_numeric_command_must_be_a_no
+#define __pyx_kp_u_the_numeric_command_should_be_a __pyx_mstate_global->__pyx_kp_u_the_numeric_command_should_be_a
 #define __pyx_n_s_typing_extensions __pyx_mstate_global->__pyx_n_s_typing_extensions
 #define __pyx_n_s_update __pyx_mstate_global->__pyx_n_s_update
 #define __pyx_n_s_use_setstate __pyx_mstate_global->__pyx_n_s_use_setstate
@@ -10768,7 +10767,7 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
  *         elif isinstance(__name, int):
  *             number_name = <int>__name             # <<<<<<<<<<<<<<
  *             if number_name < 0:
- *                 raise ValueError("the numeric command must be a non-negative integer")
+ *                 raise ValueError("the numeric command should be a non-negative integer")
  */
     __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_v__BaseWriter__name); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 222, __pyx_L1_error)
     __pyx_v_number_name = ((int)__pyx_t_6);
@@ -10777,7 +10776,7 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
  *         elif isinstance(__name, int):
  *             number_name = <int>__name
  *             if number_name < 0:             # <<<<<<<<<<<<<<
- *                 raise ValueError("the numeric command must be a non-negative integer")
+ *                 raise ValueError("the numeric command should be a non-negative integer")
  *             cache[0] = ord('#')
  */
     __pyx_t_2 = ((__pyx_v_number_name < 0) != 0);
@@ -10786,9 +10785,9 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
       /* "kola/writer.pyx":224
  *             number_name = <int>__name
  *             if number_name < 0:
- *                 raise ValueError("the numeric command must be a non-negative integer")             # <<<<<<<<<<<<<<
+ *                 raise ValueError("the numeric command should be a non-negative integer")             # <<<<<<<<<<<<<<
  *             cache[0] = ord('#')
- *             itoa(number_name, cache + 1, 10)
+ *             sprintf(cache + 1, "%d", number_name)
  */
       __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 224, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
@@ -10800,32 +10799,32 @@ static PyObject *__pyx_pf_4kola_6writer_10BaseWriter_20write_command(struct __py
  *         elif isinstance(__name, int):
  *             number_name = <int>__name
  *             if number_name < 0:             # <<<<<<<<<<<<<<
- *                 raise ValueError("the numeric command must be a non-negative integer")
+ *                 raise ValueError("the numeric command should be a non-negative integer")
  *             cache[0] = ord('#')
  */
     }
 
     /* "kola/writer.pyx":225
  *             if number_name < 0:
- *                 raise ValueError("the numeric command must be a non-negative integer")
+ *                 raise ValueError("the numeric command should be a non-negative integer")
  *             cache[0] = ord('#')             # <<<<<<<<<<<<<<
- *             itoa(number_name, cache + 1, 10)
+ *             sprintf(cache + 1, "%d", number_name)
  *             self.raw_write_string(cache)
  */
     (__pyx_v_cache[0]) = 35;
 
     /* "kola/writer.pyx":226
- *                 raise ValueError("the numeric command must be a non-negative integer")
+ *                 raise ValueError("the numeric command should be a non-negative integer")
  *             cache[0] = ord('#')
- *             itoa(number_name, cache + 1, 10)             # <<<<<<<<<<<<<<
+ *             sprintf(cache + 1, "%d", number_name)             # <<<<<<<<<<<<<<
  *             self.raw_write_string(cache)
  *         else:
  */
-    (void)(itoa(__pyx_v_number_name, (__pyx_v_cache + 1), 10));
+    (void)(sprintf((__pyx_v_cache + 1), ((char const *)"%d"), __pyx_v_number_name));
 
     /* "kola/writer.pyx":227
  *             cache[0] = ord('#')
- *             itoa(number_name, cache + 1, 10)
+ *             sprintf(cache + 1, "%d", number_name)
  *             self.raw_write_string(cache)             # <<<<<<<<<<<<<<
  *         else:
  *             PyErr_Format(
@@ -17704,7 +17703,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, __pyx_k_super, sizeof(__pyx_k_super), 0, 0, 1, 1},
   {0, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {0, __pyx_k_text, sizeof(__pyx_k_text), 0, 0, 1, 1},
-  {0, __pyx_k_the_numeric_command_must_be_a_no, sizeof(__pyx_k_the_numeric_command_must_be_a_no), 0, 1, 0, 0},
+  {0, __pyx_k_the_numeric_command_should_be_a, sizeof(__pyx_k_the_numeric_command_should_be_a), 0, 1, 0, 0},
   {0, __pyx_k_typing_extensions, sizeof(__pyx_k_typing_extensions), 0, 0, 1, 1},
   {0, __pyx_k_update, sizeof(__pyx_k_update), 0, 0, 1, 1},
   {0, __pyx_k_use_setstate, sizeof(__pyx_k_use_setstate), 0, 0, 1, 1},
@@ -17879,7 +17878,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_super, __pyx_k_super, sizeof(__pyx_k_super), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_text, __pyx_k_text, sizeof(__pyx_k_text), 0, 0, 1, 1},
-  {&__pyx_kp_u_the_numeric_command_must_be_a_no, __pyx_k_the_numeric_command_must_be_a_no, sizeof(__pyx_k_the_numeric_command_must_be_a_no), 0, 1, 0, 0},
+  {&__pyx_kp_u_the_numeric_command_should_be_a, __pyx_k_the_numeric_command_should_be_a, sizeof(__pyx_k_the_numeric_command_should_be_a), 0, 1, 0, 0},
   {&__pyx_n_s_typing_extensions, __pyx_k_typing_extensions, sizeof(__pyx_k_typing_extensions), 0, 0, 1, 1},
   {&__pyx_n_s_update, __pyx_k_update, sizeof(__pyx_k_update), 0, 0, 1, 1},
   {&__pyx_n_s_use_setstate, __pyx_k_use_setstate, sizeof(__pyx_k_use_setstate), 0, 0, 1, 1},
@@ -17972,11 +17971,11 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "kola/writer.pyx":224
  *             number_name = <int>__name
  *             if number_name < 0:
- *                 raise ValueError("the numeric command must be a non-negative integer")             # <<<<<<<<<<<<<<
+ *                 raise ValueError("the numeric command should be a non-negative integer")             # <<<<<<<<<<<<<<
  *             cache[0] = ord('#')
- *             itoa(number_name, cache + 1, 10)
+ *             sprintf(cache + 1, "%d", number_name)
  */
-  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_u_the_numeric_command_must_be_a_no); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 224, __pyx_L1_error)
+  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_u_the_numeric_command_should_be_a); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 224, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__8);
   __Pyx_GIVEREF(__pyx_tuple__8);
 
@@ -18511,7 +18510,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitConstants(void) {
   if (__Pyx_InitString(__pyx_string_tab[157], &__pyx_n_s_super) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[158], &__pyx_n_s_test) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[159], &__pyx_n_s_text) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[160], &__pyx_kp_u_the_numeric_command_must_be_a_no) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[160], &__pyx_kp_u_the_numeric_command_should_be_a) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[161], &__pyx_n_s_typing_extensions) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[162], &__pyx_n_s_update) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[163], &__pyx_n_s_use_setstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
@@ -19860,7 +19859,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "kola/writer.pyx":1
- * from libc.stdio cimport fopen, fclose, fputc, fputs             # <<<<<<<<<<<<<<
+ * from libc.stdio cimport fopen, fclose, fputc, fputs, sprintf             # <<<<<<<<<<<<<<
  * from libc.string cimport strlen
  * from cpython cimport PyObject, PySequence_Check, PyMapping_Check, PyErr_Format, PyErr_SetString,\
  */

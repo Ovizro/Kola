@@ -3,9 +3,6 @@ from libc.stdint cimport uint8_t, uint64_t
 from cpython cimport PyObject
 
 
-cdef extern from "<stdlib.h>":
-    char* itoa(int value, char* buffer, int radix)
-
 cdef extern from "<stdarg.h>":
     ctypedef struct va_list
     void va_start(va_list ap, const char* last_arg) nogil

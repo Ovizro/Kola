@@ -1,4 +1,4 @@
-from libc.stdio cimport fopen, fclose, fputc, fputs
+from libc.stdio cimport fopen, fclose, fputc, fputs, sprintf
 from libc.string cimport strlen
 from cpython cimport PyObject, PySequence_Check, PyMapping_Check, PyErr_Format, PyErr_SetString,\
     PyUnicode_FindChar, PyUnicode_FromStringAndSize, PyUnicode_AsEncodedString
@@ -221,9 +221,9 @@ cdef class BaseWriter(object):
         elif isinstance(__name, int):
             number_name = <int>__name
             if number_name < 0:
-                raise ValueError("the numeric command must be a non-negative integer")
+                raise ValueError("the numeric command should be a non-negative integer")
             cache[0] = ord('#')
-            itoa(number_name, cache + 1, 10)
+            sprintf(cache + 1, "%d", number_name)
             self.raw_write_string(cache)
         else:
             PyErr_Format(
