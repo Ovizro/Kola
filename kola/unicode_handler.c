@@ -114,8 +114,11 @@ PyObject* filter_text(PyObject* string) {
                     break;
                 }
             default:
-                if (PyUnicode_WriteChar(string, i - offset, '\\') == -1) goto bad;
-                if (PyUnicode_WriteChar(string, i - offset, tc) == -1) goto bad;
+                if (PyUnicode_WriteChar(string, i - offset, '\\') == -1)
+                    goto bad;
+                --offset;
+                if (PyUnicode_WriteChar(string, i - offset, tc) == -1)
+                    goto bad;
                 break;
             }
         } else if (offset) {

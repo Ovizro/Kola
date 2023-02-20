@@ -105,6 +105,8 @@ cdef class Parser:
             Token token
 
         token = self.t_cache
+        while not token is None and token.syn == ANNOTATE:
+            self.t_cache = token = self.lexer.next_token()
         if token is None:
             return
         

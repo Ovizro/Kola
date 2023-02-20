@@ -69,6 +69,7 @@ cdef extern from "_cutil.h":
         CMA
         SLP
         SRP
+        ANNOTATE
     const uint8_t yy_goto[7][8]
 
     void kola_set_error(object exc_type, int errorno, const char* filename, int lineno, const char* text) except *

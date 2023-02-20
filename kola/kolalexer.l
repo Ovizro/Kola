@@ -5,6 +5,7 @@
     #include "_cutil.h"
 
     #define ECHO yyterminate()
+    #define YY_DECL int yylex YY_PROTO((int command_threshold))
 %}
 
 delim   [ \t]
@@ -21,8 +22,11 @@ float   ((({sigint}\.{digit}*)|(-?\.{digit}+)){float_e}?)|({sigint}{float_e})
 literal {letter_}({letter_}|{digit})*
 string  \"([^\"]|(\\\r?\n)|(\\\"))*\"
 text    [^#\n\r \t]((.|\\\r?\n)*[^\r\n\\ \t])?
+comment ([^\r\n]|(\\\r?\n))+
 
 %s COMMAND
+%s COMMENT
+%s PLAIN_TEXT
 %s ARGUMENT
 
 %%
@@ -35,10 +39,21 @@ text    [^#\n\r \t]((.|\\\r?\n)*[^\r\n\\ \t])?
     }
     BEGIN INITIAL;
 }
-<INITIAL>#              {BEGIN COMMAND;}
+<INITIAL>#+             {
+    if (yyleng == command_threshold) {
+        BEGIN COMMAND;
+    } else if (yyleng > command_threshold) {
+        BEGIN COMMENT;
+        yymore();
+    } else {
+        BEGIN PLAIN_TEXT;
+        yymore();
+    }
+}
+<COMMENT>{comment}      {return(ANNOTATE);}
 <COMMAND>{literal}      {BEGIN ARGUMENT; return(CMD);}
 <COMMAND>{uint}         {BEGIN ARGUMENT; return(CMD_N);}
-<INITIAL>{text}         {return(TEXT);}
+<INITIAL,PLAIN_TEXT>{text}  {return(TEXT);}
 
 <ARGUMENT>\(            {return(SLP);}
 <ARGUMENT>\)            {return(SRP);}

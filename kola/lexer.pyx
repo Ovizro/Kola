@@ -23,6 +23,7 @@ S_CLN = CLN
 S_CMA = CMA
 S_SLP = SLP
 S_SRP = SRP
+S_ANNOTATE = ANNOTATE
 
 
 @cython.final
@@ -73,15 +74,17 @@ cdef class BaseLexer(object):
     KoiLang lexer reading from stdin
     """
 
-    def __cinit__(self, *args, uint8_t stat = 0, **kwds):
+    def __cinit__(self, *args, uint8_t stat = 0, int command_threshold = 1, **kwds):
         self.buffer = NULL
         self.lineno = 1
         self.encoding = "utf-8"
         if stat > 2:
             raise ValueError("lexer state must be between 0 and 2")
         self.stat = stat
+        self.command_threshold = command_threshold
     
-    def __init__(self, str encoding not None = "utf-8", uint8_t stat = 0):
+    def __init__(self, *, str encoding not None = "utf-8",
+                 stat = None, command_threshold = None):
         if self.buffer:
             yy_delete_buffer(self.buffer)
         self._filename = "<stdin>"
@@ -117,7 +120,7 @@ cdef class BaseLexer(object):
     
     cdef (int, const char*, Py_ssize_t) next_syn(self):
         self.ensure()
-        cdef int syn = yylex()
+        cdef int syn = yylex(self.command_threshold)
         self.lineno = yylineno
         self.stat = get_stat()
         return syn, yytext, yyleng
@@ -144,7 +147,7 @@ cdef class BaseLexer(object):
             val = PyFloat_FromString(text)
         elif syn == CMD or syn == LITERAL:
             val = PyUnicode_FromStringAndSize(text, text_len)
-        elif syn == TEXT:
+        elif syn == TEXT or syn == ANNOTATE:
             encoding = unicode2string(self.encoding, NULL)
             s = PyUnicode_Decode(text, text_len, encoding, NULL)
             val = <str>filter_text(s)
@@ -196,7 +199,8 @@ cdef class FileLexer(BaseLexer):
     KoiLang lexer reading from file
     """
 
-    def __init__(self, __path not None, *, str encoding not None = "utf-8", stat = None):
+    def __init__(self, __path not None, *,
+                 str encoding not None = "utf-8", stat = None, command_threshold = None):
         if self.buffer:
             self.close()
 
@@ -228,7 +232,8 @@ cdef class StringLexer(BaseLexer):
     KoiLang lexer reading from string provided
     """
 
-    def __init__(self, content not None, *, str encoding not None = "utf-8", stat = None):
+    def __init__(self, content not None, *,
+                 str encoding not None = "utf-8", stat = None, command_threshold = None):
         if self.buffer:
             yy_delete_buffer(self.buffer)
         self._filename = "<string>"

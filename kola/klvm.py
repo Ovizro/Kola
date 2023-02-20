@@ -499,8 +499,8 @@ class KoiLang(metaclass=KoiLangMeta):
             ret = self.at_end(**kwds)
         return ret
 
-    def parse_file(self, path: str, **kwds: Any) -> Any:
-        return self.parse(FileLexer(path), **kwds)
+    def parse_file(self, path: str, encoding: str = 'utf-8', **kwds: Any) -> Any:
+        return self.parse(FileLexer(path, encoding=encoding), **kwds)
 
     def parse_command(self, cmd: str, **kwds: Any) -> Any:
         return self.parse(StringLexer(cmd, stat=1), **kwds)
@@ -521,13 +521,6 @@ class KoiLang(metaclass=KoiLangMeta):
     @property
     def top(self) -> Tuple[str, Union[Dict[str, Callable], "KoiLang"]]:
         return self._stack[:2]
-    
-    @property
-    def home(self) -> "KoiLang":
-        cur = self
-        while cur.back:
-            cur = cur.back
-        return cur
     
     def __getitem__(self, key: str) -> Callable:
         # sourcery skip: use-named-expression
