@@ -120,14 +120,14 @@ cdef class Parser:
         elif token.syn == TEXT:
             name = "@text"
             args = (token.val,)
-        elif token.syn == ANNOTATE:
-            name = "@annotate"
+        elif token.syn == ANNOTATION:
+            name = "@annotation"
             args = (token.val,)
 
         try:
             cmd = self.command_set[name]
         except KeyError:
-            if token.syn == ANNOTATE:
+            if token.syn == ANNOTATION:
                 return
             kola_set_errcause(KoiLangCommandError, 2, 
                 self.lexer._filename, token.lineno, token.raw_val, None)

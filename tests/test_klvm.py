@@ -3,7 +3,7 @@ from kola.exception import KoiLangCommandError
 from kola.lexer import StringLexer
 
 from kola.parser import Parser
-from kola.klvm import KoiLang, kola_command, kola_text, kola_env, kola_env_class
+from kola.klvm import KoiLang, kola_annotate, kola_command, kola_text, kola_env, kola_env_class
 
 
 class KolaTest(KoiLang):
@@ -33,7 +33,21 @@ class KolaTest(KoiLang):
         @kola_command
         def step_6(self) -> int:
             return len(self.l_num)
+
+
+class KolaTest1(KoiLang, command_threshold=2):
+    @kola_text
+    def text(self, text: str) -> str:
+        return text
+
+    @kola_command
+    def echo(self, s: str) -> None:
+        assert s == "This is a command."
     
+    @kola_annotate
+    def annotation(self, an: str) -> None:
+        assert an == "### This is an annotation."
+
 
 class TestKlvm(TestCase):
     def test_env(self) -> None:
@@ -66,3 +80,12 @@ class TestKlvm(TestCase):
         self.assertEqual(len(parser.command_set), 2)
         self.assertEqual(parser.exec_once(), "World")
         self.assertEqual(parser.exec_once(), 1)  # step 6
+    
+    def test_threshold(self) -> None:
+        string = """
+        This is text.
+        # This is alse text.
+        ### This is an annotation.
+        ##echo "This is a command."
+        """
+        KolaTest1().parse(string)

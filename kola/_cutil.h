@@ -16,7 +16,7 @@ extern "C" {
 
 static enum TokenSyn {
     CMD=1, CMD_N, TEXT, LITERAL, STRING, NUM, NUM_H,
-    NUM_B, NUM_F, CLN, CMA, SLP, SRP, ANNOTATE
+    NUM_B, NUM_F, CLN, CMA, SLP, SRP, ANNOTATION
 } TokenSyn;
 
 static const uint8_t yy_goto[7][8] = {
@@ -103,7 +103,7 @@ static const char* get_format(int code) {
     case CMD:
     case CMD_N:
     case TEXT:
-    case ANNOTATE:
+    case ANNOTATION:
         ERR_MSG(end of line in incurrect place);
     }
     ERR_MSG(unknown syntax);

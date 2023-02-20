@@ -23,7 +23,7 @@ S_CLN = CLN
 S_CMA = CMA
 S_SLP = SLP
 S_SRP = SRP
-S_ANNOTATE = ANNOTATE
+S_ANNOTATION = ANNOTATION
 
 
 @cython.final
@@ -53,7 +53,7 @@ cdef class Token:
         return self is other or self.syn == other
     
     cpdef int get_flag(self):
-        if self.syn <= TEXT or self.syn == ANNOTATE:
+        if self.syn <= TEXT or self.syn == ANNOTATION:
             return 0
         elif self.syn == LITERAL:
             return 1
@@ -147,7 +147,7 @@ cdef class BaseLexer(object):
             val = PyFloat_FromString(text)
         elif syn == CMD or syn == LITERAL:
             val = PyUnicode_FromStringAndSize(text, text_len)
-        elif syn == TEXT or syn == ANNOTATE:
+        elif syn == TEXT or syn == ANNOTATION:
             encoding = unicode2string(self.encoding, NULL)
             s = PyUnicode_Decode(text, text_len, encoding, NULL)
             val = <str>filter_text(s)

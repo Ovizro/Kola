@@ -777,7 +777,7 @@ YY_RULE_SETUP
 case 5:
 YY_RULE_SETUP
 #line 53 "kola/kolalexer.l"
-{return(ANNOTATE);}
+{return(ANNOTATION);}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP

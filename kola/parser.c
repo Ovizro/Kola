@@ -2349,7 +2349,7 @@ static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_update[] = "update";
 static const char __pyx_k_disable[] = "disable";
 static const char __pyx_k_KeyError[] = "KeyError";
-static const char __pyx_k_annotate[] = "@annotate";
+static const char __pyx_k_annotate[] = "@annotation";
 static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_pyx_type[] = "__pyx_type";
 static const char __pyx_k_setstate[] = "__setstate__";
@@ -4946,7 +4946,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *         elif token.syn == TEXT:
  *             name = "@text"             # <<<<<<<<<<<<<<
  *             args = (token.val,)
- *         elif token.syn == ANNOTATE:
+ *         elif token.syn == ANNOTATION:
  */
     __Pyx_INCREF(__pyx_kp_u_text);
     __pyx_v_name = __pyx_kp_u_text;
@@ -4955,8 +4955,8 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *         elif token.syn == TEXT:
  *             name = "@text"
  *             args = (token.val,)             # <<<<<<<<<<<<<<
- *         elif token.syn == ANNOTATE:
- *             name = "@annotate"
+ *         elif token.syn == ANNOTATION:
+ *             name = "@annotation"
  */
     __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 122, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -4974,12 +4974,12 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *             args = (token.val,)
  */
     break;
-    case ANNOTATE:
+    case ANNOTATION:
 
     /* "kola/parser.pyx":124
  *             args = (token.val,)
- *         elif token.syn == ANNOTATE:
- *             name = "@annotate"             # <<<<<<<<<<<<<<
+ *         elif token.syn == ANNOTATION:
+ *             name = "@annotation"             # <<<<<<<<<<<<<<
  *             args = (token.val,)
  * 
  */
@@ -4987,8 +4987,8 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     __pyx_v_name = __pyx_kp_u_annotate;
 
     /* "kola/parser.pyx":125
- *         elif token.syn == ANNOTATE:
- *             name = "@annotate"
+ *         elif token.syn == ANNOTATION:
+ *             name = "@annotation"
  *             args = (token.val,)             # <<<<<<<<<<<<<<
  * 
  *         try:
@@ -5004,8 +5004,8 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     /* "kola/parser.pyx":123
  *             name = "@text"
  *             args = (token.val,)
- *         elif token.syn == ANNOTATE:             # <<<<<<<<<<<<<<
- *             name = "@annotate"
+ *         elif token.syn == ANNOTATION:             # <<<<<<<<<<<<<<
+ *             name = "@annotation"
  *             args = (token.val,)
  */
     break;
@@ -5033,7 +5033,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *         try:
  *             cmd = self.command_set[name]             # <<<<<<<<<<<<<<
  *         except KeyError:
- *             if token.syn == ANNOTATE:
+ *             if token.syn == ANNOTATION:
  */
       if (unlikely(!__pyx_v_name)) { __Pyx_RaiseUnboundLocalError("name"); __PYX_ERR(0, 128, __pyx_L4_error) }
       __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_self->command_set, __pyx_v_name); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L4_error)
@@ -5063,7 +5063,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *         try:
  *             cmd = self.command_set[name]
  *         except KeyError:             # <<<<<<<<<<<<<<
- *             if token.syn == ANNOTATE:
+ *             if token.syn == ANNOTATION:
  *                 return
  */
     __pyx_t_5 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
@@ -5077,16 +5077,16 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
       /* "kola/parser.pyx":130
  *             cmd = self.command_set[name]
  *         except KeyError:
- *             if token.syn == ANNOTATE:             # <<<<<<<<<<<<<<
+ *             if token.syn == ANNOTATION:             # <<<<<<<<<<<<<<
  *                 return
  *             kola_set_errcause(KoiLangCommandError, 2,
  */
-      __pyx_t_7 = ((__pyx_v_token->syn == ANNOTATE) != 0);
+      __pyx_t_7 = ((__pyx_v_token->syn == ANNOTATION) != 0);
       if (__pyx_t_7) {
 
         /* "kola/parser.pyx":131
  *         except KeyError:
- *             if token.syn == ANNOTATE:
+ *             if token.syn == ANNOTATION:
  *                 return             # <<<<<<<<<<<<<<
  *             kola_set_errcause(KoiLangCommandError, 2,
  *                 self.lexer._filename, token.lineno, token.raw_val, None)
@@ -5101,14 +5101,14 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
         /* "kola/parser.pyx":130
  *             cmd = self.command_set[name]
  *         except KeyError:
- *             if token.syn == ANNOTATE:             # <<<<<<<<<<<<<<
+ *             if token.syn == ANNOTATION:             # <<<<<<<<<<<<<<
  *                 return
  *             kola_set_errcause(KoiLangCommandError, 2,
  */
       }
 
       /* "kola/parser.pyx":132
- *             if token.syn == ANNOTATE:
+ *             if token.syn == ANNOTATION:
  *                 return
  *             kola_set_errcause(KoiLangCommandError, 2,             # <<<<<<<<<<<<<<
  *                 self.lexer._filename, token.lineno, token.raw_val, None)
@@ -5131,7 +5131,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
       __pyx_t_11 = __Pyx_PyBytes_AsString(__pyx_v_token->raw_val); if (unlikely((!__pyx_t_11) && PyErr_Occurred())) __PYX_ERR(0, 133, __pyx_L6_except_error)
 
       /* "kola/parser.pyx":132
- *             if token.syn == ANNOTATE:
+ *             if token.syn == ANNOTATION:
  *                 return
  *             kola_set_errcause(KoiLangCommandError, 2,             # <<<<<<<<<<<<<<
  *                 self.lexer._filename, token.lineno, token.raw_val, None)

@@ -251,6 +251,33 @@ class EnvEnter(BaseEnv):
             return wrapper(func)
         else:
             return wrapper
+        
+    @overload
+    def env_annotate(self, func: Callable[..., Any], **kwds) -> Command: ...
+    @overload  # noqa: E301
+    def env_annotate(
+        self,
+        *,
+        method: Literal["static", "class", "default"] = ...,
+        envs: Union[Iterable[str], str] = ...,
+        alias: Union[Iterable[str], str] = ...
+    ) -> Callable[[Callable[..., Any]], Command]: ...
+    def env_annotate(  # noqa: E301
+        self,
+        func: Optional[Callable] = None,
+        **kwds
+    ) -> Union[Callable[[Callable], Command], Command]:
+        """
+        Define a annotation command only can be used in current environment
+        """
+        def wrapper(wrapped_func: Callable[..., Any]) -> Command:
+            cmd = Command("@annotation", wrapped_func, suppression=True, **kwds)
+            self.command_set_extra.add(cmd)
+            return cmd
+        if callable(func):
+            return wrapper(func)
+        else:
+            return wrapper
 
 
 class EnvExit(BaseEnv):
@@ -317,7 +344,7 @@ class KoiLangClassWriter:
     ) -> None:
         self.__command_set = command_set
         if path:
-            self._raw_writer = FileWriter(path, encoding=encoding, indent=indent)
+            self._raw_writer = FileWriter(path, encoding=command_set.encoding, indent=indent)
         else:
             self._raw_writer = StringWriter(indent=indent)
     
@@ -415,10 +442,9 @@ class KoiLangMeta(type):
         self,
         path: Union[str, bytes, os.PathLike, None] = None,
         *,
-        encoding: str = 'utf-8',
         indent: int = 4
     ) -> KoiLangClassWriter:
-        return KoiLangClassWriter(self, path=path, encoding=encoding, indent=indent)
+        return KoiLangClassWriter(self, path=path, indent=indent)
     
     def __repr__(self) -> str:
         return f"<kola command set '{self.__qualname__}'>"
@@ -630,6 +656,27 @@ def kola_number(  # noqa: E302
 ) -> Union[Command, Callable[[Callable], Command]]:
     def wrapper(wrapped_func: Callable[..., Any]) -> Command:
         return Command("@number", wrapped_func, **kwds)
+    if callable(func):
+        return wrapper(func)
+    else:
+        return wrapper
+
+
+@overload
+def kola_annotate(func: Callable[..., Any], **kwds) -> Command: ...
+@overload  # noqa: E302
+def kola_annotate(
+    *,
+    method: Literal["static", "class", "default"] = ...,
+    envs: Union[Iterable[str], str] = ...,
+    alias: Union[Iterable[str], str] = ...
+) -> Callable[[Callable[..., Any]], Command]: ...
+def kola_annotate(  # noqa: E302
+    func: Optional[Callable[..., Any]] = None,
+    **kwds
+) -> Union[Command, Callable[[Callable], Command]]:
+    def wrapper(wrapped_func: Callable[..., Any]) -> Command:
+        return Command("@annotation", wrapped_func, **kwds)
     if callable(func):
         return wrapper(func)
     else:

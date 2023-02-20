@@ -16,7 +16,7 @@ S_CLN: int
 S_CMA: int
 S_SLP: int
 S_SRP: int
-S_ANNOTATE: int
+S_ANNOTATION: int
 
 
 @final

@@ -2281,7 +2281,7 @@ static const char __pyx_k_exception[] = "exception";
 static const char __pyx_k_isenabled[] = "isenabled";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
-static const char __pyx_k_S_ANNOTATE[] = "S_ANNOTATE";
+static const char __pyx_k_S_ANNOTATION[] = "S_ANNOTATION";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_kola_lexer[] = "kola.lexer";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
@@ -2323,7 +2323,7 @@ static PyObject *__pyx_n_s_FileLexer__path;
 static PyObject *__pyx_n_s_FileLexer_close;
 static PyObject *__pyx_n_s_KoiLangSyntaxError;
 static PyObject *__pyx_n_s_OSError;
-static PyObject *__pyx_n_s_S_ANNOTATE;
+static PyObject *__pyx_n_s_S_ANNOTATION;
 static PyObject *__pyx_n_s_S_CLN;
 static PyObject *__pyx_n_s_S_CMA;
 static PyObject *__pyx_n_s_S_CMD;
@@ -2484,7 +2484,7 @@ typedef struct {
   PyObject *__pyx_n_s_FileLexer_close;
   PyObject *__pyx_n_s_KoiLangSyntaxError;
   PyObject *__pyx_n_s_OSError;
-  PyObject *__pyx_n_s_S_ANNOTATE;
+  PyObject *__pyx_n_s_S_ANNOTATION;
   PyObject *__pyx_n_s_S_CLN;
   PyObject *__pyx_n_s_S_CMA;
   PyObject *__pyx_n_s_S_CMD;
@@ -2618,7 +2618,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_FileLexer_close);
   Py_CLEAR(clear_module_state->__pyx_n_s_KoiLangSyntaxError);
   Py_CLEAR(clear_module_state->__pyx_n_s_OSError);
-  Py_CLEAR(clear_module_state->__pyx_n_s_S_ANNOTATE);
+  Py_CLEAR(clear_module_state->__pyx_n_s_S_ANNOTATION);
   Py_CLEAR(clear_module_state->__pyx_n_s_S_CLN);
   Py_CLEAR(clear_module_state->__pyx_n_s_S_CMA);
   Py_CLEAR(clear_module_state->__pyx_n_s_S_CMD);
@@ -2739,7 +2739,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_FileLexer_close);
   Py_VISIT(traverse_module_state->__pyx_n_s_KoiLangSyntaxError);
   Py_VISIT(traverse_module_state->__pyx_n_s_OSError);
-  Py_VISIT(traverse_module_state->__pyx_n_s_S_ANNOTATE);
+  Py_VISIT(traverse_module_state->__pyx_n_s_S_ANNOTATION);
   Py_VISIT(traverse_module_state->__pyx_n_s_S_CLN);
   Py_VISIT(traverse_module_state->__pyx_n_s_S_CMA);
   Py_VISIT(traverse_module_state->__pyx_n_s_S_CMD);
@@ -2857,7 +2857,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_FileLexer_close __pyx_mstate_global->__pyx_n_s_FileLexer_close
 #define __pyx_n_s_KoiLangSyntaxError __pyx_mstate_global->__pyx_n_s_KoiLangSyntaxError
 #define __pyx_n_s_OSError __pyx_mstate_global->__pyx_n_s_OSError
-#define __pyx_n_s_S_ANNOTATE __pyx_mstate_global->__pyx_n_s_S_ANNOTATE
+#define __pyx_n_s_S_ANNOTATION __pyx_mstate_global->__pyx_n_s_S_ANNOTATION
 #define __pyx_n_s_S_CLN __pyx_mstate_global->__pyx_n_s_S_CLN
 #define __pyx_n_s_S_CMA __pyx_mstate_global->__pyx_n_s_S_CMA
 #define __pyx_n_s_S_CMD __pyx_mstate_global->__pyx_n_s_S_CMD
@@ -3243,7 +3243,7 @@ static PyObject *__pyx_pf_4kola_5lexer_5Token_2__eq__(struct __pyx_obj_4kola_5le
  *         return self is other or self.syn == other
  * 
  *     cpdef int get_flag(self):             # <<<<<<<<<<<<<<
- *         if self.syn <= TEXT or self.syn == ANNOTATE:
+ *         if self.syn <= TEXT or self.syn == ANNOTATION:
  *             return 0
  */
 
@@ -3264,7 +3264,7 @@ static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_To
   /* "kola/lexer.pyx":56
  * 
  *     cpdef int get_flag(self):
- *         if self.syn <= TEXT or self.syn == ANNOTATE:             # <<<<<<<<<<<<<<
+ *         if self.syn <= TEXT or self.syn == ANNOTATION:             # <<<<<<<<<<<<<<
  *             return 0
  *         elif self.syn == LITERAL:
  */
@@ -3274,14 +3274,14 @@ static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_To
     __pyx_t_1 = __pyx_t_2;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_2 = ((__pyx_v_self->syn == ANNOTATE) != 0);
+  __pyx_t_2 = ((__pyx_v_self->syn == ANNOTATION) != 0);
   __pyx_t_1 = __pyx_t_2;
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_1) {
 
     /* "kola/lexer.pyx":57
  *     cpdef int get_flag(self):
- *         if self.syn <= TEXT or self.syn == ANNOTATE:
+ *         if self.syn <= TEXT or self.syn == ANNOTATION:
  *             return 0             # <<<<<<<<<<<<<<
  *         elif self.syn == LITERAL:
  *             return 1
@@ -3292,14 +3292,14 @@ static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_To
     /* "kola/lexer.pyx":56
  * 
  *     cpdef int get_flag(self):
- *         if self.syn <= TEXT or self.syn == ANNOTATE:             # <<<<<<<<<<<<<<
+ *         if self.syn <= TEXT or self.syn == ANNOTATION:             # <<<<<<<<<<<<<<
  *             return 0
  *         elif self.syn == LITERAL:
  */
   }
 
   /* "kola/lexer.pyx":58
- *         if self.syn <= TEXT or self.syn == ANNOTATE:
+ *         if self.syn <= TEXT or self.syn == ANNOTATION:
  *             return 0
  *         elif self.syn == LITERAL:             # <<<<<<<<<<<<<<
  *             return 1
@@ -3319,7 +3319,7 @@ static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_To
     goto __pyx_L0;
 
     /* "kola/lexer.pyx":58
- *         if self.syn <= TEXT or self.syn == ANNOTATE:
+ *         if self.syn <= TEXT or self.syn == ANNOTATION:
  *             return 0
  *         elif self.syn == LITERAL:             # <<<<<<<<<<<<<<
  *             return 1
@@ -3372,7 +3372,7 @@ static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_To
  *         return self is other or self.syn == other
  * 
  *     cpdef int get_flag(self):             # <<<<<<<<<<<<<<
- *         if self.syn <= TEXT or self.syn == ANNOTATE:
+ *         if self.syn <= TEXT or self.syn == ANNOTATION:
  *             return 0
  */
 
@@ -4957,7 +4957,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
  *             val = PyFloat_FromString(text)
  *         elif syn == CMD or syn == LITERAL:             # <<<<<<<<<<<<<<
  *             val = PyUnicode_FromStringAndSize(text, text_len)
- *         elif syn == TEXT or syn == ANNOTATE:
+ *         elif syn == TEXT or syn == ANNOTATION:
  */
     case LITERAL:
 
@@ -4965,7 +4965,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
  *             val = PyFloat_FromString(text)
  *         elif syn == CMD or syn == LITERAL:
  *             val = PyUnicode_FromStringAndSize(text, text_len)             # <<<<<<<<<<<<<<
- *         elif syn == TEXT or syn == ANNOTATE:
+ *         elif syn == TEXT or syn == ANNOTATION:
  *             encoding = unicode2string(self.encoding, NULL)
  */
     __pyx_t_7 = PyUnicode_FromStringAndSize(__pyx_v_text, __pyx_v_text_len); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 149, __pyx_L1_error)
@@ -4978,7 +4978,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
  *             val = PyFloat_FromString(text)
  *         elif syn == CMD or syn == LITERAL:             # <<<<<<<<<<<<<<
  *             val = PyUnicode_FromStringAndSize(text, text_len)
- *         elif syn == TEXT or syn == ANNOTATE:
+ *         elif syn == TEXT or syn == ANNOTATION:
  */
     break;
     case TEXT:
@@ -4986,15 +4986,15 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
     /* "kola/lexer.pyx":150
  *         elif syn == CMD or syn == LITERAL:
  *             val = PyUnicode_FromStringAndSize(text, text_len)
- *         elif syn == TEXT or syn == ANNOTATE:             # <<<<<<<<<<<<<<
+ *         elif syn == TEXT or syn == ANNOTATION:             # <<<<<<<<<<<<<<
  *             encoding = unicode2string(self.encoding, NULL)
  *             s = PyUnicode_Decode(text, text_len, encoding, NULL)
  */
-    case ANNOTATE:
+    case ANNOTATION:
 
     /* "kola/lexer.pyx":151
  *             val = PyUnicode_FromStringAndSize(text, text_len)
- *         elif syn == TEXT or syn == ANNOTATE:
+ *         elif syn == TEXT or syn == ANNOTATION:
  *             encoding = unicode2string(self.encoding, NULL)             # <<<<<<<<<<<<<<
  *             s = PyUnicode_Decode(text, text_len, encoding, NULL)
  *             val = <str>filter_text(s)
@@ -5006,7 +5006,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
     /* "kola/lexer.pyx":152
- *         elif syn == TEXT or syn == ANNOTATE:
+ *         elif syn == TEXT or syn == ANNOTATION:
  *             encoding = unicode2string(self.encoding, NULL)
  *             s = PyUnicode_Decode(text, text_len, encoding, NULL)             # <<<<<<<<<<<<<<
  *             val = <str>filter_text(s)
@@ -5034,7 +5034,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
     /* "kola/lexer.pyx":150
  *         elif syn == CMD or syn == LITERAL:
  *             val = PyUnicode_FromStringAndSize(text, text_len)
- *         elif syn == TEXT or syn == ANNOTATE:             # <<<<<<<<<<<<<<
+ *         elif syn == TEXT or syn == ANNOTATION:             # <<<<<<<<<<<<<<
  *             encoding = unicode2string(self.encoding, NULL)
  *             s = PyUnicode_Decode(text, text_len, encoding, NULL)
  */
@@ -8433,7 +8433,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, __pyx_k_FileLexer_close, sizeof(__pyx_k_FileLexer_close), 0, 0, 1, 1},
   {0, __pyx_k_KoiLangSyntaxError, sizeof(__pyx_k_KoiLangSyntaxError), 0, 0, 1, 1},
   {0, __pyx_k_OSError, sizeof(__pyx_k_OSError), 0, 0, 1, 1},
-  {0, __pyx_k_S_ANNOTATE, sizeof(__pyx_k_S_ANNOTATE), 0, 0, 1, 1},
+  {0, __pyx_k_S_ANNOTATION, sizeof(__pyx_k_S_ANNOTATION), 0, 0, 1, 1},
   {0, __pyx_k_S_CLN, sizeof(__pyx_k_S_CLN), 0, 0, 1, 1},
   {0, __pyx_k_S_CMA, sizeof(__pyx_k_S_CMA), 0, 0, 1, 1},
   {0, __pyx_k_S_CMD, sizeof(__pyx_k_S_CMD), 0, 0, 1, 1},
@@ -8509,7 +8509,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_FileLexer_close, __pyx_k_FileLexer_close, sizeof(__pyx_k_FileLexer_close), 0, 0, 1, 1},
   {&__pyx_n_s_KoiLangSyntaxError, __pyx_k_KoiLangSyntaxError, sizeof(__pyx_k_KoiLangSyntaxError), 0, 0, 1, 1},
   {&__pyx_n_s_OSError, __pyx_k_OSError, sizeof(__pyx_k_OSError), 0, 0, 1, 1},
-  {&__pyx_n_s_S_ANNOTATE, __pyx_k_S_ANNOTATE, sizeof(__pyx_k_S_ANNOTATE), 0, 0, 1, 1},
+  {&__pyx_n_s_S_ANNOTATION, __pyx_k_S_ANNOTATION, sizeof(__pyx_k_S_ANNOTATION), 0, 0, 1, 1},
   {&__pyx_n_s_S_CLN, __pyx_k_S_CLN, sizeof(__pyx_k_S_CLN), 0, 0, 1, 1},
   {&__pyx_n_s_S_CMA, __pyx_k_S_CMA, sizeof(__pyx_k_S_CMA), 0, 0, 1, 1},
   {&__pyx_n_s_S_CMD, __pyx_k_S_CMD, sizeof(__pyx_k_S_CMD), 0, 0, 1, 1},
@@ -8618,7 +8618,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         return self is other or self.syn == other
  * 
  *     cpdef int get_flag(self):             # <<<<<<<<<<<<<<
- *         if self.syn <= TEXT or self.syn == ANNOTATE:
+ *         if self.syn <= TEXT or self.syn == ANNOTATION:
  *             return 0
  */
   __pyx_tuple__4 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(1, 55, __pyx_L1_error)
@@ -8727,7 +8727,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitConstants(void) {
   if (__Pyx_InitString(__pyx_string_tab[8], &__pyx_n_s_FileLexer_close) < 0) __PYX_ERR(1, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[9], &__pyx_n_s_KoiLangSyntaxError) < 0) __PYX_ERR(1, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[10], &__pyx_n_s_OSError) < 0) __PYX_ERR(1, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[11], &__pyx_n_s_S_ANNOTATE) < 0) __PYX_ERR(1, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[11], &__pyx_n_s_S_ANNOTATION) < 0) __PYX_ERR(1, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[12], &__pyx_n_s_S_CLN) < 0) __PYX_ERR(1, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[13], &__pyx_n_s_S_CMA) < 0) __PYX_ERR(1, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[14], &__pyx_n_s_S_CMD) < 0) __PYX_ERR(1, 1, __pyx_L1_error);
@@ -9475,7 +9475,7 @@ if (!__Pyx_RefNanny) {
  * S_CMA = CMA
  * S_SLP = SLP             # <<<<<<<<<<<<<<
  * S_SRP = SRP
- * S_ANNOTATE = ANNOTATE
+ * S_ANNOTATION = ANNOTATION
  */
   __pyx_t_3 = __Pyx_PyInt_From_enum__TokenSyn(SLP); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
@@ -9486,7 +9486,7 @@ if (!__Pyx_RefNanny) {
  * S_CMA = CMA
  * S_SLP = SLP
  * S_SRP = SRP             # <<<<<<<<<<<<<<
- * S_ANNOTATE = ANNOTATE
+ * S_ANNOTATION = ANNOTATION
  * 
  */
   __pyx_t_3 = __Pyx_PyInt_From_enum__TokenSyn(SRP); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 25, __pyx_L1_error)
@@ -9497,20 +9497,20 @@ if (!__Pyx_RefNanny) {
   /* "kola/lexer.pyx":26
  * S_SLP = SLP
  * S_SRP = SRP
- * S_ANNOTATE = ANNOTATE             # <<<<<<<<<<<<<<
+ * S_ANNOTATION = ANNOTATION             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_3 = __Pyx_PyInt_From_enum__TokenSyn(ANNOTATE); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 26, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_enum__TokenSyn(ANNOTATION); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_S_ANNOTATE, __pyx_t_3) < 0) __PYX_ERR(1, 26, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_S_ANNOTATION, __pyx_t_3) < 0) __PYX_ERR(1, 26, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "kola/lexer.pyx":55
  *         return self is other or self.syn == other
  * 
  *     cpdef int get_flag(self):             # <<<<<<<<<<<<<<
- *         if self.syn <= TEXT or self.syn == ANNOTATE:
+ *         if self.syn <= TEXT or self.syn == ANNOTATION:
  *             return 0
  */
   __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_5lexer_5Token_5get_flag, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Token_get_flag, NULL, __pyx_n_s_kola_lexer, __pyx_d, ((PyObject *)__pyx_codeobj__5)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 55, __pyx_L1_error)

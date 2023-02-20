@@ -50,7 +50,7 @@ comment ([^\r\n]|(\\\r?\n))+
         yymore();
     }
 }
-<COMMENT>{comment}      {return(ANNOTATE);}
+<COMMENT>{comment}      {return(ANNOTATION);}
 <COMMAND>{literal}      {BEGIN ARGUMENT; return(CMD);}
 <COMMAND>{uint}         {BEGIN ARGUMENT; return(CMD_N);}
 <INITIAL,PLAIN_TEXT>{text}  {return(TEXT);}
