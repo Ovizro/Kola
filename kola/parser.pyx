@@ -105,8 +105,6 @@ cdef class Parser:
             Token token
 
         token = self.t_cache
-        while not token is None and token.syn == ANNOTATE:
-            self.t_cache = token = self.lexer.next_token()
         if token is None:
             return
         
@@ -122,9 +120,15 @@ cdef class Parser:
         elif token.syn == TEXT:
             name = "@text"
             args = (token.val,)
+        elif token.syn == ANNOTATE:
+            name = "@annotate"
+            args = (token.val,)
+
         try:
             cmd = self.command_set[name]
         except KeyError:
+            if token.syn == ANNOTATE:
+                return
             kola_set_errcause(KoiLangCommandError, 2, 
                 self.lexer._filename, token.lineno, token.raw_val, None)
         

@@ -3243,7 +3243,7 @@ static PyObject *__pyx_pf_4kola_5lexer_5Token_2__eq__(struct __pyx_obj_4kola_5le
  *         return self is other or self.syn == other
  * 
  *     cpdef int get_flag(self):             # <<<<<<<<<<<<<<
- *         if self.syn <= TEXT:
+ *         if self.syn <= TEXT or self.syn == ANNOTATE:
  *             return 0
  */
 
@@ -3258,21 +3258,30 @@ static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_To
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
+  int __pyx_t_2;
   __Pyx_RefNannySetupContext("get_flag", 0);
 
   /* "kola/lexer.pyx":56
  * 
  *     cpdef int get_flag(self):
- *         if self.syn <= TEXT:             # <<<<<<<<<<<<<<
+ *         if self.syn <= TEXT or self.syn == ANNOTATE:             # <<<<<<<<<<<<<<
  *             return 0
  *         elif self.syn == LITERAL:
  */
-  __pyx_t_1 = ((__pyx_v_self->syn <= TEXT) != 0);
+  __pyx_t_2 = ((__pyx_v_self->syn <= TEXT) != 0);
+  if (!__pyx_t_2) {
+  } else {
+    __pyx_t_1 = __pyx_t_2;
+    goto __pyx_L4_bool_binop_done;
+  }
+  __pyx_t_2 = ((__pyx_v_self->syn == ANNOTATE) != 0);
+  __pyx_t_1 = __pyx_t_2;
+  __pyx_L4_bool_binop_done:;
   if (__pyx_t_1) {
 
     /* "kola/lexer.pyx":57
  *     cpdef int get_flag(self):
- *         if self.syn <= TEXT:
+ *         if self.syn <= TEXT or self.syn == ANNOTATE:
  *             return 0             # <<<<<<<<<<<<<<
  *         elif self.syn == LITERAL:
  *             return 1
@@ -3283,14 +3292,14 @@ static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_To
     /* "kola/lexer.pyx":56
  * 
  *     cpdef int get_flag(self):
- *         if self.syn <= TEXT:             # <<<<<<<<<<<<<<
+ *         if self.syn <= TEXT or self.syn == ANNOTATE:             # <<<<<<<<<<<<<<
  *             return 0
  *         elif self.syn == LITERAL:
  */
   }
 
   /* "kola/lexer.pyx":58
- *         if self.syn <= TEXT:
+ *         if self.syn <= TEXT or self.syn == ANNOTATE:
  *             return 0
  *         elif self.syn == LITERAL:             # <<<<<<<<<<<<<<
  *             return 1
@@ -3310,7 +3319,7 @@ static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_To
     goto __pyx_L0;
 
     /* "kola/lexer.pyx":58
- *         if self.syn <= TEXT:
+ *         if self.syn <= TEXT or self.syn == ANNOTATE:
  *             return 0
  *         elif self.syn == LITERAL:             # <<<<<<<<<<<<<<
  *             return 1
@@ -3363,7 +3372,7 @@ static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_To
  *         return self is other or self.syn == other
  * 
  *     cpdef int get_flag(self):             # <<<<<<<<<<<<<<
- *         if self.syn <= TEXT:
+ *         if self.syn <= TEXT or self.syn == ANNOTATE:
  *             return 0
  */
 
@@ -4603,7 +4612,7 @@ static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5le
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("kola.lexer.BaseLexer.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  //__Pyx_AddTraceback("kola.lexer.BaseLexer.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
@@ -8609,7 +8618,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         return self is other or self.syn == other
  * 
  *     cpdef int get_flag(self):             # <<<<<<<<<<<<<<
- *         if self.syn <= TEXT:
+ *         if self.syn <= TEXT or self.syn == ANNOTATE:
  *             return 0
  */
   __pyx_tuple__4 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(1, 55, __pyx_L1_error)
@@ -9501,7 +9510,7 @@ if (!__Pyx_RefNanny) {
  *         return self is other or self.syn == other
  * 
  *     cpdef int get_flag(self):             # <<<<<<<<<<<<<<
- *         if self.syn <= TEXT:
+ *         if self.syn <= TEXT or self.syn == ANNOTATE:
  *             return 0
  */
   __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_5lexer_5Token_5get_flag, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Token_get_flag, NULL, __pyx_n_s_kola_lexer, __pyx_d, ((PyObject *)__pyx_codeobj__5)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 55, __pyx_L1_error)

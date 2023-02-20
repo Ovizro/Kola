@@ -16,11 +16,12 @@ class TestParser(TestCase):
             """
             #hello KoiLang
             I am glad to meet you.
+            ## And an annotate
             """
         )
         self.assertEqual(
             [i[0] for i in Parser(lexer, cmd_test)],
-            ["hello", "@text"]
+            ["hello", "@text", "@annotate"]
         )
         
     def test_number(self) -> None:

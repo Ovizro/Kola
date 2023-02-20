@@ -103,6 +103,7 @@ static const char* get_format(int code) {
     case CMD:
     case CMD_N:
     case TEXT:
+    case ANNOTATE:
         ERR_MSG(end of line in incurrect place);
     }
     ERR_MSG(unknown syntax);

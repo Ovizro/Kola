@@ -53,7 +53,7 @@ cdef class Token:
         return self is other or self.syn == other
     
     cpdef int get_flag(self):
-        if self.syn <= TEXT:
+        if self.syn <= TEXT or self.syn == ANNOTATE:
             return 0
         elif self.syn == LITERAL:
             return 1

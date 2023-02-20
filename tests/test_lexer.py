@@ -1,6 +1,6 @@
 from unittest import TestCase
 from kola.exception import KoiLangSyntaxError
-from kola.lexer import StringLexer, FileLexer, S_CMD, S_LITERAL, S_TEXT, Token
+from kola.lexer import StringLexer, FileLexer, S_CMD, S_LITERAL, S_ANNOTATE, S_TEXT, Token
 
 
 class TestLexer(TestCase):
@@ -20,11 +20,12 @@ class TestLexer(TestCase):
             """
             #hello KoiLang
             I am glad to meet you.
+            ## And an annotate
             """
         )
         self.assertListEqual(
             list(lexer),
-            [S_CMD, S_LITERAL, S_TEXT]
+            [S_CMD, S_LITERAL, S_TEXT, S_ANNOTATE]
         )
     
     def test_recovery(self) -> None:
@@ -55,3 +56,15 @@ class TestLexer(TestCase):
         _, t_str = StringLexer(f'#command "{test_string}"')
         self.assertNotEqual(t_str.val, test_string)
         self.assertEqual(t_str.val, eval(f"'{test_string}'"))
+    
+    def test_command_threshold(self) -> None:
+        lexer = StringLexer(
+            "#This is text\n"
+            "##command\n"
+            "### And an annotate\n",
+            command_threshold=2
+        )
+        self.assertEqual(
+            list(lexer),
+            [S_TEXT, S_CMD, S_ANNOTATE]
+        )

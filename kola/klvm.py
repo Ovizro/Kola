@@ -347,19 +347,30 @@ class KoiLangMeta(type):
     """
     Metaclass for KoiLang class
     """
+    encoding: str
     __command_field__: Set[Command]
+    __command_threshold__: int
 
-    def __new__(cls, name: str, base: Tuple[type, ...], attr: Dict[str, Any], **kwds):
+    def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any],
+                command_threshold: int = 0, encoding: Optional[str] = None, **kwds: Any):
         __command_field__ = set()
-        for i in base:
+
+        has_base = False
+        for i in bases:
             if isinstance(i, KoiLangMeta):
+                has_base = True
                 __command_field__.update(i.__command_field__)
         for i in attr.values():
             if isinstance(i, Command):
                 __command_field__.add(i)
         attr["__command_field__"] = __command_field__
 
-        return super().__new__(cls, name, base, attr, **kwds)
+        if command_threshold or not has_base:
+            attr["__command_threshold__"] = command_threshold or 1
+        if encoding or not has_base:
+            attr["encoding"] = encoding or "utf-8"
+
+        return super().__new__(cls, name, bases, attr, **kwds)
     
     @staticmethod
     def eval_commands(field: Set[Command], ins: Any) -> Dict[str, Callable]:
@@ -490,7 +501,11 @@ class KoiLang(metaclass=KoiLangMeta):
         Parse kola text or lexer from other method.
         """
         if isinstance(lexer, str):
-            lexer = StringLexer(lexer)
+            lexer = StringLexer(
+                lexer,
+                encoding=self.__class__.encoding,
+                command_threshold=self.__class__.__command_threshold__
+            )
 
         self.at_start(**kwds)
         try:
@@ -499,14 +514,23 @@ class KoiLang(metaclass=KoiLangMeta):
             ret = self.at_end(**kwds)
         return ret
 
-    def parse_file(self, path: str, encoding: str = 'utf-8', **kwds: Any) -> Any:
-        return self.parse(FileLexer(path, encoding=encoding), **kwds)
+    def parse_file(self, path: str, **kwds: Any) -> Any:
+        return self.parse(
+            FileLexer(
+                path, encoding=self.__class__.encoding,
+                command_threshold=self.__class__.__command_threshold__
+            ),
+            **kwds
+        )
 
     def parse_command(self, cmd: str, **kwds: Any) -> Any:
-        return self.parse(StringLexer(cmd, stat=1), **kwds)
+        return self.parse(
+            StringLexer(cmd, stat=1, encoding=self.__class__.encoding), **kwds)
 
     def parse_args(self, args: str) -> Tuple[tuple, Dict[str, Any]]:
-        return Parser(StringLexer(args, stat=2), self).parse_args()
+        return Parser(
+            StringLexer(args, stat=2, encoding=self.__class__.encoding), self
+        ).parse_args()
     
     def __get(self, key: str, default: Optional[Callable]) -> Optional[Callable]:
         # sourcery skip: use-named-expression
