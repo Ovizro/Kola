@@ -3,7 +3,7 @@ from kola.exception import KoiLangCommandError
 from kola.lexer import StringLexer
 
 from kola.parser import Parser
-from kola.klvm import KoiLang, kola_annotate, kola_command, kola_text, kola_env, kola_env_class
+from kola.klvm import KoiLang, kola_annotation, kola_command, kola_text, kola_env, kola_env_class
 
 
 class KolaTest(KoiLang):
@@ -44,24 +44,30 @@ class KolaTest1(KoiLang, command_threshold=2):
     def echo(self, s: str) -> None:
         assert s == "This is a command."
     
-    @kola_annotate
+    @kola_annotation
     def annotation(self, an: str) -> None:
         assert an == "### This is an annotation."
 
 
 class TestKlvm(TestCase):
+    def test_init(self) -> None:
+        self.assertEqual(KoiLang.__command_field__, set())
+        self.assertEqual(KoiLang.__command_threshold__, 1)
+        self.assertEqual(KoiLang.encoding, "utf-8")
+        self.assertEqual(KolaTest1.__command_threshold__, 2)
+
     def test_env(self) -> None:
         string = """
-            #step_1 0.101E1
-            #step_2 key1(hello, "world") key2(abc)
-            #step_3
-            #step_4
-            #step_3
-            
-            Hello
-            #step_6
-            World
-            #step_6
+        #step_1 0.101E1
+        #step_2 key1(hello, "world") key2(abc)
+        #step_3
+        #step_4
+        #step_3
+        
+        Hello
+        #step_6
+        World
+        #step_6
         """
 
         parser = Parser(StringLexer(string), KolaTest())
@@ -84,7 +90,7 @@ class TestKlvm(TestCase):
     def test_threshold(self) -> None:
         string = """
         This is text.
-        # This is alse text.
+        # #This is alse text.
         ### This is an annotation.
         ##echo "This is a command."
         """

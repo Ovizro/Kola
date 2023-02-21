@@ -2349,7 +2349,6 @@ static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_update[] = "update";
 static const char __pyx_k_disable[] = "disable";
 static const char __pyx_k_KeyError[] = "KeyError";
-static const char __pyx_k_annotate[] = "@annotation";
 static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_pyx_type[] = "__pyx_type";
 static const char __pyx_k_setstate[] = "__setstate__";
@@ -2360,6 +2359,7 @@ static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_Parser_eof[] = "Parser.eof";
 static const char __pyx_k_Parser_pop[] = "Parser.pop";
+static const char __pyx_k_annotation[] = "@annotation";
 static const char __pyx_k_parse_args[] = "parse_args";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
@@ -2410,7 +2410,7 @@ static PyObject *__pyx_n_s_Parser_push;
 static PyObject *__pyx_n_s_PickleError;
 static PyObject *__pyx_n_s_StopIteration;
 static PyObject *__pyx_n_s__18;
-static PyObject *__pyx_kp_u_annotate;
+static PyObject *__pyx_kp_u_annotation;
 static PyObject *__pyx_n_s_asyncio_coroutines;
 static PyObject *__pyx_n_s_class_getitem;
 static PyObject *__pyx_n_s_cline_in_traceback;
@@ -2545,7 +2545,7 @@ typedef struct {
   PyObject *__pyx_n_s_PickleError;
   PyObject *__pyx_n_s_StopIteration;
   PyObject *__pyx_n_s__18;
-  PyObject *__pyx_kp_u_annotate;
+  PyObject *__pyx_kp_u_annotation;
   PyObject *__pyx_n_s_asyncio_coroutines;
   PyObject *__pyx_n_s_class_getitem;
   PyObject *__pyx_n_s_cline_in_traceback;
@@ -2674,7 +2674,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_PickleError);
   Py_CLEAR(clear_module_state->__pyx_n_s_StopIteration);
   Py_CLEAR(clear_module_state->__pyx_n_s__18);
-  Py_CLEAR(clear_module_state->__pyx_kp_u_annotate);
+  Py_CLEAR(clear_module_state->__pyx_kp_u_annotation);
   Py_CLEAR(clear_module_state->__pyx_n_s_asyncio_coroutines);
   Py_CLEAR(clear_module_state->__pyx_n_s_class_getitem);
   Py_CLEAR(clear_module_state->__pyx_n_s_cline_in_traceback);
@@ -2790,7 +2790,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_PickleError);
   Py_VISIT(traverse_module_state->__pyx_n_s_StopIteration);
   Py_VISIT(traverse_module_state->__pyx_n_s__18);
-  Py_VISIT(traverse_module_state->__pyx_kp_u_annotate);
+  Py_VISIT(traverse_module_state->__pyx_kp_u_annotation);
   Py_VISIT(traverse_module_state->__pyx_n_s_asyncio_coroutines);
   Py_VISIT(traverse_module_state->__pyx_n_s_class_getitem);
   Py_VISIT(traverse_module_state->__pyx_n_s_cline_in_traceback);
@@ -2903,7 +2903,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_PickleError __pyx_mstate_global->__pyx_n_s_PickleError
 #define __pyx_n_s_StopIteration __pyx_mstate_global->__pyx_n_s_StopIteration
 #define __pyx_n_s__18 __pyx_mstate_global->__pyx_n_s__18
-#define __pyx_kp_u_annotate __pyx_mstate_global->__pyx_kp_u_annotate
+#define __pyx_kp_u_annotation __pyx_mstate_global->__pyx_kp_u_annotation
 #define __pyx_n_s_asyncio_coroutines __pyx_mstate_global->__pyx_n_s_asyncio_coroutines
 #define __pyx_n_s_class_getitem __pyx_mstate_global->__pyx_n_s_class_getitem
 #define __pyx_n_s_cline_in_traceback __pyx_mstate_global->__pyx_n_s_cline_in_traceback
@@ -4983,8 +4983,8 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *             args = (token.val,)
  * 
  */
-    __Pyx_INCREF(__pyx_kp_u_annotate);
-    __pyx_v_name = __pyx_kp_u_annotate;
+    __Pyx_INCREF(__pyx_kp_u_annotation);
+    __pyx_v_name = __pyx_kp_u_annotation;
 
     /* "kola/parser.pyx":125
  *         elif token.syn == ANNOTATION:
@@ -7636,7 +7636,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
   {0, __pyx_k_StopIteration, sizeof(__pyx_k_StopIteration), 0, 0, 1, 1},
   {0, __pyx_k__18, sizeof(__pyx_k__18), 0, 0, 1, 1},
-  {0, __pyx_k_annotate, sizeof(__pyx_k_annotate), 0, 1, 0, 0},
+  {0, __pyx_k_annotation, sizeof(__pyx_k_annotation), 0, 1, 0, 0},
   {0, __pyx_k_asyncio_coroutines, sizeof(__pyx_k_asyncio_coroutines), 0, 0, 1, 1},
   {0, __pyx_k_class_getitem, sizeof(__pyx_k_class_getitem), 0, 0, 1, 1},
   {0, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
@@ -7707,7 +7707,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_PickleError, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_StopIteration, __pyx_k_StopIteration, sizeof(__pyx_k_StopIteration), 0, 0, 1, 1},
   {&__pyx_n_s__18, __pyx_k__18, sizeof(__pyx_k__18), 0, 0, 1, 1},
-  {&__pyx_kp_u_annotate, __pyx_k_annotate, sizeof(__pyx_k_annotate), 0, 1, 0, 0},
+  {&__pyx_kp_u_annotation, __pyx_k_annotation, sizeof(__pyx_k_annotation), 0, 1, 0, 0},
   {&__pyx_n_s_asyncio_coroutines, __pyx_k_asyncio_coroutines, sizeof(__pyx_k_asyncio_coroutines), 0, 0, 1, 1},
   {&__pyx_n_s_class_getitem, __pyx_k_class_getitem, sizeof(__pyx_k_class_getitem), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
@@ -7906,7 +7906,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitConstants(void) {
   if (__Pyx_InitString(__pyx_string_tab[16], &__pyx_n_s_PickleError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[17], &__pyx_n_s_StopIteration) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[18], &__pyx_n_s__18) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[19], &__pyx_kp_u_annotate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[19], &__pyx_kp_u_annotation) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[20], &__pyx_n_s_asyncio_coroutines) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[21], &__pyx_n_s_class_getitem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[22], &__pyx_n_s_cline_in_traceback) < 0) __PYX_ERR(0, 1, __pyx_L1_error);

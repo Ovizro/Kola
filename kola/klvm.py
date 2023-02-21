@@ -253,16 +253,16 @@ class EnvEnter(BaseEnv):
             return wrapper
         
     @overload
-    def env_annotate(self, func: Callable[..., Any], **kwds) -> Command: ...
+    def env_annotation(self, func: Callable[..., Any], **kwds) -> Command: ...
     @overload  # noqa: E301
-    def env_annotate(
+    def env_annotation(
         self,
         *,
         method: Literal["static", "class", "default"] = ...,
         envs: Union[Iterable[str], str] = ...,
         alias: Union[Iterable[str], str] = ...
     ) -> Callable[[Callable[..., Any]], Command]: ...
-    def env_annotate(  # noqa: E301
+    def env_annotation(  # noqa: E301
         self,
         func: Optional[Callable] = None,
         **kwds
@@ -339,14 +339,17 @@ class KoiLangClassWriter:
         command_set: "KoiLangMeta",
         *,
         path: Union[str, bytes, os.PathLike, None] = None,
-        encoding: str = "utf-8",
         indent: int = 4
     ) -> None:
         self.__command_set = command_set
         if path:
-            self._raw_writer = FileWriter(path, encoding=command_set.encoding, indent=indent)
+            self._raw_writer = FileWriter(
+                path, encoding=command_set.encoding, indent=indent,
+                command_threshold=command_set.__command_threshold__
+            )
         else:
-            self._raw_writer = StringWriter(indent=indent)
+            self._raw_writer = StringWriter(
+                indent=indent, command_threshold=command_set.__command_threshold__)
     
     def __getattr__(self, name: str) -> Callable:
         for i in self.__command_set.__command_field__:
@@ -379,7 +382,7 @@ class KoiLangMeta(type):
     __command_threshold__: int
 
     def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any],
-                command_threshold: int = 0, encoding: Optional[str] = None, **kwds: Any):
+                command_threshold: int = 0, text_encoding: Optional[str] = None, **kwds: Any):
         __command_field__ = set()
 
         has_base = False
@@ -393,9 +396,10 @@ class KoiLangMeta(type):
         attr["__command_field__"] = __command_field__
 
         if command_threshold or not has_base:
+            assert command_threshold >= 0
             attr["__command_threshold__"] = command_threshold or 1
-        if encoding or not has_base:
-            attr["encoding"] = encoding or "utf-8"
+        if text_encoding or not has_base:
+            attr["encoding"] = text_encoding or "utf-8"
 
         return super().__new__(cls, name, bases, attr, **kwds)
     
@@ -663,15 +667,15 @@ def kola_number(  # noqa: E302
 
 
 @overload
-def kola_annotate(func: Callable[..., Any], **kwds) -> Command: ...
+def kola_annotation(func: Callable[..., Any], **kwds) -> Command: ...
 @overload  # noqa: E302
-def kola_annotate(
+def kola_annotation(
     *,
     method: Literal["static", "class", "default"] = ...,
     envs: Union[Iterable[str], str] = ...,
     alias: Union[Iterable[str], str] = ...
 ) -> Callable[[Callable[..., Any]], Command]: ...
-def kola_annotate(  # noqa: E302
+def kola_annotation(  # noqa: E302
     func: Optional[Callable[..., Any]] = None,
     **kwds
 ) -> Union[Command, Callable[[Callable], Command]]:

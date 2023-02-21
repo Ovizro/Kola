@@ -2281,11 +2281,11 @@ static const char __pyx_k_exception[] = "exception";
 static const char __pyx_k_isenabled[] = "isenabled";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
-static const char __pyx_k_S_ANNOTATION[] = "S_ANNOTATION";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_kola_lexer[] = "kola.lexer";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static const char __pyx_k_StringLexer[] = "StringLexer";
+static const char __pyx_k_S_ANNOTATION[] = "S_ANNOTATION";
 static const char __pyx_k_is_coroutine[] = "_is_coroutine";
 static const char __pyx_k_stringsource[] = "<stringsource>";
 static const char __pyx_k_StopIteration[] = "StopIteration";
@@ -4612,7 +4612,7 @@ static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5le
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_4);
-  //__Pyx_AddTraceback("kola.lexer.BaseLexer.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("kola.lexer.BaseLexer.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }

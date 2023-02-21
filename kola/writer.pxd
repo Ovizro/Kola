@@ -38,7 +38,9 @@ cdef NewlineItem i_newline
 
 cdef class BaseWriter:
     cdef Py_ssize_t cur_indent
-    cdef readonly uint8_t indent
+    cdef readonly:
+        uint8_t indent
+        int command_threshold
     cdef public bint line_beginning
 
     cpdef void raw_write(self, str text) except *
@@ -47,8 +49,10 @@ cdef class BaseWriter:
     cpdef void close(self)
     cpdef void inc_indent(self)
     cpdef void dec_indent(self) except *
-    cpdef void write_indent(self) except *
+    cdef void _write_indent(self) except *
+    cdef void _write_prefix(self, Py_ssize_t length) except *
     cpdef void newline(self, bint concat_prev = *) except *
+    cdef void _write_text(self, str text) except *
 
 
 cdef class FileWriter(BaseWriter):

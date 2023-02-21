@@ -108,7 +108,7 @@ PyObject* filter_text(PyObject* string) {
                 offset++;
                 break;
             case '\r':
-                if (PyUnicode_ReadChar(string, i + 1) == '\n') {
+                if (PyUnicode_READ_CHAR(string, i + 1) == '\n') {
                     i++;
                     offset += 2;
                     break;
