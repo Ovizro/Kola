@@ -97,7 +97,6 @@ cdef void _write_complex_item(BaseWriter writer, str key, object value, bint spl
             writer.dec_indent()
             writer.newline(True)
     writer.raw_write_char(ord(')'))
-    writer.line_beginning = False
 
 
 cdef class BaseWriterItem(object):
@@ -215,8 +214,13 @@ cdef class BaseWriter(object):
             self.raw_write_string("\\\n", 2)
         else:
             self.raw_write_string("\n", 1)
-        self._write_indent()
         self.line_beginning = True
+
+    cpdef void prepare(self) except *:
+        """preparation before writing"""
+        if self.line_beginning:
+            self.line_beginning = False
+            self._write_indent()
     
     cdef void _write_text(self, str text) except *:
         text = text.replace('\n', '\\\n')
@@ -254,22 +258,17 @@ cdef class BaseWriter(object):
                 get_type_qualname(__name)
             )
 
-        self.line_beginning = False
         self.inc_indent()
         try:
             for i in args:
                 if not self.line_beginning:
                     self.raw_write_char(ord(' '))
-                else:
-                    self.line_beginning = False
                 if not _write_base_item(self, i):
                     _write_writeritemlike(self, i, ARG_ITEM)
 
             for k, v in kwds.items():
                 if not self.line_beginning:
                     self.raw_write_char(ord(' '))
-                else:
-                    self.line_beginning = False
                 _write_complex_item(self, k, v)
         finally:
             self.dec_indent()
@@ -325,14 +324,14 @@ cdef class FileWriter(BaseWriter):
         self.raw_write_string(tb)
     
     cdef void raw_write_string(self, const char* string, Py_ssize_t length = -1) except *:
-        if self.fp == NULL:
-            raise OSError("operation on closed writer")
+        if length == 0:
+            return
+        self.prepare()
         with nogil:
             fputs(string, self.fp)
 
     cdef void raw_write_char(self, char ch) except *:
-        if self.fp == NULL:
-            raise OSError("operation on closed writer")
+        self.prepare()
         with nogil:
             fputc(ch, self.fp)
     
@@ -341,6 +340,12 @@ cdef class FileWriter(BaseWriter):
             with nogil:
                 fclose(self.fp)
         self.fp = NULL
+    
+    cpdef void prepare(self) except *:
+        """preparation before writing"""
+        if self.fp == NULL:
+            raise OSError("operation on closed writer")
+        BaseWriter.prepare(self)
     
     @property
     def closed(self):
@@ -353,26 +358,31 @@ cdef class StringWriter(BaseWriter):
         self.writer.overallocate = True
     
     cpdef void raw_write(self, str text) except *:
-        if self._closed:
-            raise OSError("operation on closed writer")
+        self.prepare()
         _PyUnicodeWriter_WriteStr(&self.writer, text)
     
     cdef void raw_write_string(self, const char* string, Py_ssize_t length = -1) except *:
-        if self._closed:
-            raise OSError("operation on closed writer")
         if length < 0:
             length = <Py_ssize_t>strlen(string)
+        if length == 0:
+            return
+        self.prepare()
         _PyUnicodeWriter_WriteASCIIString(&self.writer, string, length)
     
     cdef void raw_write_char(self, char ch) except *:
-        if self._closed:
-            raise OSError("operation on closed writer")
+        self.prepare()
         _PyUnicodeWriter_WriteChar(&self.writer, ch)
     
     cpdef void close(self):
         self._closed = True
         _PyUnicodeWriter_Dealloc(&self.writer)
     
+    cpdef void prepare(self) except *:
+        """preparation before writing"""
+        if self._closed:
+            raise OSError("operation on closed writer")
+        BaseWriter.prepare(self)
+
     cpdef str getvalue(self):
         if self._closed:
             raise OSError("operation on closed writer")

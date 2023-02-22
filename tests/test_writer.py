@@ -89,6 +89,10 @@ class TestWriter(TestCase):
             @help.writer
             def help(writer: BaseWriter) -> None:  # type: ignore
                 writer.write_command("help", "In fact, no help can be provided.")
+            
+            @kola_command
+            def raw_write(self) -> None:
+                ...
         
         with Vm.writer() as w:
             w.echo("Hello")

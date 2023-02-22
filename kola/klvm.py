@@ -115,7 +115,7 @@ class BaseEnv(Command):
 
 
 class EnvEnter(BaseEnv):
-    __slots__ = ["command_set", "command_set_extra", "auto_pop"]
+    __slots__ = ["command_set", "command_set_extra", "auto_pop", "__write_func"]
 
     def __init__(
         self,
@@ -333,44 +333,46 @@ class EnvClsEnter(BaseEnv):
         return super().__call__(cmd_set, *args, **kwds)
 
 
-class KoiLangClassWriter:
+class KoiLangBaseWriter(BaseWriter):
+    def __init__(
+        self,
+        command_set: "KoiLangMeta",
+        *args,
+        indent: int = 4,
+        **kwds
+    ) -> None:
+        self.__command_set__ = command_set
+        super().__init__(
+            *args,
+            indent=indent,
+            command_threshold=command_set.__command_threshold__,
+            **kwds
+        )
+    
+    def __getattr__(self, name: str) -> Any:
+        attr = getattr(self.__command_set__, name)
+        if isinstance(attr, Command):
+            return partial(attr.writer_func, self)
+        else:
+            raise AttributeError(f"kola writer object has no attribute {name}")
+
+
+class KoiLangFileWriter(KoiLangBaseWriter, FileWriter):
+    __slots__ = ["__command_set__"]
+
     def __init__(
         self,
         command_set: "KoiLangMeta",
         *,
-        path: Union[str, bytes, os.PathLike, None] = None,
+        path: Union[str, bytes, os.PathLike],
         indent: int = 4
     ) -> None:
-        self.__command_set = command_set
-        if path:
-            self._raw_writer = FileWriter(
-                path, encoding=command_set.encoding, indent=indent,
-                command_threshold=command_set.__command_threshold__
-            )
-        else:
-            self._raw_writer = StringWriter(
-                indent=indent, command_threshold=command_set.__command_threshold__)
-    
-    def __getattr__(self, name: str) -> Callable:
-        for i in self.__command_set.__command_field__:
-            if i.__name__ == name:
-                return partial(i.writer_func, self._raw_writer)
-        else:
-            raise AttributeError(f"'{name}' is not a valid command name")
-    
-    def newline(self) -> None:
-        self._raw_writer.newline()
-    
-    def getvalue(self) -> str:
-        assert isinstance(self._raw_writer, StringWriter)
-        return self._raw_writer.getvalue()
+        super().__init__(command_set, path, indent=indent,
+                         encoding=command_set.encoding)
 
-    def __enter__(self) -> Self:
-        self._raw_writer.__enter__()
-        return self
 
-    def __exit__(self, *args) -> None:
-        self._raw_writer.__exit__(*args)
+class KoiLangStringWriter(KoiLangBaseWriter, StringWriter):
+    __slots__ = ["__command_set__"]
 
 
 class KoiLangMeta(type):
@@ -442,13 +444,20 @@ class KoiLangMeta(type):
         else:
             return wrapper
     
-    def writer(
+    @overload
+    def writer(self, *, indent: int = 4) -> KoiLangStringWriter: ...
+    @overload
+    def writer(self, path: Union[str, bytes, os.PathLike], *, indent: int = 4) -> KoiLangFileWriter: ...
+    def writer(  # noqa" 301
         self,
         path: Union[str, bytes, os.PathLike, None] = None,
         *,
         indent: int = 4
-    ) -> KoiLangClassWriter:
-        return KoiLangClassWriter(self, path=path, indent=indent)
+    ) -> Union[KoiLangFileWriter, KoiLangStringWriter]:
+        if path:
+            return KoiLangFileWriter(self, path=path, indent=indent)
+        else:
+            return KoiLangStringWriter(self, indent=indent)
     
     def __repr__(self) -> str:
         return f"<kola command set '{self.__qualname__}'>"
