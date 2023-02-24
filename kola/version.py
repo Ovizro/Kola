@@ -1,2 +1,2 @@
-__version__ = "0.2.1b0"
-version_info = (0, 2, 1, "beta", 0)
+__version__ = "0.3.0a3"
+version_info = (0, 3, 0, "alpha", 3)

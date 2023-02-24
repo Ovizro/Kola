@@ -14,6 +14,7 @@ cdef extern from "Python.h":
     ctypedef uint64_t Py_UCS4
     
     str PyUnicode_FromFormat(const char* format, ...)
+    Py_UCS4 PyUnicode_READ_CHAR(str unicode, Py_ssize_t index)
     int PyUnicode_WriteChar(
         str unicode, Py_ssize_t index, Py_UCS4 character) except -1
 
@@ -69,6 +70,7 @@ cdef extern from "_cutil.h":
         CMA
         SLP
         SRP
+        ANNOTATION
     const uint8_t yy_goto[7][8]
 
     void kola_set_error(object exc_type, int errorno, const char* filename, int lineno, const char* text) except *

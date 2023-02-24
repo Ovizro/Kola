@@ -141,7 +141,7 @@ class KoiLangMain(KoiLang):
     
     def get_var(self, key: str) -> Any:
         if key == "__name__":
-            return "KoiLangMainClass"
+            return self.__class__.__name__
         elif key == '__top__':
             return self.top[0]
         elif key == "__dir__":

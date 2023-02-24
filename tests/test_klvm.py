@@ -3,7 +3,7 @@ from kola.exception import KoiLangCommandError
 from kola.lexer import StringLexer
 
 from kola.parser import Parser
-from kola.klvm import KoiLang, kola_command, kola_text, kola_env, kola_env_class
+from kola.klvm import KoiLang, kola_annotation, kola_command, kola_text, kola_env, kola_env_class
 
 
 class KolaTest(KoiLang):
@@ -33,21 +33,41 @@ class KolaTest(KoiLang):
         @kola_command
         def step_6(self) -> int:
             return len(self.l_num)
+
+
+class KolaTest1(KoiLang, command_threshold=2):
+    @kola_text
+    def text(self, text: str) -> str:
+        return text
+
+    @kola_command
+    def echo(self, s: str) -> None:
+        assert s == "This is a command."
     
+    @kola_annotation
+    def annotation(self, an: str) -> None:
+        assert an == "### This is an annotation."
+
 
 class TestKlvm(TestCase):
+    def test_init(self) -> None:
+        self.assertEqual(KoiLang.__command_field__, set())
+        self.assertEqual(KoiLang.__command_threshold__, 1)
+        self.assertEqual(KoiLang.encoding, "utf-8")
+        self.assertEqual(KolaTest1.__command_threshold__, 2)
+
     def test_env(self) -> None:
         string = """
-            #step_1 0.101E1
-            #step_2 key1(hello, "world") key2(abc)
-            #step_3
-            #step_4
-            #step_3
-            
-            Hello
-            #step_6
-            World
-            #step_6
+        #step_1 0.101E1
+        #step_2 key1(hello, "world") key2(abc)
+        #step_3
+        #step_4
+        #step_3
+        
+        Hello
+        #step_6
+        World
+        #step_6
         """
 
         parser = Parser(StringLexer(string), KolaTest())
@@ -66,3 +86,12 @@ class TestKlvm(TestCase):
         self.assertEqual(len(parser.command_set), 2)
         self.assertEqual(parser.exec_once(), "World")
         self.assertEqual(parser.exec_once(), 1)  # step 6
+    
+    def test_threshold(self) -> None:
+        string = """
+        This is text.
+        # #This is alse text.
+        ### This is an annotation.
+        ##echo "This is a command."
+        """
+        KolaTest1().parse(string)

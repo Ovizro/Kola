@@ -115,7 +115,7 @@ class BaseEnv(Command):
 
 
 class EnvEnter(BaseEnv):
-    __slots__ = ["command_set", "command_set_extra", "auto_pop"]
+    __slots__ = ["command_set", "command_set_extra", "auto_pop", "__write_func"]
 
     def __init__(
         self,
@@ -251,6 +251,33 @@ class EnvEnter(BaseEnv):
             return wrapper(func)
         else:
             return wrapper
+        
+    @overload
+    def env_annotation(self, func: Callable[..., Any], **kwds) -> Command: ...
+    @overload  # noqa: E301
+    def env_annotation(
+        self,
+        *,
+        method: Literal["static", "class", "default"] = ...,
+        envs: Union[Iterable[str], str] = ...,
+        alias: Union[Iterable[str], str] = ...
+    ) -> Callable[[Callable[..., Any]], Command]: ...
+    def env_annotation(  # noqa: E301
+        self,
+        func: Optional[Callable] = None,
+        **kwds
+    ) -> Union[Callable[[Callable], Command], Command]:
+        """
+        Define a annotation command only can be used in current environment
+        """
+        def wrapper(wrapped_func: Callable[..., Any]) -> Command:
+            cmd = Command("@annotation", wrapped_func, suppression=True, **kwds)
+            self.command_set_extra.add(cmd)
+            return cmd
+        if callable(func):
+            return wrapper(func)
+        else:
+            return wrapper
 
 
 class EnvExit(BaseEnv):
@@ -306,60 +333,77 @@ class EnvClsEnter(BaseEnv):
         return super().__call__(cmd_set, *args, **kwds)
 
 
-class KoiLangClassWriter:
+class KoiLangBaseWriter(BaseWriter):
+    def __init__(
+        self,
+        command_set: "KoiLangMeta",
+        *args,
+        indent: int = 4,
+        **kwds
+    ) -> None:
+        self.__command_set__ = command_set
+        super().__init__(
+            *args,
+            indent=indent,
+            command_threshold=command_set.__command_threshold__,
+            **kwds
+        )
+    
+    def __getattr__(self, name: str) -> Any:
+        attr = getattr(self.__command_set__, name)
+        if isinstance(attr, Command):
+            return partial(attr.writer_func, self)
+        else:
+            raise AttributeError(f"kola writer object has no attribute {name}")
+
+
+class KoiLangFileWriter(KoiLangBaseWriter, FileWriter):
+    __slots__ = ["__command_set__"]
+
     def __init__(
         self,
         command_set: "KoiLangMeta",
         *,
-        path: Union[str, bytes, os.PathLike, None] = None,
-        encoding: str = "utf-8",
+        path: Union[str, bytes, os.PathLike],
         indent: int = 4
     ) -> None:
-        self.__command_set = command_set
-        if path:
-            self._raw_writer = FileWriter(path, encoding=encoding, indent=indent)
-        else:
-            self._raw_writer = StringWriter(indent=indent)
-    
-    def __getattr__(self, name: str) -> Callable:
-        for i in self.__command_set.__command_field__:
-            if i.__name__ == name:
-                return partial(i.writer_func, self._raw_writer)
-        else:
-            raise AttributeError(f"'{name}' is not a valid command name")
-    
-    def newline(self) -> None:
-        self._raw_writer.newline()
-    
-    def getvalue(self) -> str:
-        assert isinstance(self._raw_writer, StringWriter)
-        return self._raw_writer.getvalue()
+        super().__init__(command_set, path, indent=indent,
+                         encoding=command_set.encoding)
 
-    def __enter__(self) -> Self:
-        self._raw_writer.__enter__()
-        return self
 
-    def __exit__(self, *args) -> None:
-        self._raw_writer.__exit__(*args)
+class KoiLangStringWriter(KoiLangBaseWriter, StringWriter):
+    __slots__ = ["__command_set__"]
 
 
 class KoiLangMeta(type):
     """
     Metaclass for KoiLang class
     """
+    encoding: str
     __command_field__: Set[Command]
+    __command_threshold__: int
 
-    def __new__(cls, name: str, base: Tuple[type, ...], attr: Dict[str, Any], **kwds):
+    def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any],
+                command_threshold: int = 0, text_encoding: Optional[str] = None, **kwds: Any):
         __command_field__ = set()
-        for i in base:
+
+        has_base = False
+        for i in bases:
             if isinstance(i, KoiLangMeta):
+                has_base = True
                 __command_field__.update(i.__command_field__)
         for i in attr.values():
             if isinstance(i, Command):
                 __command_field__.add(i)
         attr["__command_field__"] = __command_field__
 
-        return super().__new__(cls, name, base, attr, **kwds)
+        if command_threshold or not has_base:
+            assert command_threshold >= 0
+            attr["__command_threshold__"] = command_threshold or 1
+        if text_encoding or not has_base:
+            attr["encoding"] = text_encoding or "utf-8"
+
+        return super().__new__(cls, name, bases, attr, **kwds)
     
     @staticmethod
     def eval_commands(field: Set[Command], ins: Any) -> Dict[str, Callable]:
@@ -400,14 +444,20 @@ class KoiLangMeta(type):
         else:
             return wrapper
     
-    def writer(
+    @overload
+    def writer(self, *, indent: int = 4) -> KoiLangStringWriter: ...
+    @overload
+    def writer(self, path: Union[str, bytes, os.PathLike], *, indent: int = 4) -> KoiLangFileWriter: ...
+    def writer(  # noqa" 301
         self,
         path: Union[str, bytes, os.PathLike, None] = None,
         *,
-        encoding: str = 'utf-8',
         indent: int = 4
-    ) -> KoiLangClassWriter:
-        return KoiLangClassWriter(self, path=path, encoding=encoding, indent=indent)
+    ) -> Union[KoiLangFileWriter, KoiLangStringWriter]:
+        if path:
+            return KoiLangFileWriter(self, path=path, indent=indent)
+        else:
+            return KoiLangStringWriter(self, indent=indent)
     
     def __repr__(self) -> str:
         return f"<kola command set '{self.__qualname__}'>"
@@ -490,7 +540,11 @@ class KoiLang(metaclass=KoiLangMeta):
         Parse kola text or lexer from other method.
         """
         if isinstance(lexer, str):
-            lexer = StringLexer(lexer)
+            lexer = StringLexer(
+                lexer,
+                encoding=self.__class__.encoding,
+                command_threshold=self.__class__.__command_threshold__
+            )
 
         self.at_start(**kwds)
         try:
@@ -500,13 +554,22 @@ class KoiLang(metaclass=KoiLangMeta):
         return ret
 
     def parse_file(self, path: str, **kwds: Any) -> Any:
-        return self.parse(FileLexer(path), **kwds)
+        return self.parse(
+            FileLexer(
+                path, encoding=self.__class__.encoding,
+                command_threshold=self.__class__.__command_threshold__
+            ),
+            **kwds
+        )
 
     def parse_command(self, cmd: str, **kwds: Any) -> Any:
-        return self.parse(StringLexer(cmd, stat=1), **kwds)
+        return self.parse(
+            StringLexer(cmd, stat=1, encoding=self.__class__.encoding), **kwds)
 
     def parse_args(self, args: str) -> Tuple[tuple, Dict[str, Any]]:
-        return Parser(StringLexer(args, stat=2), self).parse_args()
+        return Parser(
+            StringLexer(args, stat=2, encoding=self.__class__.encoding), self
+        ).parse_args()
     
     def __get(self, key: str, default: Optional[Callable]) -> Optional[Callable]:
         # sourcery skip: use-named-expression
@@ -521,13 +584,6 @@ class KoiLang(metaclass=KoiLangMeta):
     @property
     def top(self) -> Tuple[str, Union[Dict[str, Callable], "KoiLang"]]:
         return self._stack[:2]
-    
-    @property
-    def home(self) -> "KoiLang":
-        cur = self
-        while cur.back:
-            cur = cur.back
-        return cur
     
     def __getitem__(self, key: str) -> Callable:
         # sourcery skip: use-named-expression
@@ -613,6 +669,27 @@ def kola_number(  # noqa: E302
 ) -> Union[Command, Callable[[Callable], Command]]:
     def wrapper(wrapped_func: Callable[..., Any]) -> Command:
         return Command("@number", wrapped_func, **kwds)
+    if callable(func):
+        return wrapper(func)
+    else:
+        return wrapper
+
+
+@overload
+def kola_annotation(func: Callable[..., Any], **kwds) -> Command: ...
+@overload  # noqa: E302
+def kola_annotation(
+    *,
+    method: Literal["static", "class", "default"] = ...,
+    envs: Union[Iterable[str], str] = ...,
+    alias: Union[Iterable[str], str] = ...
+) -> Callable[[Callable[..., Any]], Command]: ...
+def kola_annotation(  # noqa: E302
+    func: Optional[Callable[..., Any]] = None,
+    **kwds
+) -> Union[Command, Callable[[Callable], Command]]:
+    def wrapper(wrapped_func: Callable[..., Any]) -> Command:
+        return Command("@annotation", wrapped_func, **kwds)
     if callable(func):
         return wrapper(func)
     else:

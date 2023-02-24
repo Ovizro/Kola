@@ -1244,7 +1244,7 @@ struct __pyx_opt_args_7cpython_11contextvars_get_value_no_default {
 struct __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t;
 typedef struct __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t;
 
-/* "lexer.pxd":54
+/* "lexer.pxd":55
  *     cdef void set_error(self) except *
  *     cdef void ensure(self)
  *     cdef (int, const char*, Py_ssize_t) next_syn(self)             # <<<<<<<<<<<<<<
@@ -1304,10 +1304,11 @@ struct __pyx_obj_4kola_5lexer_BaseLexer {
   PyObject *encoding;
   int lineno;
   int stat;
+  int command_threshold;
 };
 
 
-/* "lexer.pxd":58
+/* "lexer.pxd":59
  * 
  * 
  * cdef class FileLexer(BaseLexer):             # <<<<<<<<<<<<<<
@@ -1322,7 +1323,7 @@ struct __pyx_obj_4kola_5lexer_FileLexer {
 };
 
 
-/* "lexer.pxd":67
+/* "lexer.pxd":68
  * 
  * 
  * cdef class StringLexer(BaseLexer):             # <<<<<<<<<<<<<<
@@ -1385,7 +1386,7 @@ struct __pyx_vtabstruct_4kola_5lexer_BaseLexer {
 static struct __pyx_vtabstruct_4kola_5lexer_BaseLexer *__pyx_vtabptr_4kola_5lexer_BaseLexer;
 
 
-/* "lexer.pxd":58
+/* "lexer.pxd":59
  * 
  * 
  * cdef class FileLexer(BaseLexer):             # <<<<<<<<<<<<<<
@@ -1399,7 +1400,7 @@ struct __pyx_vtabstruct_4kola_5lexer_FileLexer {
 static struct __pyx_vtabstruct_4kola_5lexer_FileLexer *__pyx_vtabptr_4kola_5lexer_FileLexer;
 
 
-/* "lexer.pxd":67
+/* "lexer.pxd":68
  * 
  * 
  * cdef class StringLexer(BaseLexer):             # <<<<<<<<<<<<<<
@@ -2358,6 +2359,7 @@ static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_Parser_eof[] = "Parser.eof";
 static const char __pyx_k_Parser_pop[] = "Parser.pop";
+static const char __pyx_k_annotation[] = "@annotation";
 static const char __pyx_k_parse_args[] = "parse_args";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
@@ -2408,6 +2410,7 @@ static PyObject *__pyx_n_s_Parser_push;
 static PyObject *__pyx_n_s_PickleError;
 static PyObject *__pyx_n_s_StopIteration;
 static PyObject *__pyx_n_s__18;
+static PyObject *__pyx_kp_u_annotation;
 static PyObject *__pyx_n_s_asyncio_coroutines;
 static PyObject *__pyx_n_s_class_getitem;
 static PyObject *__pyx_n_s_cline_in_traceback;
@@ -2542,6 +2545,7 @@ typedef struct {
   PyObject *__pyx_n_s_PickleError;
   PyObject *__pyx_n_s_StopIteration;
   PyObject *__pyx_n_s__18;
+  PyObject *__pyx_kp_u_annotation;
   PyObject *__pyx_n_s_asyncio_coroutines;
   PyObject *__pyx_n_s_class_getitem;
   PyObject *__pyx_n_s_cline_in_traceback;
@@ -2670,6 +2674,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_PickleError);
   Py_CLEAR(clear_module_state->__pyx_n_s_StopIteration);
   Py_CLEAR(clear_module_state->__pyx_n_s__18);
+  Py_CLEAR(clear_module_state->__pyx_kp_u_annotation);
   Py_CLEAR(clear_module_state->__pyx_n_s_asyncio_coroutines);
   Py_CLEAR(clear_module_state->__pyx_n_s_class_getitem);
   Py_CLEAR(clear_module_state->__pyx_n_s_cline_in_traceback);
@@ -2785,6 +2790,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_PickleError);
   Py_VISIT(traverse_module_state->__pyx_n_s_StopIteration);
   Py_VISIT(traverse_module_state->__pyx_n_s__18);
+  Py_VISIT(traverse_module_state->__pyx_kp_u_annotation);
   Py_VISIT(traverse_module_state->__pyx_n_s_asyncio_coroutines);
   Py_VISIT(traverse_module_state->__pyx_n_s_class_getitem);
   Py_VISIT(traverse_module_state->__pyx_n_s_cline_in_traceback);
@@ -2897,6 +2903,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_PickleError __pyx_mstate_global->__pyx_n_s_PickleError
 #define __pyx_n_s_StopIteration __pyx_mstate_global->__pyx_n_s_StopIteration
 #define __pyx_n_s__18 __pyx_mstate_global->__pyx_n_s__18
+#define __pyx_kp_u_annotation __pyx_mstate_global->__pyx_kp_u_annotation
 #define __pyx_n_s_asyncio_coroutines __pyx_mstate_global->__pyx_n_s_asyncio_coroutines
 #define __pyx_n_s_class_getitem __pyx_mstate_global->__pyx_n_s_class_getitem
 #define __pyx_n_s_cline_in_traceback __pyx_mstate_global->__pyx_n_s_cline_in_traceback
@@ -3815,7 +3822,7 @@ static void __pyx_f_4kola_6parser_6Parser_set_error(struct __pyx_obj_4kola_6pars
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  //__Pyx_AddTraceback("kola.parser.Parser.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("kola.parser.Parser.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_cur);
   __Pyx_RefNannyFinishContext();
@@ -4939,7 +4946,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *         elif token.syn == TEXT:
  *             name = "@text"             # <<<<<<<<<<<<<<
  *             args = (token.val,)
- *         try:
+ *         elif token.syn == ANNOTATION:
  */
     __Pyx_INCREF(__pyx_kp_u_text);
     __pyx_v_name = __pyx_kp_u_text;
@@ -4948,8 +4955,8 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *         elif token.syn == TEXT:
  *             name = "@text"
  *             args = (token.val,)             # <<<<<<<<<<<<<<
- *         try:
- *             cmd = self.command_set[name]
+ *         elif token.syn == ANNOTATION:
+ *             name = "@annotation"
  */
     __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 122, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -4967,12 +4974,47 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *             args = (token.val,)
  */
     break;
+    case ANNOTATION:
+
+    /* "kola/parser.pyx":124
+ *             args = (token.val,)
+ *         elif token.syn == ANNOTATION:
+ *             name = "@annotation"             # <<<<<<<<<<<<<<
+ *             args = (token.val,)
+ * 
+ */
+    __Pyx_INCREF(__pyx_kp_u_annotation);
+    __pyx_v_name = __pyx_kp_u_annotation;
+
+    /* "kola/parser.pyx":125
+ *         elif token.syn == ANNOTATION:
+ *             name = "@annotation"
+ *             args = (token.val,)             # <<<<<<<<<<<<<<
+ * 
+ *         try:
+ */
+    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_INCREF(__pyx_v_token->val);
+    __Pyx_GIVEREF(__pyx_v_token->val);
+    PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_token->val);
+    __Pyx_DECREF_SET(__pyx_v_args, ((PyObject*)__pyx_t_2));
+    __pyx_t_2 = 0;
+
+    /* "kola/parser.pyx":123
+ *             name = "@text"
+ *             args = (token.val,)
+ *         elif token.syn == ANNOTATION:             # <<<<<<<<<<<<<<
+ *             name = "@annotation"
+ *             args = (token.val,)
+ */
+    break;
     default: break;
   }
 
-  /* "kola/parser.pyx":123
- *             name = "@text"
+  /* "kola/parser.pyx":127
  *             args = (token.val,)
+ * 
  *         try:             # <<<<<<<<<<<<<<
  *             cmd = self.command_set[name]
  *         except KeyError:
@@ -4986,22 +5028,22 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     __Pyx_XGOTREF(__pyx_t_10);
     /*try:*/ {
 
-      /* "kola/parser.pyx":124
- *             args = (token.val,)
+      /* "kola/parser.pyx":128
+ * 
  *         try:
  *             cmd = self.command_set[name]             # <<<<<<<<<<<<<<
  *         except KeyError:
- *             kola_set_errcause(KoiLangCommandError, 2,
+ *             if token.syn == ANNOTATION:
  */
-      if (unlikely(!__pyx_v_name)) { __Pyx_RaiseUnboundLocalError("name"); __PYX_ERR(0, 124, __pyx_L4_error) }
-      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_self->command_set, __pyx_v_name); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L4_error)
+      if (unlikely(!__pyx_v_name)) { __Pyx_RaiseUnboundLocalError("name"); __PYX_ERR(0, 128, __pyx_L4_error) }
+      __pyx_t_2 = __Pyx_PyObject_Dict_GetItem(__pyx_v_self->command_set, __pyx_v_name); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_2);
       __pyx_v_cmd = __pyx_t_2;
       __pyx_t_2 = 0;
 
-      /* "kola/parser.pyx":123
- *             name = "@text"
+      /* "kola/parser.pyx":127
  *             args = (token.val,)
+ * 
  *         try:             # <<<<<<<<<<<<<<
  *             cmd = self.command_set[name]
  *         except KeyError:
@@ -5017,33 +5059,66 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "kola/parser.pyx":125
+    /* "kola/parser.pyx":129
  *         try:
  *             cmd = self.command_set[name]
  *         except KeyError:             # <<<<<<<<<<<<<<
- *             kola_set_errcause(KoiLangCommandError, 2,
- *                 self.lexer._filename, token.lineno, token.raw_val, None)
+ *             if token.syn == ANNOTATION:
+ *                 return
  */
     __pyx_t_5 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
     if (__pyx_t_5) {
       __Pyx_AddTraceback("kola.parser.Parser.exec_once", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_1, &__pyx_t_3) < 0) __PYX_ERR(0, 125, __pyx_L6_except_error)
+      if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_1, &__pyx_t_3) < 0) __PYX_ERR(0, 129, __pyx_L6_except_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_GOTREF(__pyx_t_3);
 
-      /* "kola/parser.pyx":126
+      /* "kola/parser.pyx":130
  *             cmd = self.command_set[name]
  *         except KeyError:
+ *             if token.syn == ANNOTATION:             # <<<<<<<<<<<<<<
+ *                 return
+ *             kola_set_errcause(KoiLangCommandError, 2,
+ */
+      __pyx_t_7 = ((__pyx_v_token->syn == ANNOTATION) != 0);
+      if (__pyx_t_7) {
+
+        /* "kola/parser.pyx":131
+ *         except KeyError:
+ *             if token.syn == ANNOTATION:
+ *                 return             # <<<<<<<<<<<<<<
+ *             kola_set_errcause(KoiLangCommandError, 2,
+ *                 self.lexer._filename, token.lineno, token.raw_val, None)
+ */
+        __Pyx_XDECREF(__pyx_r);
+        __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        goto __pyx_L7_except_return;
+
+        /* "kola/parser.pyx":130
+ *             cmd = self.command_set[name]
+ *         except KeyError:
+ *             if token.syn == ANNOTATION:             # <<<<<<<<<<<<<<
+ *                 return
+ *             kola_set_errcause(KoiLangCommandError, 2,
+ */
+      }
+
+      /* "kola/parser.pyx":132
+ *             if token.syn == ANNOTATION:
+ *                 return
  *             kola_set_errcause(KoiLangCommandError, 2,             # <<<<<<<<<<<<<<
  *                 self.lexer._filename, token.lineno, token.raw_val, None)
  * 
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_KoiLangCommandError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 126, __pyx_L6_except_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_KoiLangCommandError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 132, __pyx_L6_except_error)
       __Pyx_GOTREF(__pyx_t_4);
 
-      /* "kola/parser.pyx":127
- *         except KeyError:
+      /* "kola/parser.pyx":133
+ *                 return
  *             kola_set_errcause(KoiLangCommandError, 2,
  *                 self.lexer._filename, token.lineno, token.raw_val, None)             # <<<<<<<<<<<<<<
  * 
@@ -5051,18 +5126,18 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  */
       if (unlikely(__pyx_v_token->raw_val == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "expected bytes, NoneType found");
-        __PYX_ERR(0, 127, __pyx_L6_except_error)
+        __PYX_ERR(0, 133, __pyx_L6_except_error)
       }
-      __pyx_t_11 = __Pyx_PyBytes_AsString(__pyx_v_token->raw_val); if (unlikely((!__pyx_t_11) && PyErr_Occurred())) __PYX_ERR(0, 127, __pyx_L6_except_error)
+      __pyx_t_11 = __Pyx_PyBytes_AsString(__pyx_v_token->raw_val); if (unlikely((!__pyx_t_11) && PyErr_Occurred())) __PYX_ERR(0, 133, __pyx_L6_except_error)
 
-      /* "kola/parser.pyx":126
- *             cmd = self.command_set[name]
- *         except KeyError:
+      /* "kola/parser.pyx":132
+ *             if token.syn == ANNOTATION:
+ *                 return
  *             kola_set_errcause(KoiLangCommandError, 2,             # <<<<<<<<<<<<<<
  *                 self.lexer._filename, token.lineno, token.raw_val, None)
  * 
  */
-      kola_set_errcause(__pyx_t_4, 2, __pyx_v_self->lexer->_filename, __pyx_v_token->lineno, __pyx_t_11, Py_None); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L6_except_error)
+      kola_set_errcause(__pyx_t_4, 2, __pyx_v_self->lexer->_filename, __pyx_v_token->lineno, __pyx_t_11, Py_None); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 132, __pyx_L6_except_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -5072,9 +5147,9 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     goto __pyx_L6_except_error;
     __pyx_L6_except_error:;
 
-    /* "kola/parser.pyx":123
- *             name = "@text"
+    /* "kola/parser.pyx":127
  *             args = (token.val,)
+ * 
  *         try:             # <<<<<<<<<<<<<<
  *             cmd = self.command_set[name]
  *         except KeyError:
@@ -5084,6 +5159,12 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     __Pyx_XGIVEREF(__pyx_t_10);
     __Pyx_ExceptionReset(__pyx_t_8, __pyx_t_9, __pyx_t_10);
     goto __pyx_L1_error;
+    __pyx_L7_except_return:;
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_XGIVEREF(__pyx_t_9);
+    __Pyx_XGIVEREF(__pyx_t_10);
+    __Pyx_ExceptionReset(__pyx_t_8, __pyx_t_9, __pyx_t_10);
+    goto __pyx_L0;
     __pyx_L5_exception_handled:;
     __Pyx_XGIVEREF(__pyx_t_8);
     __Pyx_XGIVEREF(__pyx_t_9);
@@ -5092,7 +5173,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     __pyx_L9_try_end:;
   }
 
-  /* "kola/parser.pyx":129
+  /* "kola/parser.pyx":135
  *                 self.lexer._filename, token.lineno, token.raw_val, None)
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -5108,7 +5189,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     __Pyx_XGOTREF(__pyx_t_8);
     /*try:*/ {
 
-      /* "kola/parser.pyx":130
+      /* "kola/parser.pyx":136
  * 
  *         try:
  *             return cmd(*args, **kwds)             # <<<<<<<<<<<<<<
@@ -5116,25 +5197,25 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *             raise
  */
       __Pyx_XDECREF(__pyx_r);
-      if (unlikely(!__pyx_v_cmd)) { __Pyx_RaiseUnboundLocalError("cmd"); __PYX_ERR(0, 130, __pyx_L12_error) }
+      if (unlikely(!__pyx_v_cmd)) { __Pyx_RaiseUnboundLocalError("cmd"); __PYX_ERR(0, 136, __pyx_L13_error) }
       if (unlikely(__pyx_v_args == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-        __PYX_ERR(0, 130, __pyx_L12_error)
+        __PYX_ERR(0, 136, __pyx_L13_error)
       }
       if (unlikely(__pyx_v_kwds == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "argument after ** must be a mapping, not NoneType");
-        __PYX_ERR(0, 130, __pyx_L12_error)
+        __PYX_ERR(0, 136, __pyx_L13_error)
       }
-      __pyx_t_3 = PyDict_Copy(__pyx_v_kwds); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 130, __pyx_L12_error)
+      __pyx_t_3 = PyDict_Copy(__pyx_v_kwds); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 136, __pyx_L13_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_v_cmd, __pyx_v_args, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 130, __pyx_L12_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_v_cmd, __pyx_v_args, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L13_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_r = __pyx_t_1;
       __pyx_t_1 = 0;
-      goto __pyx_L16_try_return;
+      goto __pyx_L17_try_return;
 
-      /* "kola/parser.pyx":129
+      /* "kola/parser.pyx":135
  *                 self.lexer._filename, token.lineno, token.raw_val, None)
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -5142,13 +5223,13 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *         except KoiLangError:
  */
     }
-    __pyx_L12_error:;
+    __pyx_L13_error:;
     __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "kola/parser.pyx":131
+    /* "kola/parser.pyx":137
  *         try:
  *             return cmd(*args, **kwds)
  *         except KoiLangError:             # <<<<<<<<<<<<<<
@@ -5156,7 +5237,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  *         except Exception as e:
  */
     __Pyx_ErrFetch(&__pyx_t_1, &__pyx_t_3, &__pyx_t_2);
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_KoiLangError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 131, __pyx_L14_except_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_KoiLangError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 137, __pyx_L15_except_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = __Pyx_PyErr_GivenExceptionMatches(__pyx_t_1, __pyx_t_4);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -5164,12 +5245,12 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     __pyx_t_1 = 0; __pyx_t_3 = 0; __pyx_t_2 = 0;
     if (__pyx_t_5) {
       __Pyx_AddTraceback("kola.parser.Parser.exec_once", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_3, &__pyx_t_1) < 0) __PYX_ERR(0, 131, __pyx_L14_except_error)
+      if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_3, &__pyx_t_1) < 0) __PYX_ERR(0, 137, __pyx_L15_except_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_GOTREF(__pyx_t_1);
 
-      /* "kola/parser.pyx":132
+      /* "kola/parser.pyx":138
  *             return cmd(*args, **kwds)
  *         except KoiLangError:
  *             raise             # <<<<<<<<<<<<<<
@@ -5181,10 +5262,10 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
       __Pyx_XGIVEREF(__pyx_t_1);
       __Pyx_ErrRestoreWithState(__pyx_t_2, __pyx_t_3, __pyx_t_1);
       __pyx_t_2 = 0; __pyx_t_3 = 0; __pyx_t_1 = 0; 
-      __PYX_ERR(0, 132, __pyx_L14_except_error)
+      __PYX_ERR(0, 138, __pyx_L15_except_error)
     }
 
-    /* "kola/parser.pyx":133
+    /* "kola/parser.pyx":139
  *         except KoiLangError:
  *             raise
  *         except Exception as e:             # <<<<<<<<<<<<<<
@@ -5194,7 +5275,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     __pyx_t_5 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])));
     if (__pyx_t_5) {
       __Pyx_AddTraceback("kola.parser.Parser.exec_once", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_3, &__pyx_t_2) < 0) __PYX_ERR(0, 133, __pyx_L14_except_error)
+      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_3, &__pyx_t_2) < 0) __PYX_ERR(0, 139, __pyx_L15_except_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_GOTREF(__pyx_t_2);
@@ -5202,7 +5283,7 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
       __pyx_v_e = __pyx_t_3;
       /*try:*/ {
 
-        /* "kola/parser.pyx":134
+        /* "kola/parser.pyx":140
  *             raise
  *         except Exception as e:
  *             if token.syn != TEXT:             # <<<<<<<<<<<<<<
@@ -5212,17 +5293,17 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
         __pyx_t_7 = ((__pyx_v_token->syn != TEXT) != 0);
         if (__pyx_t_7) {
 
-          /* "kola/parser.pyx":135
+          /* "kola/parser.pyx":141
  *         except Exception as e:
  *             if token.syn != TEXT:
  *                 kola_set_errcause(KoiLangCommandError, 3,             # <<<<<<<<<<<<<<
  *                     self.lexer._filename, token.lineno, token.raw_val, e)
  *             else:
  */
-          __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_KoiLangCommandError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 135, __pyx_L25_error)
+          __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_KoiLangCommandError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 141, __pyx_L26_error)
           __Pyx_GOTREF(__pyx_t_4);
 
-          /* "kola/parser.pyx":136
+          /* "kola/parser.pyx":142
  *             if token.syn != TEXT:
  *                 kola_set_errcause(KoiLangCommandError, 3,
  *                     self.lexer._filename, token.lineno, token.raw_val, e)             # <<<<<<<<<<<<<<
@@ -5231,31 +5312,31 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  */
           if (unlikely(__pyx_v_token->raw_val == Py_None)) {
             PyErr_SetString(PyExc_TypeError, "expected bytes, NoneType found");
-            __PYX_ERR(0, 136, __pyx_L25_error)
+            __PYX_ERR(0, 142, __pyx_L26_error)
           }
-          __pyx_t_11 = __Pyx_PyBytes_AsString(__pyx_v_token->raw_val); if (unlikely((!__pyx_t_11) && PyErr_Occurred())) __PYX_ERR(0, 136, __pyx_L25_error)
+          __pyx_t_11 = __Pyx_PyBytes_AsString(__pyx_v_token->raw_val); if (unlikely((!__pyx_t_11) && PyErr_Occurred())) __PYX_ERR(0, 142, __pyx_L26_error)
 
-          /* "kola/parser.pyx":135
+          /* "kola/parser.pyx":141
  *         except Exception as e:
  *             if token.syn != TEXT:
  *                 kola_set_errcause(KoiLangCommandError, 3,             # <<<<<<<<<<<<<<
  *                     self.lexer._filename, token.lineno, token.raw_val, e)
  *             else:
  */
-          kola_set_errcause(__pyx_t_4, 3, __pyx_v_self->lexer->_filename, __pyx_v_token->lineno, __pyx_t_11, __pyx_v_e); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 135, __pyx_L25_error)
+          kola_set_errcause(__pyx_t_4, 3, __pyx_v_self->lexer->_filename, __pyx_v_token->lineno, __pyx_t_11, __pyx_v_e); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 141, __pyx_L26_error)
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-          /* "kola/parser.pyx":134
+          /* "kola/parser.pyx":140
  *             raise
  *         except Exception as e:
  *             if token.syn != TEXT:             # <<<<<<<<<<<<<<
  *                 kola_set_errcause(KoiLangCommandError, 3,
  *                     self.lexer._filename, token.lineno, token.raw_val, e)
  */
-          goto __pyx_L27;
+          goto __pyx_L28;
         }
 
-        /* "kola/parser.pyx":138
+        /* "kola/parser.pyx":144
  *                     self.lexer._filename, token.lineno, token.raw_val, e)
  *             else:
  *                 kola_set_errcause(KoiLangCommandError, 4,             # <<<<<<<<<<<<<<
@@ -5263,10 +5344,10 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  * 
  */
         /*else*/ {
-          __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_KoiLangCommandError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 138, __pyx_L25_error)
+          __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_KoiLangCommandError); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 144, __pyx_L26_error)
           __Pyx_GOTREF(__pyx_t_4);
 
-          /* "kola/parser.pyx":139
+          /* "kola/parser.pyx":145
  *             else:
  *                 kola_set_errcause(KoiLangCommandError, 4,
  *                     self.lexer._filename, token.lineno, token.raw_val, e)             # <<<<<<<<<<<<<<
@@ -5275,24 +5356,24 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
  */
           if (unlikely(__pyx_v_token->raw_val == Py_None)) {
             PyErr_SetString(PyExc_TypeError, "expected bytes, NoneType found");
-            __PYX_ERR(0, 139, __pyx_L25_error)
+            __PYX_ERR(0, 145, __pyx_L26_error)
           }
-          __pyx_t_11 = __Pyx_PyBytes_AsString(__pyx_v_token->raw_val); if (unlikely((!__pyx_t_11) && PyErr_Occurred())) __PYX_ERR(0, 139, __pyx_L25_error)
+          __pyx_t_11 = __Pyx_PyBytes_AsString(__pyx_v_token->raw_val); if (unlikely((!__pyx_t_11) && PyErr_Occurred())) __PYX_ERR(0, 145, __pyx_L26_error)
 
-          /* "kola/parser.pyx":138
+          /* "kola/parser.pyx":144
  *                     self.lexer._filename, token.lineno, token.raw_val, e)
  *             else:
  *                 kola_set_errcause(KoiLangCommandError, 4,             # <<<<<<<<<<<<<<
  *                     self.lexer._filename, token.lineno, token.raw_val, e)
  * 
  */
-          kola_set_errcause(__pyx_t_4, 4, __pyx_v_self->lexer->_filename, __pyx_v_token->lineno, __pyx_t_11, __pyx_v_e); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 138, __pyx_L25_error)
+          kola_set_errcause(__pyx_t_4, 4, __pyx_v_self->lexer->_filename, __pyx_v_token->lineno, __pyx_t_11, __pyx_v_e); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 144, __pyx_L26_error)
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         }
-        __pyx_L27:;
+        __pyx_L28:;
       }
 
-      /* "kola/parser.pyx":133
+      /* "kola/parser.pyx":139
  *         except KoiLangError:
  *             raise
  *         except Exception as e:             # <<<<<<<<<<<<<<
@@ -5302,9 +5383,9 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
       /*finally:*/ {
         /*normal exit:*/{
           __Pyx_DECREF(__pyx_v_e); __pyx_v_e = 0;
-          goto __pyx_L26;
+          goto __pyx_L27;
         }
-        __pyx_L25_error:;
+        __pyx_L26_error:;
         /*exception exit:*/{
           __Pyx_PyThreadState_declare
           __Pyx_PyThreadState_assign
@@ -5334,19 +5415,19 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
           __Pyx_ErrRestore(__pyx_t_14, __pyx_t_15, __pyx_t_16);
           __pyx_t_14 = 0; __pyx_t_15 = 0; __pyx_t_16 = 0; __pyx_t_17 = 0; __pyx_t_18 = 0; __pyx_t_19 = 0;
           __pyx_lineno = __pyx_t_5; __pyx_clineno = __pyx_t_12; __pyx_filename = __pyx_t_13;
-          goto __pyx_L14_except_error;
+          goto __pyx_L15_except_error;
         }
-        __pyx_L26:;
+        __pyx_L27:;
       }
       __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      goto __pyx_L13_exception_handled;
+      goto __pyx_L14_exception_handled;
     }
-    goto __pyx_L14_except_error;
-    __pyx_L14_except_error:;
+    goto __pyx_L15_except_error;
+    __pyx_L15_except_error:;
 
-    /* "kola/parser.pyx":129
+    /* "kola/parser.pyx":135
  *                 self.lexer._filename, token.lineno, token.raw_val, None)
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -5358,13 +5439,13 @@ static PyObject *__pyx_f_4kola_6parser_6Parser_exec_once(struct __pyx_obj_4kola_
     __Pyx_XGIVEREF(__pyx_t_8);
     __Pyx_ExceptionReset(__pyx_t_10, __pyx_t_9, __pyx_t_8);
     goto __pyx_L1_error;
-    __pyx_L16_try_return:;
+    __pyx_L17_try_return:;
     __Pyx_XGIVEREF(__pyx_t_10);
     __Pyx_XGIVEREF(__pyx_t_9);
     __Pyx_XGIVEREF(__pyx_t_8);
     __Pyx_ExceptionReset(__pyx_t_10, __pyx_t_9, __pyx_t_8);
     goto __pyx_L0;
-    __pyx_L13_exception_handled:;
+    __pyx_L14_exception_handled:;
     __Pyx_XGIVEREF(__pyx_t_10);
     __Pyx_XGIVEREF(__pyx_t_9);
     __Pyx_XGIVEREF(__pyx_t_8);
@@ -5452,7 +5533,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_8exec_once(struct __pyx_obj_4kol
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  //__Pyx_AddTraceback("kola.parser.Parser.exec_once", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("kola.parser.Parser.exec_once", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5460,7 +5541,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_8exec_once(struct __pyx_obj_4kol
   return __pyx_r;
 }
 
-/* "kola/parser.pyx":141
+/* "kola/parser.pyx":147
  *                     self.lexer._filename, token.lineno, token.raw_val, e)
  * 
  *     cpdef void exec(self) except *:             # <<<<<<<<<<<<<<
@@ -5497,7 +5578,7 @@ static void __pyx_f_4kola_6parser_6Parser_exec(struct __pyx_obj_4kola_6parser_Pa
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_exec); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_exec); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 147, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       #ifdef __Pyx_CyFunction_USED
       if (!__Pyx_IsCyOrPyCFunction(__pyx_t_1)
@@ -5522,7 +5603,7 @@ static void __pyx_f_4kola_6parser_6Parser_exec(struct __pyx_obj_4kola_6parser_Pa
           PyObject *__pyx_callargs[1] = {__pyx_t_4, };
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 0+__pyx_t_5);
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 141, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 147, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         }
@@ -5543,7 +5624,7 @@ static void __pyx_f_4kola_6parser_6Parser_exec(struct __pyx_obj_4kola_6parser_Pa
     #endif
   }
 
-  /* "kola/parser.pyx":142
+  /* "kola/parser.pyx":148
  * 
  *     cpdef void exec(self) except *:
  *         while not self.t_cache is None:             # <<<<<<<<<<<<<<
@@ -5555,19 +5636,19 @@ static void __pyx_f_4kola_6parser_6Parser_exec(struct __pyx_obj_4kola_6parser_Pa
     __pyx_t_7 = (__pyx_t_6 != 0);
     if (!__pyx_t_7) break;
 
-    /* "kola/parser.pyx":143
+    /* "kola/parser.pyx":149
  *     cpdef void exec(self) except *:
  *         while not self.t_cache is None:
  *             self.exec_once()             # <<<<<<<<<<<<<<
  * 
  *     def eof(self):
  */
-    __pyx_t_1 = ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->exec_once(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
+    __pyx_t_1 = ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->exec_once(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 149, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "kola/parser.pyx":141
+  /* "kola/parser.pyx":147
  *                     self.lexer._filename, token.lineno, token.raw_val, e)
  * 
  *     cpdef void exec(self) except *:             # <<<<<<<<<<<<<<
@@ -5629,8 +5710,8 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_10exec(struct __pyx_obj_4kola_6p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("exec", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_4kola_6parser_6Parser_exec(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 141, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
+  __pyx_f_4kola_6parser_6Parser_exec(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5639,7 +5720,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_10exec(struct __pyx_obj_4kola_6p
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  //__Pyx_AddTraceback("kola.parser.Parser.exec", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("kola.parser.Parser.exec", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5647,7 +5728,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_10exec(struct __pyx_obj_4kola_6p
   return __pyx_r;
 }
 
-/* "kola/parser.pyx":145
+/* "kola/parser.pyx":151
  *             self.exec_once()
  * 
  *     def eof(self):             # <<<<<<<<<<<<<<
@@ -5698,7 +5779,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_12eof(struct __pyx_obj_4kola_6pa
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("eof", 0);
 
-  /* "kola/parser.pyx":146
+  /* "kola/parser.pyx":152
  * 
  *     def eof(self):
  *         return self.t_cache is None             # <<<<<<<<<<<<<<
@@ -5707,13 +5788,13 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_12eof(struct __pyx_obj_4kola_6pa
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = (((PyObject *)__pyx_v_self->t_cache) == Py_None);
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "kola/parser.pyx":145
+  /* "kola/parser.pyx":151
  *             self.exec_once()
  * 
  *     def eof(self):             # <<<<<<<<<<<<<<
@@ -5732,7 +5813,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_12eof(struct __pyx_obj_4kola_6pa
   return __pyx_r;
 }
 
-/* "kola/parser.pyx":148
+/* "kola/parser.pyx":154
  *         return self.t_cache is None
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -5759,7 +5840,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_14__iter__(struct __pyx_obj_4kol
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__iter__", 0);
 
-  /* "kola/parser.pyx":149
+  /* "kola/parser.pyx":155
  * 
  *     def __iter__(self):
  *         return self             # <<<<<<<<<<<<<<
@@ -5771,7 +5852,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_14__iter__(struct __pyx_obj_4kol
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "kola/parser.pyx":148
+  /* "kola/parser.pyx":154
  *         return self.t_cache is None
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -5786,7 +5867,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_14__iter__(struct __pyx_obj_4kol
   return __pyx_r;
 }
 
-/* "kola/parser.pyx":151
+/* "kola/parser.pyx":157
  *         return self
  * 
  *     def __next__(self):             # <<<<<<<<<<<<<<
@@ -5820,7 +5901,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_16__next__(struct __pyx_obj_4kol
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__next__", 0);
 
-  /* "kola/parser.pyx":152
+  /* "kola/parser.pyx":158
  * 
  *     def __next__(self):
  *         if self.t_cache is None:             # <<<<<<<<<<<<<<
@@ -5831,7 +5912,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_16__next__(struct __pyx_obj_4kol
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (unlikely(__pyx_t_2)) {
 
-    /* "kola/parser.pyx":153
+    /* "kola/parser.pyx":159
  *     def __next__(self):
  *         if self.t_cache is None:
  *             raise StopIteration             # <<<<<<<<<<<<<<
@@ -5839,9 +5920,9 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_16__next__(struct __pyx_obj_4kol
  *         return ret
  */
     __Pyx_Raise(__pyx_builtin_StopIteration, 0, 0, 0);
-    __PYX_ERR(0, 153, __pyx_L1_error)
+    __PYX_ERR(0, 159, __pyx_L1_error)
 
-    /* "kola/parser.pyx":152
+    /* "kola/parser.pyx":158
  * 
  *     def __next__(self):
  *         if self.t_cache is None:             # <<<<<<<<<<<<<<
@@ -5850,19 +5931,19 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_16__next__(struct __pyx_obj_4kol
  */
   }
 
-  /* "kola/parser.pyx":154
+  /* "kola/parser.pyx":160
  *         if self.t_cache is None:
  *             raise StopIteration
  *         ret = self.exec_once()             # <<<<<<<<<<<<<<
  *         return ret
  * 
  */
-  __pyx_t_3 = ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->exec_once(__pyx_v_self, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_3 = ((struct __pyx_vtabstruct_4kola_6parser_Parser *)__pyx_v_self->__pyx_vtab)->exec_once(__pyx_v_self, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_v_ret = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "kola/parser.pyx":155
+  /* "kola/parser.pyx":161
  *             raise StopIteration
  *         ret = self.exec_once()
  *         return ret             # <<<<<<<<<<<<<<
@@ -5874,7 +5955,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_16__next__(struct __pyx_obj_4kol
   __pyx_r = __pyx_v_ret;
   goto __pyx_L0;
 
-  /* "kola/parser.pyx":151
+  /* "kola/parser.pyx":157
  *         return self
  * 
  *     def __next__(self):             # <<<<<<<<<<<<<<
@@ -5894,7 +5975,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_16__next__(struct __pyx_obj_4kol
   return __pyx_r;
 }
 
-/* "kola/parser.pyx":157
+/* "kola/parser.pyx":163
  *         return ret
  * 
  *     def __class_getitem__(cls, params):             # <<<<<<<<<<<<<<
@@ -5948,12 +6029,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       switch (__pyx_nargs) {
         case  0:
         if (likely((values[0] = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_params)) != 0)) kw_args--;
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 157, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 163, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__class_getitem__") < 0)) __PYX_ERR(0, 157, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__class_getitem__") < 0)) __PYX_ERR(0, 163, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -5964,7 +6045,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__class_getitem__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 157, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__class_getitem__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 163, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("kola.parser.Parser.__class_getitem__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5982,7 +6063,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_18__class_getitem__(PyTypeObject
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__class_getitem__", 0);
 
-  /* "kola/parser.pyx":158
+  /* "kola/parser.pyx":164
  * 
  *     def __class_getitem__(cls, params):
  *         return cls             # <<<<<<<<<<<<<<
@@ -5994,7 +6075,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_18__class_getitem__(PyTypeObject
   __pyx_r = ((PyObject *)__pyx_v_cls);
   goto __pyx_L0;
 
-  /* "kola/parser.pyx":157
+  /* "kola/parser.pyx":163
  *         return ret
  * 
  *     def __class_getitem__(cls, params):             # <<<<<<<<<<<<<<
@@ -6009,7 +6090,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_18__class_getitem__(PyTypeObject
   return __pyx_r;
 }
 
-/* "kola/parser.pyx":160
+/* "kola/parser.pyx":166
  *         return cls
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -6039,19 +6120,19 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_20__repr__(struct __pyx_obj_4kol
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "kola/parser.pyx":161
+  /* "kola/parser.pyx":167
  * 
  *     def __repr__(self):
  *         return PyUnicode_FromFormat("<kola parser in file \"%s\">", self.lexer._filename)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyUnicode_FromFormat(((char const *)"<kola parser in file \"%s\">"), __pyx_v_self->lexer->_filename); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 161, __pyx_L1_error)
+  __pyx_t_1 = PyUnicode_FromFormat(((char const *)"<kola parser in file \"%s\">"), __pyx_v_self->lexer->_filename); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 167, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "kola/parser.pyx":160
+  /* "kola/parser.pyx":166
  *         return cls
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -7555,6 +7636,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
   {0, __pyx_k_StopIteration, sizeof(__pyx_k_StopIteration), 0, 0, 1, 1},
   {0, __pyx_k__18, sizeof(__pyx_k__18), 0, 0, 1, 1},
+  {0, __pyx_k_annotation, sizeof(__pyx_k_annotation), 0, 1, 0, 0},
   {0, __pyx_k_asyncio_coroutines, sizeof(__pyx_k_asyncio_coroutines), 0, 0, 1, 1},
   {0, __pyx_k_class_getitem, sizeof(__pyx_k_class_getitem), 0, 0, 1, 1},
   {0, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
@@ -7625,6 +7707,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_PickleError, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_StopIteration, __pyx_k_StopIteration, sizeof(__pyx_k_StopIteration), 0, 0, 1, 1},
   {&__pyx_n_s__18, __pyx_k__18, sizeof(__pyx_k__18), 0, 0, 1, 1},
+  {&__pyx_kp_u_annotation, __pyx_k_annotation, sizeof(__pyx_k_annotation), 0, 1, 0, 0},
   {&__pyx_n_s_asyncio_coroutines, __pyx_k_asyncio_coroutines, sizeof(__pyx_k_asyncio_coroutines), 0, 0, 1, 1},
   {&__pyx_n_s_class_getitem, __pyx_k_class_getitem, sizeof(__pyx_k_class_getitem), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
@@ -7680,8 +7763,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 };
 /* #### Code section: cached_builtins ### */
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_KeyError = __Pyx_GetBuiltinName(__pyx_n_s_KeyError); if (!__pyx_builtin_KeyError) __PYX_ERR(0, 125, __pyx_L1_error)
-  __pyx_builtin_StopIteration = __Pyx_GetBuiltinName(__pyx_n_s_StopIteration); if (!__pyx_builtin_StopIteration) __PYX_ERR(0, 153, __pyx_L1_error)
+  __pyx_builtin_KeyError = __Pyx_GetBuiltinName(__pyx_n_s_KeyError); if (!__pyx_builtin_KeyError) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_builtin_StopIteration = __Pyx_GetBuiltinName(__pyx_n_s_StopIteration); if (!__pyx_builtin_StopIteration) __PYX_ERR(0, 159, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -7734,35 +7817,35 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  */
   __pyx_codeobj__7 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_parser_pyx, __pyx_n_s_exec_once, 100, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__7)) __PYX_ERR(0, 100, __pyx_L1_error)
 
-  /* "kola/parser.pyx":141
+  /* "kola/parser.pyx":147
  *                     self.lexer._filename, token.lineno, token.raw_val, e)
  * 
  *     cpdef void exec(self) except *:             # <<<<<<<<<<<<<<
  *         while not self.t_cache is None:
  *             self.exec_once()
  */
-  __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_parser_pyx, __pyx_n_s_exec, 141, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(0, 141, __pyx_L1_error)
+  __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_parser_pyx, __pyx_n_s_exec, 147, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(0, 147, __pyx_L1_error)
 
-  /* "kola/parser.pyx":145
+  /* "kola/parser.pyx":151
  *             self.exec_once()
  * 
  *     def eof(self):             # <<<<<<<<<<<<<<
  *         return self.t_cache is None
  * 
  */
-  __pyx_codeobj__9 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_parser_pyx, __pyx_n_s_eof, 145, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__9)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_codeobj__9 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_parser_pyx, __pyx_n_s_eof, 151, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__9)) __PYX_ERR(0, 151, __pyx_L1_error)
 
-  /* "kola/parser.pyx":157
+  /* "kola/parser.pyx":163
  *         return ret
  * 
  *     def __class_getitem__(cls, params):             # <<<<<<<<<<<<<<
  *         return cls
  * 
  */
-  __pyx_tuple__10 = PyTuple_Pack(2, __pyx_n_s_cls, __pyx_n_s_params); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_tuple__10 = PyTuple_Pack(2, __pyx_n_s_cls, __pyx_n_s_params); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__10);
   __Pyx_GIVEREF(__pyx_tuple__10);
-  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_parser_pyx, __pyx_n_s_class_getitem, 157, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_kola_parser_pyx, __pyx_n_s_class_getitem, 163, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 163, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -7823,56 +7906,57 @@ static CYTHON_SMALL_CODE int __Pyx_InitConstants(void) {
   if (__Pyx_InitString(__pyx_string_tab[16], &__pyx_n_s_PickleError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[17], &__pyx_n_s_StopIteration) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   if (__Pyx_InitString(__pyx_string_tab[18], &__pyx_n_s__18) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[19], &__pyx_n_s_asyncio_coroutines) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[20], &__pyx_n_s_class_getitem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[21], &__pyx_n_s_cline_in_traceback) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[22], &__pyx_n_s_cls) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[23], &__pyx_n_s_command_set) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[24], &__pyx_n_s_dict) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[25], &__pyx_n_s_dict_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[26], &__pyx_kp_u_disable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[27], &__pyx_kp_u_enable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[28], &__pyx_n_s_eof) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[29], &__pyx_n_s_exception) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[30], &__pyx_n_s_exec) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[31], &__pyx_n_s_exec_once) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[32], &__pyx_kp_u_gc) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[33], &__pyx_n_s_getstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[34], &__pyx_n_s_import) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[35], &__pyx_n_s_is_coroutine) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[36], &__pyx_kp_u_isenabled) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[37], &__pyx_n_s_kola_parser) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[38], &__pyx_kp_s_kola_parser_pyx) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[39], &__pyx_n_s_lexer) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[40], &__pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[41], &__pyx_n_s_n) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[42], &__pyx_n_s_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[43], &__pyx_n_s_new) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[44], &__pyx_kp_u_number) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[45], &__pyx_n_s_params) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[46], &__pyx_n_s_parse_args) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[47], &__pyx_n_s_pickle) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[48], &__pyx_n_s_pop) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[49], &__pyx_n_s_push) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[50], &__pyx_n_s_pyx_PickleError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[51], &__pyx_n_s_pyx_checksum) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[52], &__pyx_n_s_pyx_result) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[53], &__pyx_n_s_pyx_state) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[54], &__pyx_n_s_pyx_type) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[55], &__pyx_n_s_pyx_unpickle_Parser) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[56], &__pyx_n_s_pyx_vtable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[57], &__pyx_n_s_reduce) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[58], &__pyx_n_s_reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[59], &__pyx_n_s_reduce_ex) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[60], &__pyx_n_s_self) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[61], &__pyx_n_s_setstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[62], &__pyx_n_s_setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[63], &__pyx_n_s_state) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[64], &__pyx_kp_s_stringsource) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[65], &__pyx_n_s_test) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[66], &__pyx_kp_u_text) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[67], &__pyx_n_s_update) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  if (__Pyx_InitString(__pyx_string_tab[68], &__pyx_n_s_use_setstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[19], &__pyx_kp_u_annotation) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[20], &__pyx_n_s_asyncio_coroutines) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[21], &__pyx_n_s_class_getitem) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[22], &__pyx_n_s_cline_in_traceback) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[23], &__pyx_n_s_cls) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[24], &__pyx_n_s_command_set) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[25], &__pyx_n_s_dict) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[26], &__pyx_n_s_dict_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[27], &__pyx_kp_u_disable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[28], &__pyx_kp_u_enable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[29], &__pyx_n_s_eof) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[30], &__pyx_n_s_exception) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[31], &__pyx_n_s_exec) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[32], &__pyx_n_s_exec_once) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[33], &__pyx_kp_u_gc) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[34], &__pyx_n_s_getstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[35], &__pyx_n_s_import) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[36], &__pyx_n_s_is_coroutine) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[37], &__pyx_kp_u_isenabled) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[38], &__pyx_n_s_kola_parser) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[39], &__pyx_kp_s_kola_parser_pyx) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[40], &__pyx_n_s_lexer) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[41], &__pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[42], &__pyx_n_s_n) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[43], &__pyx_n_s_name) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[44], &__pyx_n_s_new) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[45], &__pyx_kp_u_number) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[46], &__pyx_n_s_params) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[47], &__pyx_n_s_parse_args) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[48], &__pyx_n_s_pickle) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[49], &__pyx_n_s_pop) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[50], &__pyx_n_s_push) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[51], &__pyx_n_s_pyx_PickleError) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[52], &__pyx_n_s_pyx_checksum) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[53], &__pyx_n_s_pyx_result) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[54], &__pyx_n_s_pyx_state) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[55], &__pyx_n_s_pyx_type) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[56], &__pyx_n_s_pyx_unpickle_Parser) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[57], &__pyx_n_s_pyx_vtable) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[58], &__pyx_n_s_reduce) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[59], &__pyx_n_s_reduce_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[60], &__pyx_n_s_reduce_ex) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[61], &__pyx_n_s_self) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[62], &__pyx_n_s_setstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[63], &__pyx_n_s_setstate_cython) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[64], &__pyx_n_s_state) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[65], &__pyx_kp_s_stringsource) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[66], &__pyx_n_s_test) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[67], &__pyx_kp_u_text) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[68], &__pyx_n_s_update) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
+  if (__Pyx_InitString(__pyx_string_tab[69], &__pyx_n_s_use_setstate) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
   #endif
   #if !CYTHON_USE_MODULE_STATE
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
@@ -8009,11 +8093,11 @@ static int __Pyx_modinit_type_import_code(void) {
    if (!__pyx_ptype_4kola_5lexer_BaseLexer) __PYX_ERR(6, 42, __pyx_L1_error)
   __pyx_vtabptr_4kola_5lexer_BaseLexer = (struct __pyx_vtabstruct_4kola_5lexer_BaseLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_BaseLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_BaseLexer)) __PYX_ERR(6, 42, __pyx_L1_error)
   __pyx_ptype_4kola_5lexer_FileLexer = __Pyx_ImportType(__pyx_t_1, "kola.lexer", "FileLexer", sizeof(struct __pyx_obj_4kola_5lexer_FileLexer), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_4kola_5lexer_FileLexer) __PYX_ERR(6, 58, __pyx_L1_error)
-  __pyx_vtabptr_4kola_5lexer_FileLexer = (struct __pyx_vtabstruct_4kola_5lexer_FileLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_FileLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_FileLexer)) __PYX_ERR(6, 58, __pyx_L1_error)
+   if (!__pyx_ptype_4kola_5lexer_FileLexer) __PYX_ERR(6, 59, __pyx_L1_error)
+  __pyx_vtabptr_4kola_5lexer_FileLexer = (struct __pyx_vtabstruct_4kola_5lexer_FileLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_FileLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_FileLexer)) __PYX_ERR(6, 59, __pyx_L1_error)
   __pyx_ptype_4kola_5lexer_StringLexer = __Pyx_ImportType(__pyx_t_1, "kola.lexer", "StringLexer", sizeof(struct __pyx_obj_4kola_5lexer_StringLexer), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_4kola_5lexer_StringLexer) __PYX_ERR(6, 67, __pyx_L1_error)
-  __pyx_vtabptr_4kola_5lexer_StringLexer = (struct __pyx_vtabstruct_4kola_5lexer_StringLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_StringLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_StringLexer)) __PYX_ERR(6, 67, __pyx_L1_error)
+   if (!__pyx_ptype_4kola_5lexer_StringLexer) __PYX_ERR(6, 68, __pyx_L1_error)
+  __pyx_vtabptr_4kola_5lexer_StringLexer = (struct __pyx_vtabstruct_4kola_5lexer_StringLexer*)__Pyx_GetVtable(__pyx_ptype_4kola_5lexer_StringLexer); if (unlikely(!__pyx_vtabptr_4kola_5lexer_StringLexer)) __PYX_ERR(6, 68, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -8401,45 +8485,45 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_4kola_6parser_Parser);
 
-  /* "kola/parser.pyx":141
+  /* "kola/parser.pyx":147
  *                     self.lexer._filename, token.lineno, token.raw_val, e)
  * 
  *     cpdef void exec(self) except *:             # <<<<<<<<<<<<<<
  *         while not self.t_cache is None:
  *             self.exec_once()
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_6parser_6Parser_11exec, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Parser_exec, NULL, __pyx_n_s_kola_parser, __pyx_d, ((PyObject *)__pyx_codeobj__8)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 141, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_6parser_6Parser_11exec, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Parser_exec, NULL, __pyx_n_s_kola_parser, __pyx_d, ((PyObject *)__pyx_codeobj__8)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_4kola_6parser_Parser->tp_dict, __pyx_n_s_exec, __pyx_t_3) < 0) __PYX_ERR(0, 141, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_4kola_6parser_Parser->tp_dict, __pyx_n_s_exec, __pyx_t_3) < 0) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_4kola_6parser_Parser);
 
-  /* "kola/parser.pyx":145
+  /* "kola/parser.pyx":151
  *             self.exec_once()
  * 
  *     def eof(self):             # <<<<<<<<<<<<<<
  *         return self.t_cache is None
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_6parser_6Parser_13eof, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Parser_eof, NULL, __pyx_n_s_kola_parser, __pyx_d, ((PyObject *)__pyx_codeobj__9)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_6parser_6Parser_13eof, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Parser_eof, NULL, __pyx_n_s_kola_parser, __pyx_d, ((PyObject *)__pyx_codeobj__9)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 151, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_4kola_6parser_Parser->tp_dict, __pyx_n_s_eof, __pyx_t_3) < 0) __PYX_ERR(0, 145, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_4kola_6parser_Parser->tp_dict, __pyx_n_s_eof, __pyx_t_3) < 0) __PYX_ERR(0, 151, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_4kola_6parser_Parser);
 
-  /* "kola/parser.pyx":157
+  /* "kola/parser.pyx":163
  *         return ret
  * 
  *     def __class_getitem__(cls, params):             # <<<<<<<<<<<<<<
  *         return cls
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_6parser_6Parser_19__class_getitem__, __Pyx_CYFUNCTION_CLASSMETHOD | __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Parser___class_getitem, NULL, __pyx_n_s_kola_parser, __pyx_d, ((PyObject *)__pyx_codeobj__11)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4kola_6parser_6Parser_19__class_getitem__, __Pyx_CYFUNCTION_CLASSMETHOD | __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Parser___class_getitem, NULL, __pyx_n_s_kola_parser, __pyx_d, ((PyObject *)__pyx_codeobj__11)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_Method_ClassMethod(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Method_ClassMethod(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_4kola_6parser_Parser->tp_dict, __pyx_n_s_class_getitem, __pyx_t_2) < 0) __PYX_ERR(0, 157, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_4kola_6parser_Parser->tp_dict, __pyx_n_s_class_getitem, __pyx_t_2) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_4kola_6parser_Parser);
 

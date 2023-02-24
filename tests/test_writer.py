@@ -83,12 +83,16 @@ class TestWriter(TestCase):
                 print(text)
             
             @kola_command
-            def help(self) -> None:
+            def help(self) -> None:  # type: ignore
                 print("No, there is no help!")
             
             @help.writer
-            def _(writer: BaseWriter) -> None:
+            def help(writer: BaseWriter) -> None:  # type: ignore
                 writer.write_command("help", "In fact, no help can be provided.")
+            
+            @kola_command
+            def raw_write(self) -> None:
+                ...
         
         with Vm.writer() as w:
             w.echo("Hello")

@@ -15,7 +15,8 @@ extern "C" {
 #endif
 
 static enum TokenSyn {
-    CMD=1, CMD_N, TEXT, LITERAL, STRING, NUM, NUM_H, NUM_B, NUM_F, CLN, CMA, SLP, SRP
+    CMD=1, CMD_N, TEXT, LITERAL, STRING, NUM, NUM_H,
+    NUM_B, NUM_F, CLN, CMA, SLP, SRP, ANNOTATION
 } TokenSyn;
 
 static const uint8_t yy_goto[7][8] = {
@@ -102,6 +103,7 @@ static const char* get_format(int code) {
     case CMD:
     case CMD_N:
     case TEXT:
+    case ANNOTATION:
         ERR_MSG(end of line in incurrect place);
     }
     ERR_MSG(unknown syntax);
@@ -195,9 +197,9 @@ static __inline FILE* kola_open(PyObject* raw_path, PyObject** out, const char* 
     PyObject* stringobj = NULL;
     FILE* fp;
 #ifdef MS_WINDOWS
-    wchar_t wmode[10];
+    wchar_t wmode[5];
     DWORD dwNum = MultiByteToWideChar(CP_ACP, 0, mode, -1, NULL, 0); 
-    if (dwNum > 9) {
+    if (dwNum > 4) {
         PyErr_Format(PyExc_ValueError, "invalid mode: %.200s", mode);
         return NULL;
     }

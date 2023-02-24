@@ -16,6 +16,7 @@ S_CLN: int
 S_CMA: int
 S_SLP: int
 S_SRP: int
+S_ANNOTATION: int
 
 
 @final
@@ -38,7 +39,7 @@ class BaseLexer:
     lineno: Final[int]
     stat: Final[int]
 
-    def __init__(self, *, encoding: str = ..., stat: int = 0) -> None: ...
+    def __init__(self, *, encoding: str = ..., stat: int = 0, command_threshold: int = 1) -> None: ...
     def close(self) -> None: ...
     @property
     def filename(self) -> str: ...
@@ -49,7 +50,8 @@ class BaseLexer:
 
 
 class FileLexer(BaseLexer):
-    def __init__(self, __path: Union[str, bytes, os.PathLike], *, encoding: str = ..., stat: int = 0) -> None: ...
+    def __init__(self, __path: Union[str, bytes, os.PathLike], *, encoding: str = ...,
+                 stat: int = 0, command_threshold: int = 1) -> None: ...
     @property
     def filename(self) -> Union[str, bytes, os.PathLike]: ...
 
@@ -57,4 +59,5 @@ class FileLexer(BaseLexer):
 class StringLexer(BaseLexer):
     content: Final[bytes]
 
-    def __init__(self, content: Union[str, bytes], *, encoding: str = ..., stat: int = 0) -> None: ...
+    def __init__(self, content: Union[str, bytes], *, encoding: str = ...,
+                 stat: int = 0, command_threshold: int = 1) -> None: ...

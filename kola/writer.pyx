@@ -15,11 +15,13 @@ class WriterItemLike(Protocol):
 
 cdef extern from *:
     """
-    #define _MAX_INDENT_CACHE 8
+    #define _MAX_STRING_CACHE 8
     static const char* _indent_string = "        ";
+    static const char* _prefix_string = "########";
     """
-    Py_ssize_t _MAX_INDENT_CACHE
+    Py_ssize_t _MAX_STRING_CACHE
     const char* _indent_string
+    const char* _prefix_string
 
 
 cdef object literal_pattarn = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -95,7 +97,6 @@ cdef void _write_complex_item(BaseWriter writer, str key, object value, bint spl
             writer.dec_indent()
             writer.newline(True)
     writer.raw_write_char(ord(')'))
-    writer.line_beginning = False
 
 
 cdef class BaseWriterItem(object):
@@ -150,12 +151,19 @@ WI_NEWLINE = i_newline = NewlineItem()
     
 
 cdef class BaseWriter(object):
-    def __cinit__(self, *args, uint8_t indent = 4, **kwds):
+    def __cinit__(self, *args, uint8_t indent = 4, int command_threshold = 1, **kwds):
         self.indent = indent
         self.cur_indent = 0
+        if command_threshold <= 0:
+            PyErr_Format(
+                ValueError,
+                "the command threshold should be an positive number, not %d",
+                command_threshold
+            )
+        self.command_threshold = command_threshold
         self.line_beginning = True
     
-    def __init__(self, uint8_t indent = 4):
+    def __init__(self, indent = None, command_threshold = None):
         if type(self) is BaseWriter:
             raise NotImplementedError
     
@@ -187,43 +195,61 @@ cdef class BaseWriter(object):
             raise ValueError("writer indentation should be less than 0")
         self.cur_indent -= self.indent
     
-    cpdef void write_indent(self) except *:
+    cdef void _write_indent(self) except *:
         cdef Py_ssize_t i = self.cur_indent
-        if i == 0:
-            return
-        while i > _MAX_INDENT_CACHE:
-            self.raw_write_string(_indent_string, _MAX_INDENT_CACHE)
-            i -= _MAX_INDENT_CACHE
-        self.raw_write_string(_indent_string + _MAX_INDENT_CACHE - i, i)
+        while i > _MAX_STRING_CACHE:
+            self.raw_write_string(_indent_string, _MAX_STRING_CACHE)
+            i -= _MAX_STRING_CACHE
+        self.raw_write_string(_indent_string + _MAX_STRING_CACHE - i, i)
+    
+    cdef void _write_prefix(self, Py_ssize_t length) except *:
+        cdef Py_ssize_t i = length
+        while i > _MAX_STRING_CACHE:
+            self.raw_write_string(_prefix_string, _MAX_STRING_CACHE)
+            i -= _MAX_STRING_CACHE
+        self.raw_write_string(_prefix_string + _MAX_STRING_CACHE - i, i)
     
     cpdef void newline(self, bint concat_prev = False) except *:
         if concat_prev:
             self.raw_write_string("\\\n", 2)
         else:
             self.raw_write_string("\n", 1)
-        self.write_indent()
         self.line_beginning = True
+
+    cpdef void prepare(self) except *:
+        """preparation before writing"""
+        if self.line_beginning:
+            self.line_beginning = False
+            self._write_indent()
     
-    def write_text(self, str text not None):
+    cdef void _write_text(self, str text) except *:
         text = text.replace('\n', '\\\n')
         self.raw_write(text)
         self.newline()
     
+    def write_text(self, str text not None):
+        cdef Py_ssize_t i = 0
+        while i < len(text) and PyUnicode_READ_CHAR(text, i) == ord('#'):
+            i += 1
+        if i >= self.command_threshold:
+            PyErr_Format(ValueError, "kola text cannot have '#' prefix longer than %d", self.command_threshold)
+        self._write_text(text)
+    
     def write_command(self, __name not None, *args, **kwds):
         cdef:
             int number_name
-            char cache[12]
+            char cache[11]
         if isinstance(__name, str):
             if literal_pattarn.match(__name) is None:
                 PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>__name)
-            self.raw_write_char(ord('#'))
+            self._write_prefix(self.command_threshold)
             self.raw_write(__name)
         elif isinstance(__name, int):
             number_name = <int>__name
             if number_name < 0:
                 raise ValueError("the numeric command should be a non-negative integer")
-            cache[0] = ord('#')
-            sprintf(cache + 1, "%d", number_name)
+            self._write_prefix(self.command_threshold)
+            sprintf(cache, "%d", number_name)
             self.raw_write_string(cache)
         else:
             PyErr_Format(
@@ -232,30 +258,29 @@ cdef class BaseWriter(object):
                 get_type_qualname(__name)
             )
 
-        self.line_beginning = False
         self.inc_indent()
         try:
             for i in args:
                 if not self.line_beginning:
                     self.raw_write_char(ord(' '))
-                else:
-                    self.line_beginning = False
                 if not _write_base_item(self, i):
                     _write_writeritemlike(self, i, ARG_ITEM)
 
             for k, v in kwds.items():
                 if not self.line_beginning:
                     self.raw_write_char(ord(' '))
-                else:
-                    self.line_beginning = False
                 _write_complex_item(self, k, v)
         finally:
             self.dec_indent()
         self.newline()
     
+    def write_annotation(self, str annotation not None):
+        self._write_prefix(self.command_threshold + 1)
+        self._write_text(annotation)
+    
     def write(self, command not None):
         if isinstance(command, str):
-            self.write_text(command)
+            self._write_text(command)
         else:
             _write_writeritemlike(self, command, FULL_CMD)
 
@@ -289,7 +314,7 @@ cdef class FileWriter(BaseWriter):
         else:
             self.encoding = encoding
     
-    def __init__(self, __path, encoding = "utf-8", indent = None):
+    def __init__(self, __path, encoding = "utf-8", indent = None, command_threshold = None):
         pass
     
     cpdef void raw_write(self, str text) except *:
@@ -299,14 +324,14 @@ cdef class FileWriter(BaseWriter):
         self.raw_write_string(tb)
     
     cdef void raw_write_string(self, const char* string, Py_ssize_t length = -1) except *:
-        if self.fp == NULL:
-            raise OSError("operation on closed writer")
+        if length == 0:
+            return
+        self.prepare()
         with nogil:
             fputs(string, self.fp)
 
     cdef void raw_write_char(self, char ch) except *:
-        if self.fp == NULL:
-            raise OSError("operation on closed writer")
+        self.prepare()
         with nogil:
             fputc(ch, self.fp)
     
@@ -316,6 +341,12 @@ cdef class FileWriter(BaseWriter):
                 fclose(self.fp)
         self.fp = NULL
     
+    cpdef void prepare(self) except *:
+        """preparation before writing"""
+        if self.fp == NULL:
+            raise OSError("operation on closed writer")
+        BaseWriter.prepare(self)
+    
     @property
     def closed(self):
         return self.fp == NULL
@@ -323,31 +354,35 @@ cdef class FileWriter(BaseWriter):
 
 cdef class StringWriter(BaseWriter):
     def __cinit__(self, *args, **kwds):
-        self._closed = False
         _PyUnicodeWriter_Init(&self.writer)
         self.writer.overallocate = True
     
     cpdef void raw_write(self, str text) except *:
-        if self._closed:
-            raise OSError("operation on closed writer")
+        self.prepare()
         _PyUnicodeWriter_WriteStr(&self.writer, text)
     
     cdef void raw_write_string(self, const char* string, Py_ssize_t length = -1) except *:
-        if self._closed:
-            raise OSError("operation on closed writer")
         if length < 0:
             length = <Py_ssize_t>strlen(string)
+        if length == 0:
+            return
+        self.prepare()
         _PyUnicodeWriter_WriteASCIIString(&self.writer, string, length)
     
     cdef void raw_write_char(self, char ch) except *:
-        if self._closed:
-            raise OSError("operation on closed writer")
+        self.prepare()
         _PyUnicodeWriter_WriteChar(&self.writer, ch)
     
     cpdef void close(self):
         self._closed = True
         _PyUnicodeWriter_Dealloc(&self.writer)
     
+    cpdef void prepare(self) except *:
+        """preparation before writing"""
+        if self._closed:
+            raise OSError("operation on closed writer")
+        BaseWriter.prepare(self)
+
     cpdef str getvalue(self):
         if self._closed:
             raise OSError("operation on closed writer")

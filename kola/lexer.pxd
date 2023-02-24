@@ -17,7 +17,7 @@ cdef extern from *:
     int get_stat()
     void set_stat(int stat)
 
-    int yylex() nogil
+    int yylex(int command_threshold)
     void yyrestart(FILE *input_file) nogil
     YY_BUFFER_STATE yy_create_buffer(FILE* file, int size) nogil
     YY_BUFFER_STATE yy_scan_buffer(char * text, Py_ssize_t size) nogil
@@ -47,6 +47,7 @@ cdef class BaseLexer:
         str encoding
         int lineno
         int stat
+        int command_threshold
 
     cpdef void close(self)
     cdef void set_error(self) except *

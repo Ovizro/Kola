@@ -38,7 +38,9 @@ cdef NewlineItem i_newline
 
 cdef class BaseWriter:
     cdef Py_ssize_t cur_indent
-    cdef readonly uint8_t indent
+    cdef readonly:
+        uint8_t indent
+        int command_threshold
     cdef public bint line_beginning
 
     cpdef void raw_write(self, str text) except *
@@ -47,8 +49,11 @@ cdef class BaseWriter:
     cpdef void close(self)
     cpdef void inc_indent(self)
     cpdef void dec_indent(self) except *
-    cpdef void write_indent(self) except *
+    cdef void _write_indent(self) except *
+    cdef void _write_prefix(self, Py_ssize_t length) except *
     cpdef void newline(self, bint concat_prev = *) except *
+    cpdef void prepare(self) except *
+    cdef void _write_text(self, str text) except *
 
 
 cdef class FileWriter(BaseWriter):
@@ -57,6 +62,7 @@ cdef class FileWriter(BaseWriter):
         object path
         str encoding
     cpdef void close(self)
+    cpdef void prepare(self) except *
     cpdef void raw_write(self, str text) except *
     cdef void raw_write_string(self, const char* string, Py_ssize_t length = *) except *
     cdef void raw_write_char(self, char ch) except *
@@ -68,6 +74,7 @@ cdef class StringWriter(BaseWriter):
         _PyUnicodeWriter writer
     
     cpdef void close(self)
+    cpdef void prepare(self) except *
     cpdef void raw_write(self, str text) except *
     cdef void raw_write_string(self, const char* string, Py_ssize_t length = *) except *
     cdef void raw_write_char(self, char ch) except *

@@ -108,14 +108,17 @@ PyObject* filter_text(PyObject* string) {
                 offset++;
                 break;
             case '\r':
-                if (PyUnicode_ReadChar(string, i + 1) == '\n') {
+                if (PyUnicode_READ_CHAR(string, i + 1) == '\n') {
                     i++;
                     offset += 2;
                     break;
                 }
             default:
-                if (PyUnicode_WriteChar(string, i - offset, '\\') == -1) goto bad;
-                if (PyUnicode_WriteChar(string, i - offset, tc) == -1) goto bad;
+                if (PyUnicode_WriteChar(string, i - offset, '\\') == -1)
+                    goto bad;
+                --offset;
+                if (PyUnicode_WriteChar(string, i - offset, tc) == -1)
+                    goto bad;
                 break;
             }
         } else if (offset) {
