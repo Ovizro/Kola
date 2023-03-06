@@ -1,4 +1,15 @@
+from typing import TypeVar
+from typing_extensions import Protocol
+
 from .exception import KoiLangError, KoiLangSyntaxError, KoiLangCommandError
+
+
+class SupportGetCommand(Protocol):
+    def __getitem__(self, __key: str) -> Callable: ...
+
+
+T_CmdSet = TypeVar("T_CmdSet", bound=SupportGetCommand)
+T_Lexer = TypeVar("T_Lexer", bound=BaseLexer)
 
 
 cdef class Parser:

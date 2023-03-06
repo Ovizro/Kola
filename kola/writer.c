@@ -1304,8 +1304,8 @@ struct __pyx_opt_args_4kola_6writer_10BaseWriter_newline {
   int concat_prev;
 };
 
-/* "kola/writer.pxd":66
- *     cpdef void close(self)
+/* "kola/writer.pxd":67
+ *     cpdef void prepare(self) except *
  *     cpdef void raw_write(self, str text) except *
  *     cdef void raw_write_string(self, const char* string, Py_ssize_t length = *) except *             # <<<<<<<<<<<<<<
  *     cdef void raw_write_char(self, char ch) except *
@@ -1316,8 +1316,8 @@ struct __pyx_opt_args_4kola_6writer_10FileWriter_raw_write_string {
   Py_ssize_t length;
 };
 
-/* "kola/writer.pxd":77
- *     cpdef void close(self)
+/* "kola/writer.pxd":79
+ *     cpdef void prepare(self) except *
  *     cpdef void raw_write(self, str text) except *
  *     cdef void raw_write_string(self, const char* string, Py_ssize_t length = *) except *             # <<<<<<<<<<<<<<
  *     cdef void raw_write_char(self, char ch) except *
@@ -1426,7 +1426,7 @@ struct __pyx_obj_4kola_6writer_FileWriter {
 };
 
 
-/* "kola/writer.pxd":70
+/* "kola/writer.pxd":71
  * 
  * 
  * cdef class StringWriter(BaseWriter):             # <<<<<<<<<<<<<<
@@ -13755,7 +13755,7 @@ static PyObject *__pyx_pf_4kola_6writer_10FileWriter_4path___get__(struct __pyx_
  *         object path
  *         str encoding             # <<<<<<<<<<<<<<
  *     cpdef void close(self)
- *     cpdef void raw_write(self, str text) except *
+ *     cpdef void prepare(self) except *
  */
 
 /* Python wrapper */

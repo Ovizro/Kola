@@ -1,11 +1,10 @@
 from typing import Any, Callable, Final, Generic, Tuple, TypeVar
-from typing_extensions import Protocol, runtime_checkable, Self
+from typing_extensions import Protocol, Self
 from .lexer import BaseLexer, Token
 
 
-@runtime_checkable
 class SupportGetCommand(Protocol):
-    def __getitem__(self, key: str) -> Callable: ...
+    def __getitem__(self, __key: str) -> Callable: ...
 
 
 T_CmdSet = TypeVar("T_CmdSet", bound=SupportGetCommand)

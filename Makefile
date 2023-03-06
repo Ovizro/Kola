@@ -28,7 +28,7 @@ build_dist: test
 	python setup.py sdist bdist_wheel
 
 lint:
-	flake8 ${MODULE}/ tests/ --count --max-line-length=127 --extend-ignore=W293
+	flake8 ${MODULE}/ tests/ --count --max-line-length=127 --extend-ignore=W293,E402
 
 test:
 	python -m unittest
