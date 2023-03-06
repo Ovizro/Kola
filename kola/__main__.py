@@ -21,7 +21,7 @@ from traceback import print_exc
 from typing import Any, Callable, Optional
 
 from .lexer import BaseLexer, FileLexer, StringLexer
-from .klvm import KoiLang, KoiLangMeta, kola_command, kola_env, kola_text
+from .old_klvm import KoiLang, KoiLangMeta, kola_command, kola_env, kola_text
 from .exception import KoiLangCommandError, KoiLangError
 
 from . import __version__

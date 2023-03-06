@@ -3,7 +3,7 @@ from unittest import TestCase
 from kola.exception import KoiLangCommandError
 from kola.lexer import StringLexer
 from kola.parser import Parser
-from kola.klvm import KoiLang, kola_annotation, kola_command, kola_text, kola_env, kola_env_class
+from kola.old_klvm import KoiLang, kola_annotation, kola_command, kola_text, kola_env, kola_env_class
 
 
 class KolaTest(KoiLang):

@@ -1,9 +1,8 @@
 from unittest import TestCase
 
 from kola.lexer import StringLexer
-from kola.new_klvm.decorator import kola_env_exit
 from kola.parser import Parser
-from kola.new_klvm import CommandSet, Environment, KoiLang, kola_command, kola_env_enter, kola_text
+from kola.klvm import CommandSet, Environment, KoiLang, kola_command, kola_env_enter, kola_env_exit, kola_text
 
 
 class CommandSetTest(CommandSet):
