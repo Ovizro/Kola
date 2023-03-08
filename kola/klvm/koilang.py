@@ -2,7 +2,7 @@ import os
 import sys
 from types import MethodType, TracebackType
 from typing import Any, Callable, Dict, Generator, Optional, Tuple, Type, TypeVar, Union, overload
-from typing_extensions import Literal
+from typing_extensions import Literal, Self
 
 from ..lexer import BaseLexer, FileLexer, StringLexer
 from ..parser import Parser
@@ -71,6 +71,10 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     @property
     def top(self) -> CommandSet:
         return self.__top
+    
+    @property
+    def home(self) -> Self:
+        return self
 
     @MethodType(Command, "@start")
     def at_start(self) -> None:
@@ -167,5 +171,6 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     def parse_args(self, args_string: str) -> Tuple[tuple, Dict[str, Any]]:
         return Parser(
             StringLexer(
-                args_string, stat=2, encoding=self.__class__.__text_encoding__), self
+                args_string, stat=2, encoding=self.__class__.__text_encoding__
+            ), self
         ).parse_args()

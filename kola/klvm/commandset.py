@@ -116,6 +116,9 @@ class CommandSetMeta(ABCMeta):
     register_annotation = _command_register_factory("@annotation")
 
     del _command_register_factory
+    
+    def __repr__(self) -> str:
+        return f"<kola command set '{self.__qualname__}'>"
 
 
 class CommandSet(object, metaclass=CommandSetMeta):
@@ -139,3 +142,6 @@ class CommandSet(object, metaclass=CommandSetMeta):
         if cmd is None:
             raise KeyError(f"unknown command '{__key}'")
         return cmd
+    
+    def __repr__(self) -> str:
+        return f"<kola {self.__class__.__name__} object at 0x{id(self):08X}>"

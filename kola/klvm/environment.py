@@ -67,10 +67,7 @@ class EnvironmentExit(EnvironmentCommand):
     __slots__ = []
 
     def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
-        if isinstance(vmobj, Environment):
-            home = vmobj.home
-        else:
-            home = vmobj
+        home = vmobj.home
         ret = super().__call__(vmobj, *args, **kwds)
         cur = home.pop()
         if self.env_class and not isinstance(cur, self.env_class):
@@ -124,15 +121,15 @@ class EnvironmentMeta(CommandSetMeta):
     def __get__(self, ins: Any, owner: type) -> Self: ...
     
     def __get__(self, ins: Any, owner: type) -> Any:
-        if ins is not None:
-            if isinstance(ins, KoiLang) and issubclass(owner, KoiLang):
-                env_ins = ins.top
-            elif isinstance(ins, Environment) and isinstance(owner, Environment):
-                env_ins = ins.home.top
+        if ins is not None and issubclass(owner, CommandSet):
+            home: KoiLang = ins.home
+            cur = home.top
+            while isinstance(cur, Environment):
+                if isinstance(cur, self) and isinstance(cur.back, owner):
+                    return cur
+                cur = cur.back
             else:
-                return self
-            assert isinstance(env_ins, self)
-            return env_ins
+                raise ValueError(f"cannot find env '{self.__name__}' in the {home}")
         return self
 
 
@@ -153,9 +150,7 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
                 for name, func in EnvironmentExit.wrap_command(entry).__kola_command__(self):
                     self.command_set[name] = func
             # wrap the `@end` command to ensure the environment being popped
-            self.command_set["@end"] = EnvironmentExit(
-                "@end", self["@end"], env_class=self.__class__, method="static"
-            ).bind(self)
+            self.command_set["@end"] = self._autopop_wrapper(self["@end"])
 
     def __getitem__(self, __key: str) -> Callable:
         cmd_set = self
@@ -174,17 +169,18 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
             cmd_set = cmd_set.back
         assert isinstance(cmd_set, KoiLang)
         return cmd_set
-
-    @property
-    def next(self) -> "Environment":
-        top = self.home.top
-        while isinstance(top, Environment):
-            if top.back is self:
-                break
-            top = top.back
-        else:
-            raise ValueError("next environment is not found")
-        return top
+    
+    def _autopop_wrapper(self, exit_func: Callable[..., None]) -> Callable[..., None]:
+        def wrapper(*args, **kwds) -> None:
+            home = self.home
+            exit_func(*args, **kwds)
+            cur = home.top
+            while isinstance(cur, Environment) and not cur.__class__.__env_exit__:
+                home.pop()
+                if isinstance(cur, self.__class__):
+                    break
+                cur = home.top
+        return wrapper
 
 
 from .koilang import KoiLang
