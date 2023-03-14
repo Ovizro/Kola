@@ -4,6 +4,7 @@ from kola.lexer import StringLexer
 from kola.parser import Parser
 from kola.klvm import CommandSet, Environment, KoiLang, kola_command, kola_annotation, kola_env_enter, kola_env_exit, kola_text
 from kola.klvm.decorator import kola_environment
+from kola.klvm.writer import KoiLangWriter
 
 
 class CommandSetTest(CommandSet):
@@ -110,3 +111,13 @@ class TestKoiLang(TestCase):
             list(vmobj.parse(string, with_ret=True)),
             [200, "text: # This is a text", "text: This is a text, too", "annotation: ### This is an annotation"]
         )
+    
+    def test_writer(self) -> None:
+        writer = KolaTest.writer
+        self.assertTrue(issubclass(writer, KoiLangWriter))
+        with writer() as wp:
+            wp.version(120)
+            wp.text("Hello")
+            wp.annotation("?")
+            text = wp.getvalue()
+        self.assertEqual(text, "##version 120\nHello\n###?\n")

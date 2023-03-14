@@ -113,9 +113,11 @@ cdef class FormatItem(BaseWriterItem):
         self.spec = spec
     
     cpdef void __kola_write__(self, BaseWriter writer, ItemLevel level) except *:
+        cdef str fstr = format(self.value, self.spec)
         if level == FULL_CMD:
-            raise ValueError("format item cannot be usec as a full command")
-        writer.raw_write(format(self.value, self.spec))
+            writer.write_text(fstr)
+        else:
+            writer.raw_write(fstr)
 
 
 cdef class ComplexArg(BaseWriterItem):

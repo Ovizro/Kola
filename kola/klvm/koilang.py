@@ -1,13 +1,15 @@
+from functools import lru_cache
 import os
 import sys
-from types import MethodType, TracebackType
+from types import MethodType, TracebackType, new_class
 from typing import Any, Callable, Dict, Generator, Optional, Tuple, Type, TypeVar, Union, overload
 from typing_extensions import Literal, Self
 
 from ..lexer import BaseLexer, FileLexer, StringLexer
 from ..parser import Parser
 from ..exception import KoiLangError
-from .commandset import Command, CommandSetMeta, CommandSet
+from .command import Command
+from .commandset import CommandSetMeta, CommandSet
 from .environment import Environment
 
 
@@ -25,6 +27,21 @@ class KoiLangMeta(CommandSetMeta):
 
     def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any],
                 command_threshold: int = 0, encoding: Optional[str] = None, **kwds: Any):
+        """create a top language class
+
+        :param name: class name
+        :type name: str
+        :param bases: class bases
+        :type bases: Tuple[type, ...]
+        :param attr: class namespace
+        :type attr: Dict[str, Any]
+        :param command_threshold: the `#` prefix length of commands, defaults to 0
+        :type command_threshold: int, optional
+        :param encoding: encoding for file parsing, defaults to None
+        :type encoding: Optional[str], optional
+        :return: new class
+        :rtype: KoiLangMeta
+        """
         has_base = any(isinstance(i, cls) for i in bases)
         if command_threshold or not has_base:
             assert command_threshold >= 0
@@ -36,6 +53,11 @@ class KoiLangMeta(CommandSetMeta):
     def register_environment(self, env_class: _T_EnvCls) -> _T_EnvCls:
         self.__command_field__.add(env_class)
         return env_class
+    
+    @property
+    @lru_cache
+    def writer(self) -> Type:
+        return new_class(f"{self.__qualname__}.writer", (KoiLangWriter, self))
 
 
 class KoiLang(CommandSet, metaclass=KoiLangMeta):
@@ -51,56 +73,26 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         super().__init__()
         self.__top = self
 
-    def __getitem__(self, __key: str) -> Callable:
-        if self.__top is self:
-            return super().__getitem__(__key)
-        return self.__top[__key]
+    def push(self, __env_type: Type[Environment]) -> None:
+        new_env = __env_type(self.__top)
+        self.__top = new_env
 
-    def push(self, cmd_set: Environment) -> None:
-        assert cmd_set.back is self.top
-        self.__top = cmd_set
-
-    def pop(self) -> Environment:
+    def pop(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
         top = self.__top
         if top is self:
             raise ValueError('cannot pop the inital environment')
-        assert isinstance(top, Environment)
+        if __env_type is None:
+            assert isinstance(top, Environment)
+        else:
+            while isinstance(top, Environment) and top.__class__.__env_autopop__:
+                if isinstance(top, __env_type):
+                    break
+                top = top.back
+            else:
+                if not isinstance(top, __env_type):
+                    raise ValueError("unmatched environment")
         self.__top = top.back
         return top
-
-    @property
-    def top(self) -> CommandSet:
-        return self.__top
-    
-    @property
-    def home(self) -> Self:
-        return self
-
-    @MethodType(Command, "@start")
-    def at_start(self) -> None:
-        """
-        parser initalize command
-        
-        It is called before parsing start.
-        """
-
-    @MethodType(Command, "@end")
-    def at_end(self) -> None:
-        """
-        parser finalize command
-        
-        It is called after parsing end. And the return value
-        will be that of 'parse' method.
-        """
-    
-    @MethodType(Command, "@exception")
-    def on_exception(self, exc_ins: BaseException, exc_type: Type[BaseException], traceback: TracebackType) -> None:
-        """
-        exception handling command
-
-        It is called when a KoiLang error occurs.
-        If the command wishes to suppress the exception, it should a true value.
-        """
     
     def __parse(self, __lexer: BaseLexer) -> None:
         self["@start"]()
@@ -174,3 +166,62 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
                 args_string, stat=2, encoding=self.__class__.__text_encoding__
             ), self
         ).parse_args()
+
+    def __getitem__(self, __key: str) -> Callable:
+        if self.__top is self:
+            return super().__getitem__(__key)
+        return self.__top[__key]
+
+    def __kola_caller__(
+        self,
+        command: Command,
+        args: tuple,
+        kwargs: Dict[str, Any],
+        *,
+        bound_instance: Optional[CommandSet] = None,
+        envs: Tuple[str, ...] = (),
+        **kwds: Any
+    ) -> Any:
+        env_name = self.home.top.__class__.__name__
+        if envs and env_name not in envs:
+            raise ValueError(f"unmatched environment {env_name}")
+        return command.__func__(bound_instance or self, *args, **kwargs)
+
+    @property
+    def top(self) -> CommandSet:
+        return self.__top
+    
+    @property
+    def home(self) -> Self:
+        return self
+
+    @MethodType(Command, "@start")
+    def at_start(self) -> None:
+        """
+        parser initalize command
+        
+        It is called before parsing start.
+        """
+
+    @MethodType(Command, "@end")
+    def at_end(self) -> None:
+        """
+        parser finalize command
+        
+        It is called after parsing end. And the return value
+        will be that of 'parse' method.
+        """
+        while isinstance(self.__top, Environment) and self.__top.__class__.__env_autopop__:
+            self.pop()
+    
+    @MethodType(Command, "@exception")
+    def on_exception(self, exc_ins: KoiLangError, exc_type: Type[KoiLangError], traceback: TracebackType) -> None:
+        """
+        exception handling command
+
+        It is called when a KoiLang error occurs.
+        If the command wishes to suppress the exception, it should a true value.
+        """
+
+
+from .writer import KoiLangWriter

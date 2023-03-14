@@ -1,75 +1,52 @@
 from abc import ABCMeta
-from typing import (Any, Callable, Dict, Generator, Iterable, Optional, Set,
-                    Tuple, Type, Union, overload)
-from typing_extensions import Literal, Protocol, Self
+from typing import (Any, Callable, Dict, Iterable, Optional, Set, Tuple, Union,
+                    overload)
 
+from typing_extensions import Self
 
-class CommandLike(Protocol):
-    def __kola_command__(
-        self, __cmd_set: CommandSet) -> Generator[Tuple[str, Callable], None, None]: ...
-
-
-class Command:
-    __name__: str
-    __func__: Callable
-    method_type: Literal['static', 'class', 'default']
-    envs: Tuple[str, ...]
-    alias: Tuple[str, ...]
-    suppression: bool
-    writer_func: Callable
-
-    def __init__(self, __name: str, func: Callable, *, method: Literal['static', 'class', 'default'] = ...,
-                 envs: Union[Iterable[str], str] = ..., alias: Union[Iterable[str], str] = ..., suppression: bool = ...) -> None: ...
-    def bind(self, ins: Optional['CommandSet'], owner: Optional[Type['CommandSet']] = ...) -> Callable: ...
-    def writer(self, func: Callable) -> Self: ...
-    def __kola_command__(self, cmd_set: CommandSet, force: bool = ...) -> Generator[Tuple[str, Callable], None, None]: ...
-    def __get__(self, instance: Any, owner: Type['CommandSet']) -> Callable: ...
-    def __call__(self, vmobj: CommandSet, *args: Any, **kwds: Any) -> Any: ...
+from .command import Command, CommandLike
 
 
 class CommandSetMeta(ABCMeta):
     __command_field__: Set[CommandLike]
 
     def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any], **kwds: Any) -> Self: ...
-    def get_command_set(self, instance: Any) -> Dict[str, Callable]: ...
     @overload
     def register_command(
         self, __func: Callable[..., Any], **kwds) -> Command: ...
     @overload
     def register_command(
-        self, __name: Optional[str] = ..., *, method: Literal['static', 'class', 'default'] = ...,
-        alias: Union[Iterable[str], str] = ...
+        self, __name: Optional[str] = ..., *, alias: Union[Iterable[str], str] = ..., **kwds: Any
     ) -> Callable[[Callable[..., Any]], Command]: ...
     @overload
     def register_text(
         self, __func: Callable[..., Any], **kwds) -> Command: ...
     @overload
     def register_text(
-        self, *, method: Literal['static', 'class', 'default'] = ...,
-        alias: Union[Iterable[str], str] = ...
+        self, *, alias: Union[Iterable[str], str] = ..., **kwds: Any
     ) -> Callable[[Callable[..., Any]], Command]: ...
     @overload
     def register_number(
         self, __func: Callable[..., Any], **kwds) -> Command: ...
     @overload
     def register_number(
-        self, *, method: Literal['static', 'class', 'default'] = ...,
-        alias: Union[Iterable[str], str] = ...
+        self, *, alias: Union[Iterable[str], str] = ..., **kwds: Any
     ) -> Callable[[Callable[..., Any]], Command]: ...
     @overload
     def register_annotation(
         self, __func: Callable[..., Any], **kwds) -> Command: ...
     @overload
     def register_annotation(
-        self, *, method: Literal['static', 'class', 'default'] = ...,
-        alias: Union[Iterable[str], str] = ...
+        self, *, alias: Union[Iterable[str], str] = ..., **kwds: Any
     ) -> Callable[[Callable[..., Any]], Command]: ...
     
 
 class CommandSet(metaclass=CommandSetMeta):
-    command_set: Dict[str, Callable]
+    raw_command_set: Dict[str, Callable]
+    _bound_command_set: Dict[str, Callable]
 
     def __init__(self) -> None: ...
     def get(self, __key: str, default: Optional[Callable] = ...) -> Optional[Callable]: ...
+    def __kola_caller__(self, command: Command, args: tuple, kwargs: Dict[str, Any], **kwds) -> Any: ...
     def __getitem__(self, __key: str) -> Callable: ...
 
