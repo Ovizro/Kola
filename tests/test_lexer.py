@@ -59,7 +59,7 @@ class TestLexer(TestCase):
     
     def test_command_threshold(self) -> None:
         lexer = StringLexer(
-            "#This is text\n"
+            "# #This is text\n"
             "##command\n"
             "### And an annotation\n",
             command_threshold=2

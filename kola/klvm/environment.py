@@ -1,8 +1,11 @@
-from typing import Any, Callable, Dict, Generator, Iterable, Optional, Set, Tuple, Type, Union, overload
+from typing import Any, Callable, Dict, Generator, Iterable, Optional, Set, Tuple, Type, TypeVar, Union, overload
 from typing_extensions import Self
 
 from .command import Command
 from .commandset import CommandSet, CommandSetMeta
+
+
+T = TypeVar("T")
 
 
 class EnvironmentCommand(Command):
@@ -24,6 +27,8 @@ class EnvironmentCommand(Command):
     @classmethod
     def wrap_command(cls, command: "Command", **kwds) -> Self:
         data = command.extra_data.copy()
+        if isinstance(command, EnvironmentCommand):
+            data["env_class"] = command.env_class
         data.update(kwds)
         return cls(
             command.__name__,
@@ -38,11 +43,20 @@ class EnvironmentEntry(EnvironmentCommand):
     
     def __init__(self, *args, **kwds) -> None:
         super().__init__(*args, suppression=True, **kwds)
+    
+    def __get__(self, ins: Any, owner: type) -> Any:
+        assert self.env_class
+        if isinstance(ins, self.env_class) and self.env_class.__env_autopop__:
+            return EnvironmentAutopop.wrap_command(self).__get__(ins, owner)
+        return super().__get__(ins, owner)
 
     def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
         assert self.env_class
-        vmobj.home.push(self.env_class)
-        return super().__call__(vmobj, *args, **kwds)
+        home = vmobj.home
+        env = home.push_start(self.env_class)
+        ret = super().__call__(env, *args, **kwds)
+        home.push_end(env)
+        return ret
 
 
 class EnvironmentExit(EnvironmentCommand):
@@ -50,9 +64,20 @@ class EnvironmentExit(EnvironmentCommand):
 
     def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
         home = vmobj.home
+        pop_env = home.pop_start(self.env_class)
         ret = super().__call__(vmobj, *args, **kwds)
-        home.pop(self.env_class)
+        home.pop_end(pop_env)
         return ret
+
+
+class EnvironmentAutopop(EnvironmentCommand):
+    __slots__ = []
+
+    def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
+        home = vmobj.home
+        cache = home.pop_start(self.env_class)
+        home.pop_end(cache)
+        return super().__call__(vmobj, *args, **kwds)
 
 
 class EnvironmentMeta(CommandSetMeta):
@@ -94,7 +119,7 @@ class EnvironmentMeta(CommandSetMeta):
             yield from i.__kola_command__(force=True)
 
     @overload
-    def __get__(self, ins: "KoiLang", owner: Type['KoiLang']) -> CommandSet: ...
+    def __get__(self: Type[T], ins: Union["KoiLang", "Environment"], owner: Union[Type["KoiLang"], Type["Environment"]] ) -> T: ...
     @overload
     def __get__(self, ins: Any, owner: type) -> Self: ...
     
@@ -103,12 +128,34 @@ class EnvironmentMeta(CommandSetMeta):
             home: KoiLang = ins.home
             cur = home.top
             while isinstance(cur, Environment):
-                if isinstance(cur, self) and isinstance(cur.back, owner):
+                if cur.back is ins and isinstance(cur, self):
                     return cur
                 cur = cur.back
             else:
-                raise ValueError(f"cannot find env '{self.__name__}' in the {home}")
+                return self.EntryPointInterface(self, ins)
+                # raise ValueError(f"cannot find env '{self.__name__}' in the {home}")
         return self
+    
+    class EntryPointInterface:
+        """
+        interface for entry points in Python level
+        """
+        __slots__ = ["env_class", "bound_ins"]
+
+        def __init__(self, env_class: "EnvironmentMeta", bound_ins: CommandSet) -> None:
+            self.env_class = env_class
+            self.bound_ins = bound_ins
+        
+        def __getattr__(self, __name: str) -> Any:
+            attr = getattr(self.env_class, __name)
+            if isinstance(attr, EnvironmentEntry):
+                return attr.__get__(self.bound_ins, self.bound_ins.__class__)
+            elif isinstance(attr, Command):
+                raise AttributeError(f"cannot fetch command '{__name}' before the environment initialization")
+            raise AttributeError("only entry commands can be accessed through the interface")
+        
+        def __repr__(self) -> str:
+            return f"<kola environment '{self.env_class.__name__}' entry point command interface>"
 
 
 class Environment(CommandSet, metaclass=EnvironmentMeta):
@@ -125,7 +172,9 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
         if self.__class__.__env_autopop__:
             # for these have no exit point, use the same name as entry points
             for c in self.__class__.__env_entry__:
-                self.raw_command_set.update(c.__kola_command__())
+                self.raw_command_set.update(
+                    EnvironmentAutopop.wrap_command(c).__kola_command__()
+                )
 
     def __getitem__(self, __key: str) -> Callable:
         cmd_set = self
@@ -147,6 +196,12 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
             cmd_set = cmd_set.back
         assert isinstance(cmd_set, KoiLang)
         return cmd_set
+    
+    def at_initialize(self, cur_top: CommandSet) -> None:
+        pass
+
+    def at_finalize(self, cur_top: CommandSet) -> None:
+        pass
     
 
 from .koilang import KoiLang

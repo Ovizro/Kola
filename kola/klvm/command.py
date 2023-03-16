@@ -49,6 +49,10 @@ class Command(object):
         self.extra_data["writer_func"] = func
         return self
     
+    @property
+    def __wrapped__(self) -> Callable:
+        return self.__func__
+    
     def __kola_command__(self, force: bool = False) -> Generator[Tuple[str, Self], None, None]:
         if not self.suppression or force:
             bound_func = self

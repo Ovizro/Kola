@@ -1,6 +1,8 @@
-from functools import lru_cache
+from contextlib import contextmanager
+from collections import deque
 import os
 import sys
+from threading import Lock
 from types import MethodType, TracebackType, new_class
 from typing import Any, Callable, Dict, Generator, Optional, Tuple, Type, TypeVar, Union, overload
 from typing_extensions import Literal, Self
@@ -55,29 +57,40 @@ class KoiLangMeta(CommandSetMeta):
         return env_class
     
     @property
-    @lru_cache
     def writer(self) -> Type:
-        return new_class(f"{self.__qualname__}.writer", (KoiLangWriter, self))
+        cache = getattr(self, "__writer_class__", None)
+        if cache is not None:
+            return cache
+        cache = new_class(f"{self.__qualname__}.writer", (KoiLangWriter, self))
+        self.__writer_class__ = cache
+        return cache
 
 
 class KoiLang(CommandSet, metaclass=KoiLangMeta):
     """
     main class for KoiLang virtual machine
 
-    `KoiLang` class is a top-level interface of 'kola' package.
-    Just create a subclass to define your own mackup language based on KoiLang.
+    `KoiLang` class is the top-level interface of 'kola' package.
+    Just create a subclass to define your own markup language based on KoiLang.
     """
-    __slots__ = ["__top"]
+    __slots__ = ["_lock", "__top", "__exec_level"]
 
     def __init__(self) -> None:
         super().__init__()
+        self._lock = Lock()
         self.__top = self
+        self.__exec_level = 0
+    
+    def push_start(self, __env_type: Type[Environment]) -> Environment:
+        env = __env_type(self.__top)
+        env.at_initialize(self.__top)
+        return env
 
-    def push(self, __env_type: Type[Environment]) -> None:
-        new_env = __env_type(self.__top)
-        self.__top = new_env
-
-    def pop(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
+    def push_end(self, __push_cache: Environment) -> None:
+        with self._lock:
+            self.__top = __push_cache
+    
+    def pop_start(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
         top = self.__top
         if top is self:
             raise ValueError('cannot pop the inital environment')
@@ -91,35 +104,35 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             else:
                 if not isinstance(top, __env_type):
                     raise ValueError("unmatched environment")
-        self.__top = top.back
         return top
+
+    def pop_end(self, __env_cache: Environment) -> None:
+        with self._lock:
+            self.__top = __env_cache.back
+        __env_cache.at_finalize(self.__top)
     
     def __parse(self, __lexer: BaseLexer) -> None:
-        self["@start"]()
-        while True:
-            try:
-                # Parser.exec() is a fast C level loop.
-                Parser(__lexer, self).exec()
-            except KoiLangError:
-                if not self["@exception"](*sys.exc_info()):
-                    self["@end"]
-                    raise
-            else:
-                break
-        self["@end"]()
+        with self.exec_body():
+            while True:
+                try:
+                    # Parser.exec() is a fast C level loop.
+                    Parser(__lexer, self).exec()
+                except KoiLangError:
+                    if not self["@exception"](*sys.exc_info()):
+                        raise
+                else:
+                    break
     
     def __parse_and_ret(self, __lexer: BaseLexer) -> Generator[Any, None, None]:
-        self["@start"]()
-        while True:
-            try:
-                yield from Parser(__lexer, self)
-            except KoiLangError:
-                if not self["@exception"](*sys.exc_info()):
-                    self["@end"]()
-                    raise
-            else:
-                break
-        self["@end"]()
+        with self.exec_body():
+            while True:
+                try:
+                    yield from Parser(__lexer, self)
+                except KoiLangError:
+                    if not self["@exception"](*sys.exc_info()):
+                        raise
+                else:
+                    break
 
     @overload
     def parse(self, lexer: Union[BaseLexer, str], *, with_ret: Literal[False] = False) -> None: ...
@@ -166,6 +179,18 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
                 args_string, stat=2, encoding=self.__class__.__text_encoding__
             ), self
         ).parse_args()
+    
+    @contextmanager
+    def exec_body(self) -> Generator[Self, None, None]:
+        if not self.__exec_level:
+            self["@start"]()
+        self.__exec_level += 1
+        try:
+            yield self
+        finally:
+            self.__exec_level -= 1
+            if not self.__exec_level:
+                self["@end"]()
 
     def __getitem__(self, __key: str) -> Callable:
         if self.__top is self:
@@ -212,7 +237,8 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         will be that of 'parse' method.
         """
         while isinstance(self.__top, Environment) and self.__top.__class__.__env_autopop__:
-            self.pop()
+            cache = self.pop_start()
+            self.pop_end(cache)
     
     @MethodType(Command, "@exception")
     def on_exception(self, exc_ins: KoiLangError, exc_type: Type[KoiLangError], traceback: TracebackType) -> None:

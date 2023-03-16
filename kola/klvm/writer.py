@@ -1,34 +1,55 @@
 import os
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from inspect import signature, Signature
+from functools import lru_cache
+from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
 from typing_extensions import Self
 
 from ..writer import BaseWriter, FileWriter, StringWriter
 from .command import Command
-from .environment import EnvironmentEntry, EnvironmentExit
+from .environment import Environment
 from .koilang import KoiLang
 
 
-def _default_writer_factory(name: str):
+@lru_cache
+def _default_writer_factory(name: str, sig: Optional[Signature] = None):
+    if name == "@text":
+        return BaseWriter.write_text
+    elif name == "@annotation":
+        return BaseWriter.write_annotation
+
     def inner(writer: BaseWriter, *args, **kwds) -> None:
-        writer.write_command(name, *args, **kwds)
+        if sig:
+            # check writer arguments
+            sig.bind(writer, *args, **kwds)
+        if name != "@number":
+            args = (name,) + args
+        writer.write_command(*args, **kwds)
     return inner
 
 
 class KoiLangWriter(KoiLang):
-    def __init__(self, __writer: Union[str, bytes, os.PathLike, BaseWriter, None] = None) -> None:
+    def __init__(self, ___writer: Union[str, bytes, os.PathLike, BaseWriter, None] = None) -> None:
         super().__init__()
-        if __writer is None:
-            self.writer = StringWriter(
+        if ___writer is None:
+            self._writer = StringWriter(
                 command_threshold=self.__class__.__command_threshold__
             )
-        elif isinstance(__writer, BaseWriter):
-            self.writer = __writer
+        elif isinstance(___writer, BaseWriter):
+            self._writer = ___writer
         else:
-            self.writer = FileWriter(
-                __writer,
+            self._writer = FileWriter(
+                ___writer,
                 command_threshold=self.__class__.__command_threshold__,
                 encoding=self.__class__.__text_encoding__
             )
+    
+    def push_end(self, __push_cache: Environment) -> None:
+        self._writer.inc_indent()
+        return super().push_end(__push_cache)
+    
+    def pop_start(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
+        self._writer.dec_indent()
+        return super().pop_start(__env_type)
     
     def __kola_caller__(
         self,
@@ -40,33 +61,35 @@ class KoiLangWriter(KoiLang):
         writer_func: Optional[Callable] = None,
         **kwds: Any
     ) -> None:
-        env_name = self.home.top.__class__.__name__
+        if isinstance(command.__wrapped__, Command):
+            return super().__kola_caller__(
+                command, args, kwargs, envs=envs, writer_func=writer_func, **kwds
+            )
+        
+        env_name = self.top.__class__.__name__
         if envs and env_name not in envs:
             raise ValueError(f"unmatched environment {env_name}")
+        
         if command.__name__ in ["@start", "@end"]:
             # writer do not need to initalize
             return
-        if isinstance(command, EnvironmentExit):
-            self.writer.dec_indent()
         if not writer_func:
-            if command.__name__ == "@text":
-                writer_func = BaseWriter.write_text
-            elif command.__name__ == "@annotation":
-                writer_func = BaseWriter.write_annotation
-            else:
-                writer_func = _default_writer_factory(command.__name__)
-        writer_func(self.writer, *args, **kwargs)
-        if isinstance(command, EnvironmentEntry):
-            self.writer.inc_indent()
+            writer_func = _default_writer_factory(
+                command.__name__, signature(command.__func__)
+            )
+        writer_func(self._writer, *args, **kwargs)
+    
+    def newline(self) -> None:
+        self._writer.newline()
     
     def getvalue(self) -> str:
-        if not isinstance(self.writer, StringWriter):
+        if not isinstance(self._writer, StringWriter):
             raise TypeError("only `StringWriter` object can use 'getvalue' method")
-        return self.writer.getvalue()
+        return self._writer.getvalue()
 
     def __enter__(self) -> Self:
-        self.writer.__enter__()
+        self._writer.__enter__()
         return self
 
     def __exit__(self, *args) -> None:
-        self.writer.__exit__(*args)
+        return self._writer.__exit__(*args)

@@ -1,7 +1,11 @@
-from .commandset import Command, CommandSet, CommandLike
+from .command import Command, CommandLike
+from .commandset import CommandSet
 from .environment import Environment
 from .koilang import KoiLang
 from .decorator import *
+
+
+kola_env_class = kola_environment
 
 
 __all__ = [
