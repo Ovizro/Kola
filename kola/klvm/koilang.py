@@ -1,10 +1,9 @@
 from contextlib import contextmanager
-from collections import deque
 import os
 import sys
 from threading import Lock
-from types import MethodType, TracebackType, new_class
-from typing import Any, Callable, Dict, Generator, Optional, Tuple, Type, TypeVar, Union, overload
+from types import TracebackType, new_class
+from typing import Any, Callable, ClassVar, Dict, Generator, Optional, Tuple, Type, TypeVar, Union, overload
 from typing_extensions import Literal, Self
 
 from ..lexer import BaseLexer, FileLexer, StringLexer
@@ -27,9 +26,14 @@ class KoiLangMeta(CommandSetMeta):
     __text_encoding__: str
     __command_threshold__: int
 
+    builtin_mapping: ClassVar[Dict[str, str]] = {
+        "at_start": "@start", "at_end": "@end", "on_exception": "@exception"
+    }
+
     def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any],
                 command_threshold: int = 0, encoding: Optional[str] = None, **kwds: Any):
-        """create a top language class
+        """
+        create a top language class
 
         :param name: class name
         :type name: str
@@ -50,6 +54,12 @@ class KoiLangMeta(CommandSetMeta):
             attr["__command_threshold__"] = command_threshold or 1
         if encoding or not has_base:
             attr["__text_encoding__"] = encoding or "utf-8"
+        for k, n in cls.builtin_mapping.items():
+            if k not in attr:
+                continue
+            cmd = attr[k]
+            if not isinstance(cmd, Command):
+                attr[k] = Command(n, cmd)
         return super().__new__(cls, name, bases, attr, **kwds)
 
     def register_environment(self, env_class: _T_EnvCls) -> _T_EnvCls:
@@ -112,7 +122,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         __env_cache.at_finalize(self.__top)
     
     def __parse(self, __lexer: BaseLexer) -> None:
-        with self.exec_body():
+        with self.exec_block():
             while True:
                 try:
                     # Parser.exec() is a fast C level loop.
@@ -124,7 +134,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
                     break
     
     def __parse_and_ret(self, __lexer: BaseLexer) -> Generator[Any, None, None]:
-        with self.exec_body():
+        with self.exec_block():
             while True:
                 try:
                     yield from Parser(__lexer, self)
@@ -181,7 +191,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         ).parse_args()
     
     @contextmanager
-    def exec_body(self) -> Generator[Self, None, None]:
+    def exec_block(self) -> Generator[Self, None, None]:
         if not self.__exec_level:
             self["@start"]()
         self.__exec_level += 1
@@ -220,7 +230,6 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     def home(self) -> Self:
         return self
 
-    @MethodType(Command, "@start")
     def at_start(self) -> None:
         """
         parser initalize command
@@ -228,7 +237,6 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         It is called before parsing start.
         """
 
-    @MethodType(Command, "@end")
     def at_end(self) -> None:
         """
         parser finalize command
@@ -240,7 +248,6 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             cache = self.pop_start()
             self.pop_end(cache)
     
-    @MethodType(Command, "@exception")
     def on_exception(self, exc_ins: KoiLangError, exc_type: Type[KoiLangError], traceback: TracebackType) -> None:
         """
         exception handling command

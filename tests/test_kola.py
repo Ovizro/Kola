@@ -101,7 +101,7 @@ class TestKoiLang(TestCase):
             ret,
             [100, 1, "[1] text: Hello world!", 2, "[2] text: ???", 5]
         )
-        with vmobj.exec_body():
+        with vmobj.exec_block():
             ret = vmobj.NumberEnv.SubEnv.exit()  # type: ignore
             self.assertEqual(ret, 6)
         self.assertIs(vmobj.top, vmobj)
