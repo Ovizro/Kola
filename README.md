@@ -66,25 +66,37 @@ There is an simple example.
         I finally understand now, Mika, we don't need any destinations, we just need to keep moving forward.
         As long as we don't stop, the road will continue!
 ```
-    
-In KoiLang, file is divided into 'command' part and 'text' part.
-The formation of command part is like C preprocessor directive,
-using '#' as starting. And text is surrounding commands.
+
+### Grammar
+
+In KoiLang, the code contains 'command' section and 'text' section.
+The format of the command section is similar to a C prepared statement,
+using '#' as the prefix. And other lines that do not start with '#' are the text section.
 
     #command "This is a command"
-    This is a text.
+    This is the text.
 
-Each command can have several arguments behind the command name.
+The format of a single command like:
+
+    #command_name [param 1] [param 2] ...
+
+There are several parameters behind the command whose name should be a valid variable name.
+
+> An unsigned decimal integer like is also a legal command name, like `#114`.
+
+Each command can have several parameters behind the command name.
 Valid argument type include integer, float, literal and string.
     
     #arg_int    1 0b101 0x6CF
-    #arg_float  1.0 2e-2
-    #arg_literal __name__
+    #arg_float  1. 2e-2 .114514
+    #arg_literal string __name__
     #arg_string "A string"
 
-> Here "literal" is a valid python variety name containing letter,digit, underline and not starting with digit. Usually it is same as a string.
+> Here literal argument is a valid python variety name containing letter, digit, underline and not starting with digit. Usually it is the same as a string.
  
-There is another kind of arguments -- keyword arguments which formation is as this:
+The above parameter types are often referred to base parameters.
+Combination parameter which is composed of multiple basic parameters is another argument type.
+The format is as follows:
 
     #kwargs key(value)
     

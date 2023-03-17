@@ -21,7 +21,7 @@ from typing import Callable, Type
 from .lexer import BaseLexer, FileLexer, StringLexer
 from .klvm import KoiLang
 from .exception import KoiLangError
-from .lib.runner_main import KoiLangRunner
+from .lib.default_runner import KoiLangRunner
 
 from . import __version__
 
