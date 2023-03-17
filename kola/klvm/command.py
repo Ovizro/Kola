@@ -49,6 +49,17 @@ class Command(object):
         self.extra_data["writer_func"] = func
         return self
     
+    @classmethod
+    def from_command(cls, command: "Command", **kwds: Any) -> Self:
+        data = command.extra_data.copy()
+        data.update(kwds)
+        return cls(
+            command.__name__,
+            command.__func__,
+            alias=command.alias,
+            **data
+        )
+    
     @property
     def __wrapped__(self) -> Callable:
         return self.__func__

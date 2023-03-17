@@ -1,5 +1,5 @@
 from .command import Command, CommandLike
-from .commandset import CommandSet
+from .commandset import CommandSet, CommandSetMeta
 from .environment import Environment
 from .koilang import KoiLang
 from .decorator import *
@@ -12,6 +12,7 @@ __all__ = [
     "CommandLike",
     "Command",
 
+    "CommandSetMeta",
     "CommandSet",
     "Environment",
     "KoiLang",

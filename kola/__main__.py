@@ -34,7 +34,7 @@ def _load_script(path: str, encoding: str = "utf-8") -> Type[KoiLang]:
             vdict
         )
     for i in vdict.values():
-        if issubclass(i, KoiLang) and i is not KoiLang:
+        if isinstance(i, type) and issubclass(i, KoiLang) and i is not KoiLang:
             return i
     else:
         raise TypeError("no KoiLang command set found")

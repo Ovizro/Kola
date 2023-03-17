@@ -1,4 +1,4 @@
-from unittest import TestCase, runner
+from unittest import TestCase
 
 from kola.lexer import StringLexer
 from kola.parser import Parser
@@ -73,6 +73,8 @@ class TestKoiLang(TestCase):
         self.assertEqual(KoiLang.__command_threshold__, 1)
         self.assertEqual(KoiLang.__text_encoding__, "utf-8")
         self.assertEqual(KolaTest.__command_threshold__, 2)
+        with self.assertRaises(TypeError):
+            Environment(CommandSet())
 
     def test_commandset(self) -> None:
         string = """

@@ -25,17 +25,10 @@ class EnvironmentCommand(Command):
         self.env_class = env_class
     
     @classmethod
-    def wrap_command(cls, command: "Command", **kwds) -> Self:
-        data = command.extra_data.copy()
+    def from_command(cls, command: "Command", **kwds: Any) -> Self:
         if isinstance(command, EnvironmentCommand):
-            data["env_class"] = command.env_class
-        data.update(kwds)
-        return cls(
-            command.__name__,
-            command,
-            alias=command.alias,
-            **data
-        )
+            kwds["env_class"] = command.env_class
+        return super().from_command(command, **kwds)
 
 
 class EnvironmentEntry(EnvironmentCommand):
@@ -47,7 +40,7 @@ class EnvironmentEntry(EnvironmentCommand):
     def __get__(self, ins: Any, owner: type) -> Any:
         assert self.env_class
         if isinstance(ins, self.env_class) and self.env_class.__env_autopop__:
-            return EnvironmentAutopop.wrap_command(self).__get__(ins, owner)
+            return EnvironmentAutopop.from_command(self).__get__(ins, owner)
         return super().__get__(ins, owner)
 
     def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
@@ -74,10 +67,15 @@ class EnvironmentAutopop(EnvironmentCommand):
     __slots__ = []
 
     def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
+        assert self.env_class
         home = vmobj.home
+
         cache = home.pop_start(self.env_class)
         home.pop_end(cache)
-        return super().__call__(vmobj, *args, **kwds)
+        cache = home.push_start(self.env_class)
+        ret = super().__call__(cache, *args, **kwds)
+        home.push_end(cache)
+        return ret
 
 
 class EnvironmentMeta(CommandSetMeta):
@@ -119,11 +117,14 @@ class EnvironmentMeta(CommandSetMeta):
             yield from i.__kola_command__(force=True)
 
     @overload
-    def __get__(self: Type[T], ins: Union["KoiLang", "Environment"], owner: Union[Type["KoiLang"], Type["Environment"]] ) -> T: ...
-    @overload
     def __get__(self, ins: Any, owner: type) -> Self: ...
-    
-    def __get__(self, ins: Any, owner: type) -> Any:
+    @overload  # noqa: E301
+    def __get__(
+        self: Type[T],
+        ins: Union["KoiLang", "Environment"],
+        owner: Union[Type["KoiLang"], Type["Environment"]]
+    ) -> T: ...
+    def __get__(self, ins: Any, owner: type) -> Any:  # noqa: E301
         if ins is not None and issubclass(owner, CommandSet):
             home: KoiLang = ins.home
             cur = home.top
@@ -173,7 +174,7 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
             # for these have no exit point, use the same name as entry points
             for c in self.__class__.__env_entry__:
                 self.raw_command_set.update(
-                    EnvironmentAutopop.wrap_command(c).__kola_command__()
+                    EnvironmentAutopop.from_command(c).__kola_command__()
                 )
 
     def __getitem__(self, __key: str) -> Callable:

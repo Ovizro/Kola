@@ -126,7 +126,7 @@ class KoiLangRunner(KoiLang):
     
     def load_command_set(self, vdict: Dict[str, Any]) -> None:
         for i in vdict.values():
-            if issubclass(i, KoiLang) and i is not KoiLang:
+            if isinstance(i, type) and issubclass(i, KoiLang) and i is not KoiLang:
                 break
         else:
             raise TypeError("the KoiLang main class unfound")

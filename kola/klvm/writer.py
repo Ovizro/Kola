@@ -61,10 +61,10 @@ class KoiLangWriter(KoiLang):
         writer_func: Optional[Callable] = None,
         **kwds: Any
     ) -> None:
-        if isinstance(command.__wrapped__, Command):
-            return super().__kola_caller__(
-                command, args, kwargs, envs=envs, writer_func=writer_func, **kwds
-            )
+        # if isinstance(command.__wrapped__, Command):
+        #     return super().__kola_caller__(
+        #         command, args, kwargs, envs=envs, writer_func=writer_func, **kwds
+        #     )
         
         env_name = self.top.__class__.__name__
         if envs and env_name not in envs:

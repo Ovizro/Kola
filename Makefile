@@ -21,6 +21,9 @@ build:
 install: build
 	python setup.py install
 
+run:
+	python -m kola
+
 develop: build
 	python setup.py develop
 
@@ -28,7 +31,7 @@ build_dist: test
 	python setup.py sdist bdist_wheel
 
 lint:
-	flake8 ${MODULE}/ tests/ --count --max-line-length=127 --extend-ignore=W293,E402,F403,F405
+	flake8 ${MODULE}/ tests/ --exclude __init__.py --count --max-line-length=127 --extend-ignore=W293,E402
 
 test:
 	python -m unittest
