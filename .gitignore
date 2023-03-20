@@ -132,3 +132,4 @@ test.*
 disabled.*
 kola/*.html
 /lex.yy.c
+!/kola/lib/

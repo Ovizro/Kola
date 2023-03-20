@@ -63,7 +63,7 @@ setup(
     license="Apache 2.0",
 
     url="https://github.com/Ovizro/Kola",
-    packages=["kola"],
+    packages=["kola", "kola/klvm", "kola/lib"],
     python_requires=">=3.6",
     package_data={'':["*.pyi", "*.pxd", "*.h"]},
     install_requires=[
