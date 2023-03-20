@@ -66,10 +66,13 @@ if __name__ == "__main__":
 
     namespace = parser.parse_args()
 
+    encoding = namespace.encoding
     if namespace.file:
-        lexer = FileLexer(namespace.file)
+        lexer = FileLexer(namespace.file, encoding=encoding)
     elif namespace.inline:
-        lexer = StringLexer(namespace.inline)
+        lexer = StringLexer(namespace.inline, encoding=encoding)
+    elif not sys.stdin.isatty():
+        lexer = BaseLexer(encoding=encoding)
     else:
         lexer = None
 

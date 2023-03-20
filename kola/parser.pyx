@@ -39,7 +39,7 @@ cdef class Parser:
             if errorno == 16:
                 errorno = (self.stat << 4) + cur.syn
             text = <const char*>cur.raw_val
-        while recovery and not self.t_cache is None and not CMD <= self.t_cache.syn <= TEXT:
+        while recovery and not self.t_cache is None and self.t_cache.get_flag() != 0:
             self.t_cache = self.lexer.next_token()
         kola_set_error(KoiLangSyntaxError, errorno,
             self.lexer._filename, lineno, text)

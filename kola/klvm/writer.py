@@ -10,7 +10,7 @@ from .environment import Environment
 from .koilang import KoiLang
 
 
-@lru_cache
+@lru_cache()
 def _default_writer_factory(name: str, sig: Optional[Signature] = None):
     if name == "@text":
         return BaseWriter.write_text
@@ -65,10 +65,8 @@ class KoiLangWriter(KoiLang):
         #     return super().__kola_caller__(
         #         command, args, kwargs, envs=envs, writer_func=writer_func, **kwds
         #     )
-        
-        env_name = self.top.__class__.__name__
-        if envs and env_name not in envs:
-            raise ValueError(f"unmatched environment {env_name}")
+        if envs:
+            self.ensure_env(envs)
         
         if command.__name__ in ["@start", "@end"]:
             # writer do not need to initalize

@@ -19,6 +19,9 @@ import re
 import sys
 from importlib import import_module
 from typing import Any, Dict, Optional, TypeVar, Union
+from typing_extensions import Literal
+
+from ..klvm.environment import Environment
 
 from .. import __version__
 from ..exception import KoiLangCommandError
@@ -29,13 +32,19 @@ from . import KOLA_LIB_PATH
 T = TypeVar("T")
 
 
+FLAG_DEBUG = 1
+
+
 class KoiLangRunner(KoiLang):
     """
     default class for KoiLang module runner
     """
-    __slots__ = ["vars"]
 
     var_pattern = re.compile(r"\$(\{)?(?P<name>[a-zA-Z_]\w*)(?(1)\}|)", re.ASCII)
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.flag = 0
 
     @kola_command
     def version(self, __chk_ver: Optional[int] = None) -> None:
@@ -49,19 +58,25 @@ class KoiLangRunner(KoiLang):
     def license(self) -> None:
         print(__doc__)
     
+    @kola_command(alias="raise")
+    def raises(self, *msg: str) -> None:
+        raise KoiLangCommandError(*msg)
+    
     @kola_command
-    def raises(self) -> None:
-        raise KoiLangCommandError
+    def pragma(self, *, debug: Optional[Literal["on", "off"]] = None) -> None:
+        if debug:
+            if debug == "on":
+                self.flag |= FLAG_DEBUG
+            elif debug == "off":
+                self.flag &= ~FLAG_DEBUG
+            else:
+                raise ValueError(f"illegal value '{debug}'")
     
     @kola_command
     def echo(self, *text: str) -> None:
         print(' '.join(text))
     
-    @kola_command("get")
-    def get_(self, key: str) -> None:
-        print(self.get_var(key))
-    
-    @kola_command
+    @kola_command(alias="export")
     def set(self, **kwds) -> None:
         self.vars.update(kwds)
     
@@ -113,6 +128,13 @@ class KoiLangRunner(KoiLang):
     
     def at_start(self) -> None:
         self.vars = {}
+        self.flag = 0
+        self.loaded_class = set()
+    
+    def at_end(self) -> None:
+        super().at_end()
+        for i in self.loaded_class:
+            i.at_end(self)
     
     def get_var(self, key: str) -> Any:
         if key == '__top__':
@@ -121,6 +143,14 @@ class KoiLangRunner(KoiLang):
             return ', '.join(self.raw_command_set)
         elif key == "__name__":
             return self.__class__.__name__
+        elif key == "__stack_info__":
+            env_names = []
+            top = self.top
+            while top is not self:
+                env_names.append(top.__class__.__name__)
+                top = top.back  # type: ignore
+            env_names.append("__init__")
+            return " -> ".join(env_names)
         else:
             return self.vars.get(key, None)
     
@@ -130,6 +160,10 @@ class KoiLangRunner(KoiLang):
                 break
         else:
             raise TypeError("the KoiLang main class unfound")
+        if self.flag & FLAG_DEBUG:
+            print(f"## [DEBUG] Load class: {i}")
+        self.loaded_class.add(i)
+        i.at_start(self)
         self.raw_command_set.update(
             i.generate_raw_commands()
         )
@@ -146,10 +180,25 @@ class KoiLangRunner(KoiLang):
             )
         return argument
     
-    def __kola_caller__(self, command: Any, args: tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
+    def __kola_caller__(
+            self, command: Any, args: tuple, kwargs: Dict[str, Any],
+            *, bound_instance: Any = None, **kwds: Any) -> Any:
+        if self.flag & FLAG_DEBUG:
+            print(f"## [DEBUG] Run command: {command.__name__} ({(bound_instance or self).__class__.__name__})")
         return super().__kola_caller__(
             command,
             tuple(self.format_text(i) for i in args),
             self.format_text(kwargs),
+            bound_instance=bound_instance,
             **kwds
         )
+    
+    def push_end(self, __push_cache: Environment) -> None:
+        if self.flag & FLAG_DEBUG:
+            print(f"## [DEBUG] Push env: {__push_cache}")
+        return super().push_end(__push_cache)
+    
+    def pop_end(self, __env_cache: Environment) -> None:
+        if self.flag & FLAG_DEBUG:
+            print(f"## [DEBUG] Pop env: {__env_cache}")
+        return super().pop_end(__env_cache)

@@ -33,7 +33,7 @@ class KoiLangMeta(CommandSetMeta):
     def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any],
                 command_threshold: int = 0, encoding: Optional[str] = None, **kwds: Any):
         """
-        create a top language class
+        create a top-level language class
 
         :param name: class name
         :type name: str
@@ -96,9 +96,10 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         env.at_initialize(self.__top)
         return env
 
-    def push_end(self, __push_cache: Environment) -> None:
+    def push_end(self, __env_cache: Environment) -> None:
+        assert __env_cache.back is self.__top
         with self._lock:
-            self.__top = __push_cache
+            self.__top = __env_cache
     
     def pop_start(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
         top = self.__top
@@ -118,15 +119,95 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
 
     def pop_end(self, __env_cache: Environment) -> None:
         with self._lock:
+            top = self.__top
             self.__top = __env_cache.back
-        __env_cache.at_finalize(self.__top)
+        while isinstance(top, Environment):
+            top.at_finalize(self.__top)
+            if top is __env_cache:
+                break
+            top = top.back
+        else:
+            raise ValueError('cannot pop the inital environment')
+    
+    def ensure_env(self, names: Tuple[str, ...]) -> None:
+        if isinstance(names, str):
+            names = (names,)
+
+        ng, pt = [], []
+        for i in names:
+            if i.startswith('!'):
+                ng.append(i[1:])
+            else:
+                pt.append(i)
+
+        reachable = []
+        top = self.top
+        while isinstance(top, Environment):
+            reachable.append(top.__class__.__name__)
+            if not top.__class__.__env_autopop__:
+                break
+            top = top.back
+        else:
+            # the base KoiLang object name is '__init__'
+            reachable.append("__init__")
+
+        if ((not ng or all(not self._ensure_env(reachable, i) for i in ng)) and
+                (not pt or any(self._ensure_env(reachable, i) for i in pt))):
+            return
+        raise ValueError(f"unmatched environment name {reachable[0]}")
+    
+    @staticmethod
+    def _ensure_env(reachable: list, name: str) -> bool:
+        if name.startswith('+'):
+            strict = True
+            name = name[1:]
+        else:
+            strict = False
+        if name.startswith('!'):
+            inverse = True
+            name = name[1:]
+        else:
+            inverse = False
+
+        if strict:
+            is_in = reachable[0] == name
+        else:
+            is_in = name in reachable
+        return not is_in if inverse else is_in
+
+        # for n in names:
+        #     if n.startswith('+!'):
+        #         while n[2:] in reachable:
+        #             if len(reachable) < 2:
+        #                 break
+        #             cache = self.pop_start()
+        #             self.pop_end(cache)
+        #             reachable.popleft()
+        #         else:
+        #             continue
+        #     elif n.startswith('!'):
+        #         if any(i != n[1:] for i in reachable):
+        #             continue
+        #     elif n.startswith('+'):
+        #         while reachable[0] != n[1:]:
+        #             if len(reachable) < 2:
+        #                 break
+        #             cache = self.pop_start()
+        #             self.pop_end(cache)
+        #             reachable.popleft()
+        #         else:
+        #             continue
+        #     elif n in reachable:
+        #         continue
+        #     raise ValueError(f"unmatched environment name {n}")
     
     def __parse(self, __lexer: BaseLexer) -> None:
+        parser = Parser(__lexer, self)
         with self.exec_block():
             while True:
                 try:
                     # Parser.exec() is a fast C level loop.
-                    Parser(__lexer, self).exec()
+                    parser.exec()
                 except KoiLangError:
                     if not self["@exception"](*sys.exc_info()):
                         raise
@@ -134,10 +215,11 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
                     break
     
     def __parse_and_ret(self, __lexer: BaseLexer) -> Generator[Any, None, None]:
+        parser = Parser(__lexer, self)
         with self.exec_block():
             while True:
                 try:
-                    yield from Parser(__lexer, self)
+                    yield from parser
                 except KoiLangError:
                     if not self["@exception"](*sys.exc_info()):
                         raise
@@ -191,7 +273,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         ).parse_args()
     
     @contextmanager
-    def exec_block(self) -> Generator[Self, None, None]:
+    def exec_block(self) -> Generator[Self, None, Optional[bool]]:
         if not self.__exec_level:
             self["@start"]()
         self.__exec_level += 1
@@ -217,9 +299,8 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         envs: Tuple[str, ...] = (),
         **kwds: Any
     ) -> Any:
-        env_name = self.home.top.__class__.__name__
-        if envs and env_name not in envs:
-            raise ValueError(f"unmatched environment {env_name}")
+        if envs:
+            self.ensure_env(envs)
         return command.__func__(bound_instance or self, *args, **kwargs)
 
     @property
@@ -248,7 +329,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             cache = self.pop_start()
             self.pop_end(cache)
     
-    def on_exception(self, exc_ins: KoiLangError, exc_type: Type[KoiLangError], traceback: TracebackType) -> None:
+    def on_exception(self, exc_type: Type[KoiLangError], exc_ins: KoiLangError, traceback: TracebackType) -> None:
         """
         exception handling command
 

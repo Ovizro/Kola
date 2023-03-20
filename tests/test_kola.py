@@ -1,5 +1,8 @@
+from types import TracebackType
+from typing import Type
 from unittest import TestCase
 
+from kola.exception import KoiLangError
 from kola.lexer import StringLexer
 from kola.parser import Parser
 from kola.klvm import CommandSet, Environment, KoiLang, kola_command, kola_annotation, kola_env_enter, kola_env_exit, kola_text
@@ -54,7 +57,7 @@ class EnvTest(KoiLang):
 
 
 class KolaTest(KoiLang, command_threshold=2):
-    @kola_command
+    @kola_command(envs="+__init__")
     def version(self, __ver: int) -> int:
         return __ver
 
@@ -65,6 +68,15 @@ class KolaTest(KoiLang, command_threshold=2):
     @kola_annotation
     def annotation(self, string: str) -> str:
         return f"annotation: {string}"
+    
+    def at_start(self) -> None:
+        self.errors = []
+        return super().at_start()
+
+    def on_exception(self, exc_type: Type[KoiLangError], exc_ins: KoiLangError, traceback: TracebackType) -> bool:
+        self.errors.append(exc_ins.__cause__)
+        super().on_exception(exc_type, exc_ins, traceback)
+        return True
             
 
 class TestKoiLang(TestCase):
@@ -114,6 +126,7 @@ class TestKoiLang(TestCase):
 
         # This is a text
         This is a text, too
+        ##error "Raise an error"
         ### This is an annotation
         """
         vmobj = KolaTest()
@@ -121,6 +134,7 @@ class TestKoiLang(TestCase):
             list(vmobj.parse(string, with_ret=True)),
             [200, "text: # This is a text", "text: This is a text, too", "annotation: ### This is an annotation"]
         )
+        self.assertEqual(vmobj.errors, [None])
     
     def test_writer(self) -> None:
         writer = KolaTest.writer

@@ -160,7 +160,7 @@ import os
 from kola import KoiLang, kola_command, kola_text
 
 
-class MultiFileManager(KoiLang):
+class FastFile(KoiLang):
     @kola_command
     def file(self, path: str, encoding: str = "utf-8") -> None:
         if self._file:
@@ -210,7 +210,7 @@ python -m kola makefiles.kola -s script.py
 Or add these directly at the end of the script:
 ```py
 if __name__ = "__main__":
-    MultiFileManager().parse_file("makefiles.kola")
+    FastFile().parse_file("makefiles.kola")
 ```
 
 You will see new files in your work dir.
@@ -228,7 +228,7 @@ You will see new files in your work dir.
 It seems amusing? Well, if you make a python script as this:
 
 ```py
-vmobj = MultiFileManager()
+vmobj = FastFile()
 
 with vmobj.exec_block():
     vmobj.file("hello.txt", encoding="utf-8")
@@ -249,7 +249,7 @@ the same result will be get. This is the python script corresponding to the prev
 
 So let's go back to the script. Here the first we need is a kola command set that is the top interface for parsing. All commands we want to use will be included in the set. The best way is create a subclass of `KoiLang` with all commands as methods. That is:
 ```py
-class MultiFileManager(KoiLang):
+class FastFile(KoiLang):
     ...
 ```
 The next step is making the kola command we need. So a function is defined here:
@@ -284,7 +284,7 @@ You may have notice that there is a special decorator `@kola_text`. As we know, 
 In above example, we define two commands to create and leave the space. While, if users use `#endspace` before creating space, this can cause some problems. To correct user behavior, we can use the environment to restrict the use of some commands. `Environment` class should be used here to define a sub class that is the new environment:
 
 ```py
-class MultiFileManager(KoiLang):
+class FastFile(KoiLang):
     ...
 
     class space(Environment):

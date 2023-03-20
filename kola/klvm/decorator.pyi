@@ -14,7 +14,8 @@ def kola_command(
     *,
     method: Literal["static", "class", "default"] = ...,
     envs: Union[Iterable[str], str] = ...,
-    alias: Union[Iterable[str], str] = ...
+    alias: Union[Iterable[str], str] = ...,
+    **kwds: Any
 ) -> Callable[[Callable[..., Any]], Command]: ...
 @overload
 def kola_text(func: Callable[..., Any], **kwds: Any) -> Command: ...
@@ -23,7 +24,8 @@ def kola_text(
     *,
     method: Literal["static", "class", "default"] = ...,
     envs: Union[Iterable[str], str] = ...,
-    alias: Union[Iterable[str], str] = ...
+    alias: Union[Iterable[str], str] = ...,
+    **kwds: Any
 ) -> Callable[[Callable[..., Any]], Command]: ...
 @overload
 def kola_number(func: Callable[..., Any], **kwds: Any) -> Command: ...
@@ -32,7 +34,8 @@ def kola_number(
     *,
     method: Literal["static", "class", "default"] = ...,
     envs: Union[Iterable[str], str] = ...,
-    alias: Union[Iterable[str], str] = ...
+    alias: Union[Iterable[str], str] = ...,
+    **kwds: Any
 ) -> Callable[[Callable[..., Any]], Command]: ...
 @overload
 def kola_annotation(func: Callable[..., Any], **kwds: Any) -> Command: ...
@@ -41,7 +44,8 @@ def kola_annotation(
     *,
     method: Literal["static", "class", "default"] = ...,
     envs: Union[Iterable[str], str] = ...,
-    alias: Union[Iterable[str], str] = ...
+    alias: Union[Iterable[str], str] = ...,
+    **kwds: Any
 ) -> Callable[[Callable[..., Any]], Command]: ...
 @overload
 def kola_env_enter(func: Callable[..., Any], **kwds: Any) -> EnvironmentEntry: ...
@@ -51,7 +55,8 @@ def kola_env_enter(
     *,
     method: Literal["static", "class", "default"] = ...,
     envs: Union[Iterable[str], str] = ...,
-    alias: Union[Iterable[str], str] = ...
+    alias: Union[Iterable[str], str] = ...,
+    **kwds: Any
 ) -> Callable[[Callable[..., Any]], EnvironmentEntry]: ...
 @overload
 def kola_env_exit(func: Callable[..., Any], **kwds: Any) -> EnvironmentExit: ...
@@ -61,7 +66,8 @@ def kola_env_exit(
     *,
     method: Literal["static", "class", "default"] = ...,
     envs: Union[Iterable[str], str] = ...,
-    alias: Union[Iterable[str], str] = ...
+    alias: Union[Iterable[str], str] = ...,
+    **kwds: Any
 ) -> Callable[[Callable[..., Any]], EnvironmentExit]: ...
 @overload
 def kola_command_set(kola_cls: Type, **kwds: Any) -> Type[CommandSet]: ...

@@ -4031,7 +4031,7 @@ static void __pyx_f_4kola_6parser_6Parser_set_error(struct __pyx_obj_4kola_6pars
  *             if errorno == 16:
  *                 errorno = (self.stat << 4) + cur.syn             # <<<<<<<<<<<<<<
  *             text = <const char*>cur.raw_val
- *         while recovery and not self.t_cache is None and not CMD <= self.t_cache.syn <= TEXT:
+ *         while recovery and not self.t_cache is None and self.t_cache.get_flag() != 0:
  */
       __pyx_v_errorno = ((__pyx_v_self->stat << 4) + __pyx_v_cur->syn);
 
@@ -4048,7 +4048,7 @@ static void __pyx_f_4kola_6parser_6Parser_set_error(struct __pyx_obj_4kola_6pars
  *             if errorno == 16:
  *                 errorno = (self.stat << 4) + cur.syn
  *             text = <const char*>cur.raw_val             # <<<<<<<<<<<<<<
- *         while recovery and not self.t_cache is None and not CMD <= self.t_cache.syn <= TEXT:
+ *         while recovery and not self.t_cache is None and self.t_cache.get_flag() != 0:
  *             self.t_cache = self.lexer.next_token()
  */
     if (unlikely(__pyx_v_cur->raw_val == Py_None)) {
@@ -4070,7 +4070,7 @@ static void __pyx_f_4kola_6parser_6Parser_set_error(struct __pyx_obj_4kola_6pars
   /* "kola/parser.pyx":42
  *                 errorno = (self.stat << 4) + cur.syn
  *             text = <const char*>cur.raw_val
- *         while recovery and not self.t_cache is None and not CMD <= self.t_cache.syn <= TEXT:             # <<<<<<<<<<<<<<
+ *         while recovery and not self.t_cache is None and self.t_cache.get_flag() != 0:             # <<<<<<<<<<<<<<
  *             self.t_cache = self.lexer.next_token()
  *         kola_set_error(KoiLangSyntaxError, errorno,
  */
@@ -4088,18 +4088,14 @@ static void __pyx_f_4kola_6parser_6Parser_set_error(struct __pyx_obj_4kola_6pars
       __pyx_t_3 = __pyx_t_6;
       goto __pyx_L7_bool_binop_done;
     }
-    __pyx_t_6 = (CMD <= __pyx_v_self->t_cache->syn);
-    if (__pyx_t_6) {
-      __pyx_t_6 = (__pyx_v_self->t_cache->syn <= TEXT);
-    }
-    __pyx_t_2 = ((!(__pyx_t_6 != 0)) != 0);
-    __pyx_t_3 = __pyx_t_2;
+    __pyx_t_6 = ((((struct __pyx_vtabstruct_4kola_5lexer_Token *)__pyx_v_self->t_cache->__pyx_vtab)->get_flag(__pyx_v_self->t_cache, 0) != 0) != 0);
+    __pyx_t_3 = __pyx_t_6;
     __pyx_L7_bool_binop_done:;
     if (!__pyx_t_3) break;
 
     /* "kola/parser.pyx":43
  *             text = <const char*>cur.raw_val
- *         while recovery and not self.t_cache is None and not CMD <= self.t_cache.syn <= TEXT:
+ *         while recovery and not self.t_cache is None and self.t_cache.get_flag() != 0:
  *             self.t_cache = self.lexer.next_token()             # <<<<<<<<<<<<<<
  *         kola_set_error(KoiLangSyntaxError, errorno,
  *             self.lexer._filename, lineno, text)
@@ -4114,7 +4110,7 @@ static void __pyx_f_4kola_6parser_6Parser_set_error(struct __pyx_obj_4kola_6pars
   }
 
   /* "kola/parser.pyx":44
- *         while recovery and not self.t_cache is None and not CMD <= self.t_cache.syn <= TEXT:
+ *         while recovery and not self.t_cache is None and self.t_cache.get_flag() != 0:
  *             self.t_cache = self.lexer.next_token()
  *         kola_set_error(KoiLangSyntaxError, errorno,             # <<<<<<<<<<<<<<
  *             self.lexer._filename, lineno, text)

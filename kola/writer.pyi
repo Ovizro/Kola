@@ -1,5 +1,6 @@
 import os
-from typing import Any, Dict, Final, List, Union
+from types import TracebackType
+from typing import Any, Dict, Final, List, Type, Union
 from typing_extensions import Protocol, runtime_checkable, Self
 
 
@@ -55,7 +56,7 @@ class BaseWriter(object):
     @property
     def closed(self) -> bool: ...
     def __enter__(self) -> Self: ...
-    def __exit__(self, exc_type, exc_inc, traceback) -> None: ...
+    def __exit__(self, exc_type: Type[BaseException], exc_ins: Exception, traceback: TracebackType) -> None: ...
 
 
 class FileWriter(BaseWriter):
