@@ -329,7 +329,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             cache = self.pop_start()
             self.pop_end(cache)
     
-    def on_exception(self, exc_type: Type[KoiLangError], exc_ins: KoiLangError, traceback: TracebackType) -> None:
+    def on_exception(self, exc_type: Type[BaseException], exc_ins: BaseException, traceback: TracebackType) -> None:
         """
         exception handling command
 

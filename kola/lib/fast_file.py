@@ -2,8 +2,8 @@ import os
 from typing import Optional, Union
 from typing_extensions import Literal
 
-from ..klvm.commandset import CommandSet
-from ..klvm import Environment, KoiLang, kola_command, kola_text, kola_env_enter, kola_env_exit
+from kola.klvm.commandset import CommandSet
+from kola.klvm import Environment, KoiLang, kola_command, kola_text, kola_env_enter, kola_env_exit
 
 
 class FastFile(KoiLang):

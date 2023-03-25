@@ -1246,7 +1246,7 @@ struct __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t;
 typedef struct __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t;
 
 /* "kola/lexer.pxd":55
- *     cdef void set_error(self) except *
+ *     cdef void set_error(self, const char* text) except *
  *     cdef void ensure(self)
  *     cdef (int, const char*, Py_ssize_t) next_syn(self)             # <<<<<<<<<<<<<<
  *     cdef Token next_token(self)
@@ -1348,7 +1348,7 @@ static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_To
 
 struct __pyx_vtabstruct_4kola_5lexer_BaseLexer {
   void (*close)(struct __pyx_obj_4kola_5lexer_BaseLexer *, int __pyx_skip_dispatch);
-  void (*set_error)(struct __pyx_obj_4kola_5lexer_BaseLexer *);
+  void (*set_error)(struct __pyx_obj_4kola_5lexer_BaseLexer *, char const *);
   void (*ensure)(struct __pyx_obj_4kola_5lexer_BaseLexer *);
   __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t (*next_syn)(struct __pyx_obj_4kola_5lexer_BaseLexer *);
   struct __pyx_obj_4kola_5lexer_Token *(*next_token)(struct __pyx_obj_4kola_5lexer_BaseLexer *);
@@ -2025,7 +2025,7 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 /* #### Code section: module_declarations ### */
 static int __pyx_f_4kola_5lexer_5Token_get_flag(struct __pyx_obj_4kola_5lexer_Token *__pyx_v_self, CYTHON_UNUSED int __pyx_skip_dispatch); /* proto*/
 static void __pyx_f_4kola_5lexer_9BaseLexer_close(struct __pyx_obj_4kola_5lexer_BaseLexer *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
-static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5lexer_BaseLexer *__pyx_v_self); /* proto*/
+static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5lexer_BaseLexer *__pyx_v_self, char const *__pyx_v_text); /* proto*/
 static void __pyx_f_4kola_5lexer_9BaseLexer_ensure(struct __pyx_obj_4kola_5lexer_BaseLexer *__pyx_v_self); /* proto*/
 static __pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t __pyx_f_4kola_5lexer_9BaseLexer_next_syn(struct __pyx_obj_4kola_5lexer_BaseLexer *__pyx_v_self); /* proto*/
 static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next_token(struct __pyx_obj_4kola_5lexer_BaseLexer *__pyx_v_self); /* proto*/
@@ -4410,7 +4410,7 @@ static void __pyx_f_4kola_5lexer_9BaseLexer_close(struct __pyx_obj_4kola_5lexer_
  *         yy_delete_buffer(self.buffer)
  *         self.buffer = NULL             # <<<<<<<<<<<<<<
  * 
- *     cdef void set_error(self) except *:
+ *     cdef void set_error(self, const char* text) except *:
  */
   __pyx_v_self->buffer = NULL;
 
@@ -4496,12 +4496,12 @@ static PyObject *__pyx_pf_4kola_5lexer_9BaseLexer_6close(struct __pyx_obj_4kola_
 /* "kola/lexer.pyx":101
  *         self.buffer = NULL
  * 
- *     cdef void set_error(self) except *:             # <<<<<<<<<<<<<<
+ *     cdef void set_error(self, const char* text) except *:             # <<<<<<<<<<<<<<
  *         cdef int errno = 1
  * 
  */
 
-static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5lexer_BaseLexer *__pyx_v_self) {
+static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5lexer_BaseLexer *__pyx_v_self, char const *__pyx_v_text) {
   int __pyx_v_errno;
   int __pyx_v_c;
   int __pyx_v_lineno;
@@ -4517,7 +4517,7 @@ static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5le
 
   /* "kola/lexer.pyx":102
  * 
- *     cdef void set_error(self) except *:
+ *     cdef void set_error(self, const char* text) except *:
  *         cdef int errno = 1             # <<<<<<<<<<<<<<
  * 
  *         # correct lineno and set error
@@ -4527,26 +4527,26 @@ static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5le
   /* "kola/lexer.pyx":105
  * 
  *         # correct lineno and set error
- *         cdef bint c = strchr(yytext, ord('\n')) != NULL             # <<<<<<<<<<<<<<
+ *         cdef bint c = strchr(text, ord('\n')) != NULL             # <<<<<<<<<<<<<<
  *         cdef int lineno = self.lineno
- *         if c or yytext[0] == 0:
+ *         if c or text[0] == 0:
  */
-  __pyx_v_c = (strchr(yytext, 10) != NULL);
+  __pyx_v_c = (strchr(__pyx_v_text, 10) != NULL);
 
   /* "kola/lexer.pyx":106
  *         # correct lineno and set error
- *         cdef bint c = strchr(yytext, ord('\n')) != NULL
+ *         cdef bint c = strchr(text, ord('\n')) != NULL
  *         cdef int lineno = self.lineno             # <<<<<<<<<<<<<<
- *         if c or yytext[0] == 0:
+ *         if c or text[0] == 0:
  *             lineno -= c
  */
   __pyx_t_1 = __pyx_v_self->lineno;
   __pyx_v_lineno = __pyx_t_1;
 
   /* "kola/lexer.pyx":107
- *         cdef bint c = strchr(yytext, ord('\n')) != NULL
+ *         cdef bint c = strchr(text, ord('\n')) != NULL
  *         cdef int lineno = self.lineno
- *         if c or yytext[0] == 0:             # <<<<<<<<<<<<<<
+ *         if c or text[0] == 0:             # <<<<<<<<<<<<<<
  *             lineno -= c
  *             errno = 10
  */
@@ -4556,33 +4556,33 @@ static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5le
     __pyx_t_2 = __pyx_t_3;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_3 = (((yytext[0]) == 0) != 0);
+  __pyx_t_3 = (((__pyx_v_text[0]) == 0) != 0);
   __pyx_t_2 = __pyx_t_3;
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_2) {
 
     /* "kola/lexer.pyx":108
  *         cdef int lineno = self.lineno
- *         if c or yytext[0] == 0:
+ *         if c or text[0] == 0:
  *             lineno -= c             # <<<<<<<<<<<<<<
  *             errno = 10
- *         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, yytext)
+ *         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, text)
  */
     __pyx_v_lineno = (__pyx_v_lineno - __pyx_v_c);
 
     /* "kola/lexer.pyx":109
- *         if c or yytext[0] == 0:
+ *         if c or text[0] == 0:
  *             lineno -= c
  *             errno = 10             # <<<<<<<<<<<<<<
- *         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, yytext)
+ *         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, text)
  * 
  */
     __pyx_v_errno = 10;
 
     /* "kola/lexer.pyx":107
- *         cdef bint c = strchr(yytext, ord('\n')) != NULL
+ *         cdef bint c = strchr(text, ord('\n')) != NULL
  *         cdef int lineno = self.lineno
- *         if c or yytext[0] == 0:             # <<<<<<<<<<<<<<
+ *         if c or text[0] == 0:             # <<<<<<<<<<<<<<
  *             lineno -= c
  *             errno = 10
  */
@@ -4591,19 +4591,19 @@ static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5le
   /* "kola/lexer.pyx":110
  *             lineno -= c
  *             errno = 10
- *         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, yytext)             # <<<<<<<<<<<<<<
+ *         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, text)             # <<<<<<<<<<<<<<
  * 
  *     cdef void ensure(self):
  */
   __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_KoiLangSyntaxError); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  kola_set_error(__pyx_t_4, __pyx_v_errno, __pyx_v_self->_filename, __pyx_v_lineno, yytext); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 110, __pyx_L1_error)
+  kola_set_error(__pyx_t_4, __pyx_v_errno, __pyx_v_self->_filename, __pyx_v_lineno, __pyx_v_text); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 110, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /* "kola/lexer.pyx":101
  *         self.buffer = NULL
  * 
- *     cdef void set_error(self) except *:             # <<<<<<<<<<<<<<
+ *     cdef void set_error(self, const char* text) except *:             # <<<<<<<<<<<<<<
  *         cdef int errno = 1
  * 
  */
@@ -4618,7 +4618,7 @@ static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5le
 }
 
 /* "kola/lexer.pyx":112
- *         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, yytext)
+ *         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, text)
  * 
  *     cdef void ensure(self):             # <<<<<<<<<<<<<<
  *         """
@@ -4659,7 +4659,7 @@ static void __pyx_f_4kola_5lexer_9BaseLexer_ensure(struct __pyx_obj_4kola_5lexer
   set_stat(__pyx_v_self->stat);
 
   /* "kola/lexer.pyx":112
- *         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, yytext)
+ *         kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, text)
  * 
  *     cdef void ensure(self):             # <<<<<<<<<<<<<<
  *         """
@@ -5163,7 +5163,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
  *             except Exception as e:
  *                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)             # <<<<<<<<<<<<<<
  *         elif syn == 0:
- *             self.set_error()
+ *             self.set_error(text)
  */
           __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_n_s_KoiLangSyntaxError); if (unlikely(!__pyx_t_14)) __PYX_ERR(1, 162, __pyx_L16_error)
           __Pyx_GOTREF(__pyx_t_14);
@@ -5258,24 +5258,24 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
     /* "kola/lexer.pyx":164
  *                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
  *         elif syn == 0:
- *             self.set_error()             # <<<<<<<<<<<<<<
+ *             self.set_error(text)             # <<<<<<<<<<<<<<
  *         elif syn == EOF:
  *             return None
  */
-    ((struct __pyx_vtabstruct_4kola_5lexer_BaseLexer *)__pyx_v_self->__pyx_vtab)->set_error(__pyx_v_self); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 164, __pyx_L1_error)
+    ((struct __pyx_vtabstruct_4kola_5lexer_BaseLexer *)__pyx_v_self->__pyx_vtab)->set_error(__pyx_v_self, __pyx_v_text); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 164, __pyx_L1_error)
 
     /* "kola/lexer.pyx":163
  *             except Exception as e:
  *                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
  *         elif syn == 0:             # <<<<<<<<<<<<<<
- *             self.set_error()
+ *             self.set_error(text)
  *         elif syn == EOF:
  */
     break;
     case EOF:
 
     /* "kola/lexer.pyx":166
- *             self.set_error()
+ *             self.set_error(text)
  *         elif syn == EOF:
  *             return None             # <<<<<<<<<<<<<<
  *         return Token(
@@ -5287,7 +5287,7 @@ static struct __pyx_obj_4kola_5lexer_Token *__pyx_f_4kola_5lexer_9BaseLexer_next
 
     /* "kola/lexer.pyx":165
  *         elif syn == 0:
- *             self.set_error()
+ *             self.set_error(text)
  *         elif syn == EOF:             # <<<<<<<<<<<<<<
  *             return None
  *         return Token(
@@ -8877,7 +8877,7 @@ static int __Pyx_modinit_type_init_code(void) {
   #endif
   __pyx_vtabptr_4kola_5lexer_BaseLexer = &__pyx_vtable_4kola_5lexer_BaseLexer;
   __pyx_vtable_4kola_5lexer_BaseLexer.close = (void (*)(struct __pyx_obj_4kola_5lexer_BaseLexer *, int __pyx_skip_dispatch))__pyx_f_4kola_5lexer_9BaseLexer_close;
-  __pyx_vtable_4kola_5lexer_BaseLexer.set_error = (void (*)(struct __pyx_obj_4kola_5lexer_BaseLexer *))__pyx_f_4kola_5lexer_9BaseLexer_set_error;
+  __pyx_vtable_4kola_5lexer_BaseLexer.set_error = (void (*)(struct __pyx_obj_4kola_5lexer_BaseLexer *, char const *))__pyx_f_4kola_5lexer_9BaseLexer_set_error;
   __pyx_vtable_4kola_5lexer_BaseLexer.ensure = (void (*)(struct __pyx_obj_4kola_5lexer_BaseLexer *))__pyx_f_4kola_5lexer_9BaseLexer_ensure;
   __pyx_vtable_4kola_5lexer_BaseLexer.next_syn = (__pyx_ctuple_int__and_char__space_const__ptr__and_Py_ssize_t (*)(struct __pyx_obj_4kola_5lexer_BaseLexer *))__pyx_f_4kola_5lexer_9BaseLexer_next_syn;
   __pyx_vtable_4kola_5lexer_BaseLexer.next_token = (struct __pyx_obj_4kola_5lexer_Token *(*)(struct __pyx_obj_4kola_5lexer_BaseLexer *))__pyx_f_4kola_5lexer_9BaseLexer_next_token;

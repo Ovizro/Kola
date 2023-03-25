@@ -2,7 +2,6 @@ from types import TracebackType
 from typing import Type
 from unittest import TestCase
 
-from kola.exception import KoiLangError
 from kola.lexer import StringLexer
 from kola.parser import Parser
 from kola.klvm import CommandSet, Environment, KoiLang, kola_command, kola_annotation, kola_env_enter, kola_env_exit, kola_text
@@ -73,7 +72,7 @@ class KolaTest(KoiLang, command_threshold=2):
         self.errors = []
         return super().at_start()
 
-    def on_exception(self, exc_type: Type[KoiLangError], exc_ins: KoiLangError, traceback: TracebackType) -> bool:
+    def on_exception(self, exc_type: Type[BaseException], exc_ins: BaseException, traceback: TracebackType) -> bool:
         self.errors.append(exc_ins.__cause__)
         super().on_exception(exc_type, exc_ins, traceback)
         return True

@@ -17,6 +17,7 @@ cdef class Parser:
 
     cpdef void push(self, Token n)
     cpdef Token pop(self)
+    cdef void recovery(self)
     cdef void set_error(self, int errorno = *, bint recovery = *) except *
     cpdef tuple parse_args(self)
     cpdef object exec_once(self)

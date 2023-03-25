@@ -58,6 +58,38 @@ class TestParser(TestCase):
             ["KoiLang 其他字段", "I am glad to meet you."]
         )
     
+    def test_recovery_syntax(self) -> None:
+        lexer = StringLexer(
+            """
+            #err error.syntax
+            #normal
+            """
+        )
+        parser = Parser(lexer, cmd_test)
+        with self.assertRaises(KoiLangSyntaxError):
+            parser.exec()
+        
+        self.assertEqual(
+            [i[0] for i in parser],
+            ["normal"]
+        )
+        
+    def test_recovery_syntax1(self) -> None:
+        lexer = StringLexer(
+            """
+            #-err ## Content after that will be ignored
+            #normal
+            """
+        )
+        parser = Parser(lexer, cmd_test)
+        with self.assertRaises(KoiLangSyntaxError):
+            parser.exec()
+        
+        self.assertEqual(
+            [i[0] for i in parser],
+            ["normal"]
+        )
+    
     def test_err(self) -> None:
         lexer = StringLexer(
             """

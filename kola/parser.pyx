@@ -1,3 +1,5 @@
+from cpython cimport PyErr_Format
+
 from typing import TypeVar
 from typing_extensions import Protocol
 
@@ -16,7 +18,7 @@ cdef class Parser:
     def __init__(self, BaseLexer lexer not None, command_set not None):
         self.lexer = lexer
         self.command_set = command_set
-        self.t_cache = lexer.next_token()
+        self.recovery()
     
     cpdef void push(self, Token n):
         n.next = self.stack_top
@@ -29,6 +31,16 @@ cdef class Parser:
         self.stack_top = n.next
         return n
     
+    cdef void recovery(self):
+        while True:
+            try:
+                self.t_cache = self.lexer.next_token()
+            except KoiLangSyntaxError:
+                continue
+            if self.t_cache is None or self.t_cache.get_flag() == 0:
+                break
+        self.stack_top = None
+    
     cdef void set_error(self, int errorno = 16, bint recovery = True) except *:
         cdef:
             int lineno = 1
@@ -39,8 +51,8 @@ cdef class Parser:
             if errorno == 16:
                 errorno = (self.stat << 4) + cur.syn
             text = <const char*>cur.raw_val
-        while recovery and not self.t_cache is None and self.t_cache.get_flag() != 0:
-            self.t_cache = self.lexer.next_token()
+        if recovery:
+            self.recovery()
         kola_set_error(KoiLangSyntaxError, errorno,
             self.lexer._filename, lineno, text)
     
@@ -55,7 +67,12 @@ cdef class Parser:
 
         while True:
             self.stat = stat
-            i = self.lexer.next_token()
+            try:
+                i = self.lexer.next_token()
+            except KoiLangSyntaxError:
+                # recovery from syntax error
+                self.recovery()
+                raise
             if i is None:
                 stat = yy_goto[0][stat-1]
             else:
@@ -102,7 +119,6 @@ cdef class Parser:
                 
         if not self.stack_top is None:
             self.t_cache = self.stack_top
-            self.stack_top = None
             self.set_error(16, False)
 
         self.t_cache = i
@@ -134,6 +150,8 @@ cdef class Parser:
         elif token.syn == ANNOTATION:
             name = "@annotation"
             args = (token.val,)
+        else:
+            PyErr_Format(RuntimeError, "illegal token %S", <void*>token)
 
         try:
             cmd = self.command_set[name]

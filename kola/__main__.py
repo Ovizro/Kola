@@ -16,33 +16,13 @@ limitations under the License.
 import sys
 from argparse import ArgumentParser
 from traceback import print_exc
-from typing import Callable, Type
 
 from .lexer import BaseLexer, FileLexer, StringLexer
-from .klvm import KoiLang
 from .exception import KoiLangError
-from .lib.default_runner import KoiLangRunner
+from .lib import load_library, main_class_from_module
+from .lib.debugger import KoiLangRunner, CommandDebugger
 
 from . import __version__
-
-
-def _load_script(path: str, encoding: str = "utf-8") -> Type[KoiLang]:
-    vdict = {}
-    with open(path, encoding=encoding) as f:
-        exec(
-            compile(f.read(), path, "exec"),
-            vdict
-        )
-    for i in vdict.values():
-        if isinstance(i, type) and issubclass(i, KoiLang) and i is not KoiLang:
-            return i
-    else:
-        raise TypeError("no KoiLang command set found")
-
-
-class _CommandDebugger(KoiLang):
-    def __getitem__(self, key: str) -> Callable[..., None]:
-        return lambda *args, **kwds: print(f"cmd: {key} with args {args} kwds {kwds}")
 
 
 def _read_stdin() -> str:
@@ -93,23 +73,17 @@ if __name__ == "__main__":
                 print_exc()
     else:
         if namespace.debug == "command":
-            command_cls = _CommandDebugger
+            command_cls = CommandDebugger
             runner_type = "Command Debugger"
         elif namespace.script:
-            command_cls = _load_script(namespace.script)
+            command_cls = main_class_from_module(load_library(namespace.script))
         else:
             command_cls = KoiLangRunner
 
-        command_set = command_cls()
-        with command_set.exec_block():
+        with command_cls().exec_block() as command_set:
             if lexer:
                 command_set.parse(lexer)
             else:
                 print(f"KoiLang {runner_type} {__version__} on Python {sys.version}")
                 while True:
-                    try:
-                        command_set.parse(_read_stdin())
-                    except KeyboardInterrupt:
-                        break
-                    except KoiLangError:
-                        print_exc()
+                    command_set.parse(_read_stdin())

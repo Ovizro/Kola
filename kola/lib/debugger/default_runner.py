@@ -17,16 +17,14 @@ limitations under the License.
 import os
 import re
 import sys
-from importlib import import_module
-from typing import Any, Dict, Optional, TypeVar, Union
+from types import ModuleType
+from typing import Any, Dict, List, Optional, TypeVar, Union
 from typing_extensions import Literal
 
-from ..klvm.environment import Environment
-
-from .. import __version__
-from ..exception import KoiLangCommandError
-from ..klvm import KoiLang, kola_command, kola_text
-from . import KOLA_LIB_PATH
+from kola.exception import KoiLangCommandError
+from kola.klvm import Environment, kola_command, kola_text
+from kola.lib import KOLA_LIB_PATH, KolaSpec, collect_all, load_library, main_class_from_module
+from kola.lib.debugger.base import BaseDebugger
 
 
 T = TypeVar("T")
@@ -35,7 +33,7 @@ T = TypeVar("T")
 FLAG_DEBUG = 1
 
 
-class KoiLangRunner(KoiLang):
+class KoiLangRunner(BaseDebugger):
     """
     default class for KoiLang module runner
     """
@@ -46,14 +44,6 @@ class KoiLangRunner(KoiLang):
         super().__init__()
         self.flag = 0
 
-    @kola_command
-    def version(self, __chk_ver: Optional[int] = None) -> None:
-        if __chk_ver is None:
-            print(__version__)
-        elif __chk_ver != 100:
-            print(f"version {__chk_ver} is not support by runner {__version__}")
-            sys.exit(2)
-    
     @kola_command
     def license(self) -> None:
         print(__doc__)
@@ -76,6 +66,11 @@ class KoiLangRunner(KoiLang):
     def echo(self, *text: str) -> None:
         print(' '.join(text))
     
+    @kola_command
+    def execute(self, source: str) -> None:
+        code = compile(source, "<kola_runner>", "single")
+        exec(code, {"kola_runner": self, "__vars__": self.vars})
+    
     @kola_command(alias="export")
     def set(self, **kwds) -> None:
         self.vars.update(kwds)
@@ -86,17 +81,22 @@ class KoiLangRunner(KoiLang):
         
     @kola_text
     def text(self, text: str) -> None:
-        print(f"::{text}")
+        print(f"## [TEXT] {text}")
     
     @kola_command
-    def load(self, path: Union[str, bytes, os.PathLike], type: str = "kola", **kwds: Any) -> None:
-        type = type.lower()
+    def load(self, path: Union[str, bytes, os.PathLike], type: Optional[str] = None, **kwds: Any) -> None:
+        path = os.fsdecode(path)
+        if type is None:
+            if path.endswith(".kola"):
+                type = "kola"
+            else:
+                type = "script"
+        else:
+            type = type.lower()
         if type == "kola":
             self.load_kola(path, **kwds)
-        elif type == "script":
+        elif type in ["script", "lib"]:
             self.load_script(path, **kwds)
-        elif type in {"lib", "library"}:
-            self.load_lib(path, **kwds)
         else:
             raise ValueError(f"invalid type name '{type}'")
     
@@ -104,27 +104,10 @@ class KoiLangRunner(KoiLang):
     def load_kola(self, path: Union[str, bytes, os.PathLike], *, encoding: str = "utf-8", **kwds) -> None:
         self.parse_file(path, encoding=encoding, **kwds)
     
-    @kola_command
-    def load_script(self, path: Union[str, bytes, os.PathLike], *, encoding: str = "utf-8") -> None:
-        vdict = {}
-        with open(path, encoding=encoding) as f:
-            exec(
-                compile(f.read(), path, "exec"),
-                vdict
-            )
-        self.load_command_set(vdict)
-    
-    @kola_command(alias="load_library")
-    def load_lib(self, name: str, *, encoding: str = "utf-8") -> None:
-        try:
-            module = import_module(f"kola.lib.{name}", "kola.lib")
-            self.load_command_set(module.__dict__)
-            return
-        except ImportError:
-            pass
-        self.load_script(
-            os.path.join(KOLA_LIB_PATH, f"{name}.py"), encoding=encoding
-        )
+    @kola_command(alias=["load_lib", "load_library"])
+    def load_script(self, name: str, lib_path: Optional[List[str]] = None) -> None:
+        kola_module = load_library(name, bases=lib_path or KOLA_LIB_PATH)
+        self.load_command_set(kola_module)
     
     def at_start(self) -> None:
         self.vars = {}
@@ -154,18 +137,14 @@ class KoiLangRunner(KoiLang):
         else:
             return self.vars.get(key, None)
     
-    def load_command_set(self, vdict: Dict[str, Any]) -> None:
-        for i in vdict.values():
-            if isinstance(i, type) and issubclass(i, KoiLang) and i is not KoiLang:
-                break
-        else:
-            raise TypeError("the KoiLang main class unfound")
+    def load_command_set(self, module: ModuleType) -> None:
+        cls = main_class_from_module(module)
         if self.flag & FLAG_DEBUG:
-            print(f"## [DEBUG] Load class: {i}")
-        self.loaded_class.add(i)
-        i.at_start(self)
+            print(f"## [DEBUG] Load class: {cls}")
+        self.loaded_class.add(cls)
+        cls.at_start(self)
         self.raw_command_set.update(
-            i.generate_raw_commands()
+            cls.generate_raw_commands()
         )
     
     def format_text(self, argument: T) -> T:
@@ -202,3 +181,10 @@ class KoiLangRunner(KoiLang):
         if self.flag & FLAG_DEBUG:
             print(f"## [DEBUG] Pop env: {__env_cache}")
         return super().pop_end(__env_cache)
+
+
+__kola_spec__ = KolaSpec(
+    "Kola Runner",
+    collect_all(),
+    main_class=KoiLangRunner
+)

@@ -98,16 +98,16 @@ cdef class BaseLexer(object):
         yy_delete_buffer(self.buffer)
         self.buffer = NULL
     
-    cdef void set_error(self) except *:
+    cdef void set_error(self, const char* text) except *:
         cdef int errno = 1
         
         # correct lineno and set error
-        cdef bint c = strchr(yytext, ord('\n')) != NULL
+        cdef bint c = strchr(text, ord('\n')) != NULL
         cdef int lineno = self.lineno
-        if c or yytext[0] == 0:
+        if c or text[0] == 0:
             lineno -= c
             errno = 10
-        kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, yytext)
+        kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, text)
     
     cdef void ensure(self):
         """
@@ -161,7 +161,7 @@ cdef class BaseLexer(object):
             except Exception as e:
                 kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
         elif syn == 0:
-            self.set_error()
+            self.set_error(text)
         elif syn == EOF:
             return None
         return Token(

@@ -50,7 +50,7 @@ cdef class BaseLexer:
         int command_threshold
 
     cpdef void close(self)
-    cdef void set_error(self) except *
+    cdef void set_error(self, const char* text) except *
     cdef void ensure(self)
     cdef (int, const char*, Py_ssize_t) next_syn(self)
     cdef Token next_token(self)
