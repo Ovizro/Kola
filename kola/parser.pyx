@@ -119,6 +119,7 @@ cdef class Parser:
                 
         if not self.stack_top is None:
             self.t_cache = self.stack_top
+            self.stack_top = None
             self.set_error(16, False)
 
         self.t_cache = i
