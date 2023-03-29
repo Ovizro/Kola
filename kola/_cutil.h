@@ -14,10 +14,23 @@
 extern "C" {
 #endif
 
-static enum TokenSyn {
+/* An opaque pointer. */
+#ifndef YY_TYPEDEF_YY_SCANNER_T
+#define YY_TYPEDEF_YY_SCANNER_T
+typedef void* yyscan_t;
+#endif
+
+typedef struct lexer_extra {
+    const char* filename;
+    uint8_t command_threshold;
+} LexerData;
+
+#define YY_EXTRA_TYPE LexerData*
+
+enum TokenSyn {
     CMD=1, CMD_N, TEXT, LITERAL, STRING, NUM, NUM_H,
     NUM_B, NUM_F, CLN, CMA, SLP, SRP, ANNOTATION
-} TokenSyn;
+};
 
 static const uint8_t yy_goto[7][8] = {
     {15,  63,  0,   0,   0,  0,   0, 0},     // CMD | CMD_N | TEXT
@@ -28,32 +41,6 @@ static const uint8_t yy_goto[7][8] = {
     {0,   3,   0,   0,   0,  0,   0, 0},     // SLP
     {0,   0,   65,  0,   81, 0,   81, 0}     // SRP
 };
-
-#ifndef FLEX_SCANNER
-struct yy_buffer_state;
-typedef struct yy_buffer_state* YY_BUFFER_STATE;
-extern int yylineno;
-extern int yyleng;
-extern char* yytext;
-
-int get_stat();
-void set_stat(int stat);
-
-int yylex();
-void yyrestart(FILE *input_file);
-
-void yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
-void yy_load_buffer_state();
-YY_BUFFER_STATE yy_create_buffer(FILE *file, int size);
-void yy_delete_buffer(YY_BUFFER_STATE b);
-void yy_init_buffer(YY_BUFFER_STATE b, FILE *file);
-void yy_flush_buffer(YY_BUFFER_STATE b);
-
-YY_BUFFER_STATE yy_scan_buffer(char *base, size_t size);
-YY_BUFFER_STATE yy_scan_string(const char *yy_str);
-YY_BUFFER_STATE yy_scan_bytes(const char *bytes, int len);
-#endif
-
 
 #ifdef Py_PYTHON_H
 

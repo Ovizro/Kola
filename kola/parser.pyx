@@ -54,7 +54,7 @@ cdef class Parser:
         if recovery:
             self.recovery()
         kola_set_error(KoiLangSyntaxError, errorno,
-            self.lexer._filename, lineno, text)
+            self.lexer.lexer_data.filename, lineno, text)
     
     cpdef tuple parse_args(self):
         cdef:
@@ -160,7 +160,7 @@ cdef class Parser:
             if token.syn == ANNOTATION:
                 return
             kola_set_errcause(KoiLangCommandError, 2, 
-                self.lexer._filename, token.lineno, token.raw_val, None)
+                self.lexer.lexer_data.filename, token.lineno, token.raw_val, None)
         
         try:
             return cmd(*args, **kwds)
@@ -169,10 +169,10 @@ cdef class Parser:
         except Exception as e:
             if token.syn != TEXT:
                 kola_set_errcause(KoiLangCommandError, 3, 
-                    self.lexer._filename, token.lineno, token.raw_val, e)
+                    self.lexer.lexer_data.filename, token.lineno, token.raw_val, e)
             else:
                 kola_set_errcause(KoiLangCommandError, 4, 
-                    self.lexer._filename, token.lineno, token.raw_val, e)
+                    self.lexer.lexer_data.filename, token.lineno, token.raw_val, e)
     
     cpdef void exec(self) except *:
         while not self.t_cache is None:
@@ -194,4 +194,4 @@ cdef class Parser:
         return cls
     
     def __repr__(self):
-        return PyUnicode_FromFormat("<kola parser in file \"%s\">", self.lexer._filename)
+        return PyUnicode_FromFormat("<kola parser in file \"%s\">", self.lexer.lexer_data.filename)

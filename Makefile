@@ -10,7 +10,6 @@ build_lexer: kola/lex.yy.c build
 
 kola/lex.yy.c: kola/kolalexer.l
 	flex kola/kolalexer.l
-	mv lex.yy.c kola/lex.yy.c -f -u
 
 build_cython:
 	USE_CYTHON=true python setup.py build_ext --inplace

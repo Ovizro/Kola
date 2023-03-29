@@ -1,8 +1,10 @@
-# distutils: sources = [kola/lex.yy.c, kola/unicode_handler.c]
+# distutils: sources = [kola/unicode_handler.c]
 cimport cython
+from libc.stdint cimport uint8_t
 from libc.string cimport strchr, strcmp
 from cpython cimport Py_DECREF, PyLong_FromString, PyFloat_FromString, PyUnicode_FromStringAndSize, \
-    PyBytes_FromStringAndSize, PyUnicode_Decode, PyErr_Format
+    PyBytes_FromStringAndSize, PyUnicode_Decode, PyErr_Format, PyErr_SetFromErrno
+from ._yylex cimport *
 
 from .exception import KoiLangSyntaxError
 
@@ -74,59 +76,42 @@ cdef class BaseLexer(object):
     KoiLang lexer reading from stdin
     """
 
-    def __cinit__(self, *args, uint8_t stat = 0, int command_threshold = 1, **kwds):
-        self.buffer = NULL
-        self.lineno = 1
+    def __cinit__(self, *args, **kwds):
         self.encoding = "utf-8"
-        if stat > 2:
-            raise ValueError("lexer state must be between 0 and 2")
-        self.stat = stat
-        self.command_threshold = command_threshold
+        if yylex_init_extra(&self.lexer_data, &self.scanner):
+            PyErr_SetFromErrno(RuntimeError)
     
-    def __init__(self, *, str encoding not None = "utf-8",
-                 stat = None, command_threshold = None):
-        if self.buffer:
-            yy_delete_buffer(self.buffer)
-        self._filename = "<stdin>"
-        self.buffer = yy_create_buffer(stdin, BUFFER_SIZE)
+    def __init__(self, *, str encoding not None = "utf-8", uint8_t command_threshold = 1):
+        yyrestart(stdin, self.scanner)
+        self.lexer_data.filename = "<stdin>"
+        self.lexer_data.command_threshold = command_threshold
         self.encoding = encoding
     
     def __dealloc__(self):
         self.close()
+        if self.scanner:
+            yylex_destroy(self.scanner)
     
     cpdef void close(self):
-        yy_delete_buffer(self.buffer)
-        self.buffer = NULL
+        yypop_buffer_state(self.scanner)
     
     cdef void set_error(self, const char* text) except *:
         cdef int errno = 1
         
         # correct lineno and set error
         cdef bint c = strchr(text, ord('\n')) != NULL
-        cdef int lineno = self.lineno
+        cdef int lineno = yyget_lineno(self.scanner)
         if c or text[0] == 0:
             lineno -= c
             errno = 10
-        kola_set_error(KoiLangSyntaxError, errno, self._filename, lineno, text)
-    
-    cdef void ensure(self):
-        """
-        synchronize buffer data in yylex
-        """
-        global yylineno
-        yy_switch_to_buffer(self.buffer)
-        yylineno = self.lineno
-        set_stat(self.stat)
+        kola_set_error(KoiLangSyntaxError, errno, self.lexer_data.filename, lineno, text)
     
     cdef (int, const char*, Py_ssize_t) next_syn(self):
-        self.ensure()
-        cdef int syn = yylex(self.command_threshold)
-        self.lineno = yylineno
-        self.stat = get_stat()
-        return syn, yytext, yyleng
+        cdef int syn = yylex(self.scanner)
+        return syn, yyget_text(self.scanner), yyget_leng(self.scanner)
     
     cdef Token next_token(self):
-        if self.buffer == NULL:
+        if not yylex_check(self.scanner):
             raise OSError("operation on closed lexer")
 
         cdef:
@@ -159,24 +144,36 @@ cdef class BaseLexer(object):
             try:
                 val = decode_escapes(text + 1, text_len - 2)
             except Exception as e:
-                kola_set_errcause(KoiLangSyntaxError, 5, self._filename, self.lineno, text, e)
+                kola_set_errcause(KoiLangSyntaxError, 5, self.lexer_data.filename, yyget_lineno(self.scanner), text, e)
         elif syn == 0:
             self.set_error(text)
         elif syn == EOF:
             return None
         return Token(
             syn, val,
-            lineno=self.lineno,
+            lineno=yyget_lineno(self.scanner),
             raw_val=PyBytes_FromStringAndSize(text, text_len)
         )
 
     @property
     def filename(self):
-        return self._filename.decode()
+        return self.lexer_data.filename.decode()
+    
+    @property
+    def lineno(self):
+        return yyget_lineno(self.scanner)
+    
+    @property
+    def column(self):
+        return yyget_column(self.scanner)
+    
+    @property
+    def command_threshold(self):
+        return self.lexer_data.command_threshold
     
     @property
     def closed(self):
-        return self.buffer == NULL
+        return not yylex_check(self.scanner)
     
     def __iter__(self):
         return self
@@ -187,11 +184,21 @@ cdef class BaseLexer(object):
             raise StopIteration
         return token
     
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        self.close()
+    
     def __repr__(self):
-        if self.buffer == NULL:
-            return PyUnicode_FromFormat("<kola lexer in file \"%s\" closed>", self._filename, self.lineno)
+        if not yylex_check(self.scanner):
+            return PyUnicode_FromFormat("<kola lexer in file \"%s\" closed>")
         else:
-            return PyUnicode_FromFormat("<kola lexer in file \"%s\" line %d>", self._filename, self.lineno)
+            return PyUnicode_FromFormat(
+                "<kola lexer in file \"%s\" line %d>",
+                self.lexer_data.filename,
+                yyget_lineno(self.scanner)
+            )
 
 
 cdef class FileLexer(BaseLexer):
@@ -199,25 +206,28 @@ cdef class FileLexer(BaseLexer):
     KoiLang lexer reading from file
     """
 
-    def __init__(self, __path not None, *,
-                 str encoding not None = "utf-8", stat = None, command_threshold = None):
-        if self.buffer:
-            self.close()
+    def __init__(
+        self, __path not None, *,
+        str encoding not None = "utf-8",
+        uint8_t command_threshold = 1
+    ):
+        if self.fp:
+            fclose(self.fp)
 
         self._filenameo = __path
         cdef PyObject* p_addr
         self.fp = kola_open(__path, &p_addr, 'r')
         p = <object>p_addr
         self._filenameb = <bytes>p if isinstance(p, bytes) else (<str>p).encode()
-        self._filename = self._filenameb
         Py_DECREF(p)
 
-        self.buffer = yy_create_buffer(self.fp, BUFFER_SIZE)
         self.encoding = encoding
+        yyrestart(self.fp, self.scanner)
+        self.lexer_data.filename = self._filenameb
+        self.lexer_data.command_threshold = command_threshold
     
     cpdef void close(self):
-        yy_delete_buffer(self.buffer)
-        self.buffer = NULL
+        BaseLexer.close(self)
         if self.fp:
             fclose(self.fp)
             self.fp = NULL
@@ -232,14 +242,20 @@ cdef class StringLexer(BaseLexer):
     KoiLang lexer reading from string provided
     """
 
-    def __init__(self, content not None, *,
-                 str encoding not None = "utf-8", stat = None, command_threshold = None):
-        if self.buffer:
-            yy_delete_buffer(self.buffer)
-        self._filename = "<string>"
+    def __init__(
+        self, content not None, *,
+        str encoding not None = "utf-8",
+        uint8_t command_threshold = 1
+    ):
+        if not self.content is None:
+            yypop_buffer_state(self.scanner)
+
         if isinstance(content, str):
             self.content = (<str>content).encode()
         else:
             self.content = content
-        self.buffer = yy_scan_bytes(self.content, len(self.content))
+
         self.encoding = encoding
+        yy_scan_bytes(self.content, len(self.content), self.scanner)
+        self.lexer_data.filename = "<string>"
+        self.lexer_data.command_threshold = command_threshold

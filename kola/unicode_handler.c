@@ -22,7 +22,7 @@ PyObject* decode_escapes(const char* s, Py_ssize_t len) {
     PyObject *v = NULL;
 
     /* check for integer overflow */
-    if (len > SIZE_MAX / 6) {
+    if ((uint64_t)len > SIZE_MAX / 6) {
         return NULL;
     }
     /* "ä" (2 bytes) may become "\U000000E4" (10 bytes), or 1:5

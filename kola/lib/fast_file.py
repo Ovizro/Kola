@@ -2,8 +2,8 @@ import os
 from typing import Optional, Union
 from typing_extensions import Literal
 
-from kola.klvm.commandset import CommandSet
-from kola.klvm import Environment, KoiLang, kola_command, kola_text, kola_env_enter, kola_env_exit
+from kola.klvm import CommandSet, Environment, KoiLang, kola_command, kola_text, kola_env_enter, kola_env_exit
+from kola.lib import _module_pattern
 
 
 class FastFile(KoiLang):
@@ -40,6 +40,8 @@ class FastFile(KoiLang):
             self.pwd = os.getcwd()
             if not path:
                 assert name
+                if not _module_pattern.match(name):
+                    raise ValueError(f"invalid space name {name}")
                 path = os.path.join(*name.split('.'))
             if not os.path.isdir(path):
                 os.makedirs(path)

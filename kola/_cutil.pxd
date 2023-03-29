@@ -72,6 +72,11 @@ cdef extern from "_cutil.h":
         SRP
         ANNOTATION
     const uint8_t yy_goto[7][8]
+    
+    ctypedef struct LexerData:
+        const char* filename
+        uint8_t command_threshold
+    ctypedef void* yyscan_t
 
     void kola_set_error(object exc_type, int errorno, const char* filename, int lineno, const char* text) except *
     void kola_set_errcause(object exc_type, int errorno, const char* filename, int lineno, const char* text, object cause) except *

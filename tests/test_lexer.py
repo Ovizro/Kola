@@ -6,8 +6,10 @@ from kola.lexer import StringLexer, FileLexer, S_CMD, S_LITERAL, S_ANNOTATION, S
 class TestLexer(TestCase):
     def test_init(self) -> None:
         lexer = FileLexer("examples/example0.kola")
+        self.assertFalse(lexer.closed)
         list(lexer)
         lexer.close()
+        self.assertTrue(lexer.closed)
 
         with self.assertRaises(OSError):
             next(lexer)

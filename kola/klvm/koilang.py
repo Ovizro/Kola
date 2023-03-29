@@ -201,50 +201,67 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         #         continue
         #     raise ValueError(f"unmatched environment name {n}")
     
-    def __parse(self, __lexer: BaseLexer) -> None:
+    def __parse(self, __lexer: BaseLexer, *, close_lexer: bool = True) -> None:
         parser = Parser(__lexer, self)
-        with self.exec_block():
-            while True:
-                try:
-                    # Parser.exec() is a fast C level loop.
-                    parser.exec()
-                except KoiLangError:
-                    if not self["@exception"](*sys.exc_info()):
-                        raise
-                else:
-                    break
+        try:
+            with self.exec_block():
+                while True:
+                    try:
+                        # Parser.exec() is a fast C level loop
+                        parser.exec()
+                    except KoiLangError:
+                        if not self["@exception"](*sys.exc_info()):
+                            raise
+                    else:
+                        break
+        finally:
+            if close_lexer:
+                __lexer.close()
     
-    def __parse_and_ret(self, __lexer: BaseLexer) -> Generator[Any, None, None]:
+    def __parse_and_ret(self, __lexer: BaseLexer, *, close_lexer: bool = True) -> Generator[Any, None, None]:
         parser = Parser(__lexer, self)
-        with self.exec_block():
-            while True:
-                try:
-                    yield from parser
-                except KoiLangError:
-                    if not self["@exception"](*sys.exc_info()):
-                        raise
-                else:
-                    break
+        try:
+            with self.exec_block():
+                while True:
+                    try:
+                        yield from parser
+                    except KoiLangError:
+                        if not self["@exception"](*sys.exc_info()):
+
+                            raise
+                    else:
+                        break
+        finally:
+            if close_lexer:
+                __lexer.close()
 
     @overload
-    def parse(self, lexer: Union[BaseLexer, str], *, with_ret: Literal[False] = False) -> None: ...
-    @overload
-    def parse(self, lexer: Union[BaseLexer, str], *, with_ret: Literal[True]) -> Generator[Any, None, None]: ...
+    def parse(self, lexer: Union[BaseLexer, str], *, with_ret: Literal[False] = False, close_lexer: bool = True) -> None: ...
+    @overload  # noqa: E301
+    def parse(
+        self,
+        lexer: Union[BaseLexer, str],
+        *,
+        with_ret: Literal[True],
+        close_lexer: bool = True
+    ) -> Generator[Any, None, None]: ...
     
-    def parse(self, lexer: Union[BaseLexer, str], *, with_ret: bool = False) -> Any:
+    def parse(self, lexer: Union[BaseLexer, str], *, with_ret: bool = False, close_lexer: bool = True) -> Any:
         """
         Parse kola text or lexer from other method.
         """
         if isinstance(lexer, str):
+            if not close_lexer:
+                raise ValueError("inner string lexer must be closed at the end of parsing")
             lexer = StringLexer(
                 lexer,
                 encoding=self.__class__.__text_encoding__,
                 command_threshold=self.__class__.__command_threshold__
             )
         if with_ret:
-            return self.__parse_and_ret(lexer)
+            return self.__parse_and_ret(lexer, close_lexer=close_lexer)
         else:
-            self.__parse(lexer)
+            self.__parse(lexer, close_lexer=close_lexer)
         
     def parse_file(self, path: Union[str, bytes, os.PathLike], *, encoding: Optional[str] = None, **kwds: Any) -> Any:
         """
@@ -256,24 +273,9 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
                 command_threshold=self.__class__.__command_threshold__
             ), **kwds
         )
-
-    def parse_command(self, cmd: str, **kwds: Any) -> Any:
-        """
-        Parse a command without `#` prefix.
-        """
-        return self.parse(
-            StringLexer(cmd, stat=1, encoding=self.__class__.__text_encoding__), **kwds
-        )
-
-    def parse_args(self, args_string: str) -> Tuple[tuple, Dict[str, Any]]:
-        return Parser(
-            StringLexer(
-                args_string, stat=2, encoding=self.__class__.__text_encoding__
-            ), self
-        ).parse_args()
     
     @contextmanager
-    def exec_block(self) -> Generator[Self, None, Optional[bool]]:
+    def exec_block(self) -> Generator[Self, None, None]:
         if not self.__exec_level:
             self["@start"]()
         self.__exec_level += 1

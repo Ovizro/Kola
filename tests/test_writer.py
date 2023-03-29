@@ -2,7 +2,7 @@ import os
 from shutil import rmtree
 from unittest import TestCase
 
-from kola.old_klvm import KoiLang, kola_command
+from kola.klvm import KoiLang, kola_command
 from kola.writer import WF_COMPLEX_ITEM, WI_NEWLINE, BaseWriter, ComplexArg, FileWriter, StringWriter, WF_ARG_ITEM
 
 

@@ -1,11 +1,15 @@
-%option noyywrap yylineno
+%option noyywrap
+%option yylineno
+%option reentrant
+%option outfile="kola/lex.yy.c"
 
 %{
     #include <string.h>
     #include "_cutil.h"
 
+    #define yy_command_threshold yyextra->command_threshold
+
     #define ECHO yyterminate()
-    #define YY_DECL int yylex(int command_threshold)
 %}
 
 delim   [ \t]
@@ -40,9 +44,9 @@ text    [^#\n\r \t]{plain}*
     BEGIN INITIAL;
 }
 <INITIAL>#+             {
-    if (yyleng == command_threshold) {
+    if (yyleng == yy_command_threshold) {
         BEGIN COMMAND;
-    } else if (yyleng > command_threshold) {
+    } else if (yyleng > yy_command_threshold) {
         BEGIN COMMENT;
         yymore();
     } else {
@@ -78,10 +82,7 @@ text    [^#\n\r \t]{plain}*
 
 %%
 
-int get_stat() {
-    return YY_START;
-}
-
-void set_stat(int stat) {
-    BEGIN stat;
+int yylex_check(yyscan_t yyscanner) {
+    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    return YY_CURRENT_BUFFER != NULL;
 }
