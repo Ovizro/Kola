@@ -75,7 +75,7 @@ class CommandSet(object, metaclass=CommandSetMeta):
         """
         get command in the command set
 
-        NOTICE: This method will only try to get its own commands.
+        NOTE: This method will only try to get its own commands.
         If you want to get a command as a normal case, use `__getitem__` instead.
         """
         cache = self._bound_command_cache.get(__key, None)
@@ -91,6 +91,17 @@ class CommandSet(object, metaclass=CommandSetMeta):
         return bound_cmd
 
     def __kola_caller__(self, command: Command, args: tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
+        """hook function used to change the calling behavior of the `Command` class
+
+        :param command: the `Command` object being invoked
+        :type command: Command
+        :param args: call positional arguments
+        :type args: Tuple[Any]
+        :param kwargs: call keyword arguments
+        :type kwargs: Dict[str, Any]
+        :return: command return value
+        :rtype: Any
+        """
         return command.__func__(self, *args, **kwargs)
 
     def __getitem__(self, __key: str) -> Callable:

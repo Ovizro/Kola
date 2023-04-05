@@ -20,9 +20,14 @@ extern "C" {
 typedef void* yyscan_t;
 #endif
 
+#define LFLAG_DISABLED      (1 << 0)
+#define LFLAG_ISANNOTATION  (1 << 1)
+#define LFLAG_NOLSTRIP        (1 << 2)
+
 typedef struct lexer_extra {
     const char* filename;
     uint8_t command_threshold;
+    uint8_t flag;
 } LexerData;
 
 #define YY_EXTRA_TYPE LexerData*
@@ -33,13 +38,13 @@ enum TokenSyn {
 };
 
 static const uint8_t yy_goto[7][8] = {
-    {15,  63,  0,   0,   0,  0,   0, 0},     // CMD | CMD_N | TEXT
-    {34,  162, 35,  117, 0,  151, 0, 40},    // LITERAL   
-    {17,  49,  35,  117, 0,  151, 0, 40},    // NUM | STRING
-    {0,   0,   134, 0,   0,  0,   0, 6},     // CLN
-    {0,   0,   100, 0,   4,  0,   8, 0},     // CMA
-    {0,   3,   0,   0,   0,  0,   0, 0},     // SLP
-    {0,   0,   65,  0,   81, 0,   81, 0}     // SRP
+    {15,    63,     0,      0,      0,      0,      0,  0},     // CMD | CMD_N | TEXT
+    {34,    162,    35,     117,    0,      151,    0,  40},    // LITERAL   
+    {17,    49,     35,     117,    0,      151,    0,  40},    // NUM | STRING
+    {0,     0,      134,    0,      0,      0,      0,  6},     // CLN
+    {0,     0,      100,    0,      4,      0,      8,  0},     // CMA
+    {0,     3,      0,      0,      0,      0,      0,  0},     // SLP
+    {0,     0,      65,     0,      81,     0,      81, 0}     // SRP
 };
 
 #ifdef Py_PYTHON_H

@@ -26,20 +26,23 @@ from . import __version__
 
 
 def _read_stdin() -> str:
-    sys.stdout.write("$kola: ")
-    sys.stdout.flush()
-    s = sys.stdin.readline()
-    while s.endswith("\\\n"):
-        sys.stdout.write("$...: ")
+    try:
+        sys.stdout.write("$kola: ")
         sys.stdout.flush()
-        s += sys.stdin.readline()
+        s = sys.stdin.readline()
+        while s.endswith("\\\n"):
+            sys.stdout.write("$...: ")
+            sys.stdout.flush()
+            s += sys.stdin.readline()
+    except KeyboardInterrupt:
+        sys.exit()
     return s
 
 
 if __name__ == "__main__":
     parser = ArgumentParser("kola")
     parser.add_argument("file", default=None, nargs="?")
-    parser.add_argument("-i", "--inline", help="parse inline string")
+    parser.add_argument("-i", "-c", "--inline", help="parse inline string")
     parser.add_argument("-s", "--script", help="parser script")
     parser.add_argument("-d", "--debug", help="dubugger type", choices=["token", "command"])
     parser.add_argument("--encoding", help="file encoding", default="utf-8")

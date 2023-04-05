@@ -1,6 +1,6 @@
 from unittest import TestCase
 from kola.exception import KoiLangSyntaxError
-from kola.lexer import StringLexer, FileLexer, S_CMD, S_LITERAL, S_ANNOTATION, S_TEXT, Token
+from kola.lexer import StringLexer, FileLexer, Token, S_CMD, S_LITERAL, S_ANNOTATION, S_TEXT, F_DISABLED, F_LSTRIP_TEXT
 
 
 class TestLexer(TestCase):
@@ -22,12 +22,13 @@ class TestLexer(TestCase):
             """
             #hello KoiLang
             I am glad to meet you.
+            1
             ## And an annotation
             """
         )
         self.assertListEqual(
             list(lexer),
-            [S_CMD, S_LITERAL, S_TEXT, S_ANNOTATION]
+            [S_CMD, S_LITERAL, S_TEXT, S_TEXT, S_ANNOTATION]
         )
     
     def test_recovery(self) -> None:
@@ -69,4 +70,34 @@ class TestLexer(TestCase):
         self.assertEqual(
             list(lexer),
             [S_TEXT, S_CMD, S_ANNOTATION]
+        )
+    
+    def test_config(self) -> None:
+        lexer = StringLexer(
+            "#command\n"
+            # switch to 'threshold=2'
+            "   #text\n"
+            # switch to 'no_lstrip=True'
+            "   #text2\n"
+            # switch to 'diabled=True'
+            "EOF"
+        )
+        it = iter(lexer)
+        self.assertEqual(next(it), S_CMD)
+        lexer.config.command_threshold = 2
+        self.assertEqual(next(it).val, "#text")
+        lexer.config.no_lstrip = True
+        self.assertEqual(next(it).val, "   #text2")
+        lexer.config.disabled = True
+        with self.assertRaises(OSError):
+            next(it)
+        self.assertTrue(lexer.closed)
+        self.assertEqual(
+            lexer.config.dict(),
+            {
+                "filename": "<string>",
+                "encoding": "utf-8",
+                "command_threshold": 2,
+                "flag": F_DISABLED | F_LSTRIP_TEXT
+            }
         )

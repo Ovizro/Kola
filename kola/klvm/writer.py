@@ -28,6 +28,12 @@ def _default_writer_factory(name: str, sig: Optional[Signature] = None):
 
 
 class KoiLangWriter(KoiLang):
+    """
+    writer class for the KoiLang class
+
+    The class should not be used directly.
+    The usual way to use it is to call YourKoiLang.writer().
+    """
     def __init__(self, ___writer: Union[str, bytes, os.PathLike, BaseWriter, None] = None) -> None:
         super().__init__()
         if ___writer is None:

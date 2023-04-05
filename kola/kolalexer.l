@@ -7,35 +7,48 @@
     #include <string.h>
     #include "_cutil.h"
 
-    #define yy_command_threshold yyextra->command_threshold
+    #define yy_command_threshold    yyextra->command_threshold
+    #define yy_lflag                yyextra->flag
+    #define yy_is_annotation        (yy_lflag & LFLAG_ISANNOTATION)
+    #define yy_lstrip               (yy_lflag & LFLAG_NOLSTRIP)
+    #define yyset_annotation()      do {yy_lflag |= LFLAG_ISANNOTATION;} while (0)
+    #define yyunset_annotation()    do {yy_lflag &= ~LFLAG_ISANNOTATION;} while (0)
 
     #define ECHO yyterminate()
+
+    #define YY_NO_UNISTD_H
+
+    #ifdef _MSC_VER
+        #include <io.h>
+        #include <process.h>
+    #else
+        #include <unistd.h>
+    #endif
 %}
 
 delim   [ \t]
 ws      {delim}+
-letter  [A-Za-z]
-letter_ ({letter}|_)
+letter  [A-Za-z_]
 digit   [0-9]
 uint    ([1-9]{digit}*|0)
 sigint  (-?{uint})
-hex     0x[0-9A-Za-z]+
+hex     0x[0-9A-Fa-f]+
 bin     0b[01]+
 float_e (e|E)-?{digit}+
 float   ((({sigint}\.{digit}*)|(-?\.{digit}+)){float_e}?)|({sigint}{float_e})
-literal {letter_}({letter_}|{digit})*
+literal {letter}({letter}|{digit})*
 string  \"([^\"]|(\\\r?\n)|(\\\"))*\"
 plain   ([^\r\n]|(\\\r?\n))+
-text    [^#\n\r \t]{plain}*
 
 %s COMMAND
-%s COMMENT
 %s PLAIN_TEXT
 %s ARGUMENT
 
 %%
 
-{ws}                            {}
+{ws}                            {
+    if (YY_START == INITIAL && yy_lstrip) yymore();
+}
 \\\r?\n                         {}
 \r?\n                           {
     if (YY_START == COMMAND) {
@@ -44,21 +57,24 @@ text    [^#\n\r \t]{plain}*
     BEGIN INITIAL;
 }
 <INITIAL>#+             {
-    if (yyleng == yy_command_threshold) {
+    size_t prefix_len = yyleng - (size_t)(strchr(yytext, '#') - yytext);
+    
+    if (prefix_len == yy_command_threshold) {
         BEGIN COMMAND;
-    } else if (yyleng > yy_command_threshold) {
-        BEGIN COMMENT;
-        yymore();
-    } else {
+    }  else {
+        if (prefix_len > yy_command_threshold) {
+            yyset_annotation();
+        } else {
+            yyunset_annotation();
+        }
         BEGIN PLAIN_TEXT;
-        yymore();
+        yyless(0);
     }
 }
+<INITIAL>[^#\n\r \t]    {BEGIN PLAIN_TEXT; yyless(0);}
 <COMMAND>{literal}      {BEGIN ARGUMENT; return(CMD);}
 <COMMAND>{uint}         {BEGIN ARGUMENT; return(CMD_N);}
-<COMMENT>{plain}        {return(ANNOTATION);}
-<PLAIN_TEXT>{plain}     {return(TEXT);}
-<INITIAL>{text}         {return(TEXT);}
+<PLAIN_TEXT>{plain}     {return yy_is_annotation? ANNOTATION : TEXT;}
 
 <ARGUMENT>\(            {return(SLP);}
 <ARGUMENT>\)            {return(SRP);}
@@ -84,5 +100,6 @@ text    [^#\n\r \t]{plain}*
 
 int yylex_check(yyscan_t yyscanner) {
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    if (yy_lflag & LFLAG_DISABLED) return 0;
     return YY_CURRENT_BUFFER != NULL;
 }

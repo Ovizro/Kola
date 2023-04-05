@@ -1,3 +1,4 @@
+cimport cython
 from libc.stdio cimport stdin, FILE, fopen, fclose, EOF
 from cpython cimport PyObject
 
@@ -14,8 +15,14 @@ cdef class Token:
         int lineno
     
     cpdef int get_flag(self)
-    
 
+
+cdef class LexerConfig:
+    cdef LexerData* lexer_data
+    cdef readonly BaseLexer lexer
+
+
+@cython.no_gc
 cdef class BaseLexer:
     cdef:
         yyscan_t scanner
@@ -25,7 +32,7 @@ cdef class BaseLexer:
 
     cpdef void close(self)
     cdef void set_error(self, const char* text) except *
-    cdef (int, const char*, Py_ssize_t) next_syn(self)
+    cdef (int, const char*, Py_ssize_t) next_syn(self) nogil
     cdef Token next_token(self)
 
 
@@ -38,5 +45,6 @@ cdef class FileLexer(BaseLexer):
     cpdef void close(self)
 
 
+@cython.no_gc
 cdef class StringLexer(BaseLexer):
     cdef readonly bytes content

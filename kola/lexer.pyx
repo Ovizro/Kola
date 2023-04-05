@@ -26,6 +26,8 @@ S_CMA = CMA
 S_SLP = SLP
 S_SRP = SRP
 S_ANNOTATION = ANNOTATION
+F_DISABLED = LFLAG_DISABLED
+F_LSTRIP_TEXT = LFLAG_NOLSTRIP
 
 
 @cython.final
@@ -51,7 +53,7 @@ cdef class Token:
         self.lineno = lineno
         self.raw_val = bytes(val) if raw_val is None else raw_val
     
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self is other or self.syn == other
     
     cpdef int get_flag(self):
@@ -69,7 +71,79 @@ cdef class Token:
             return PyUnicode_FromFormat("<token %d>", self.syn)
         else:
             return PyUnicode_FromFormat("<token %d: %R>", self.syn, <void*>self.val)
+
+
+cdef class LexerConfig:
+    """
+    Python-level interface to access extra lexer data
+    """
+
+    def __init__(self, BaseLexer lexer not None):
+        self.lexer = lexer
+        self.lexer_data = &lexer.lexer_data
     
+    def dict(self) -> dict:
+        cdef dict data = <dict>self.lexer_data[0]
+        data["filename"] = (<bytes>data["filename"]).decode()
+        data["encoding"] = self.lexer.encoding
+        return data
+    
+    def set(self, **kwds) -> None:
+        for k, v in kwds.items():
+            if k.startswith('__') and k.endswith('__'):
+                PyErr_Format(AttributeError, "invalid config item '%U'", <void*>k)
+            setattr(self, k, v)
+    
+    @property
+    def filename(self) -> str:
+        return self.lexer_data.filename.decode()
+    
+    @property
+    def encoding(self) -> str:
+        return self.lexer.encoding
+    
+    @encoding.setter
+    def encoding(self, val: str) -> None:
+        self.lexer.encoding = val
+    
+    @property
+    def command_threshold(self) -> int:
+        return self.lexer_data.command_threshold
+    
+    @command_threshold.setter
+    def command_threshold(self, uint8_t cmd_threshold) -> None:
+        self.lexer_data.command_threshold = cmd_threshold
+    
+    @property
+    def flag(self) -> int:
+        return self.lexer_data.flag
+    
+    @flag.setter
+    def flag(self, uint8_t val) -> None:
+        self.lexer_data.flag = val
+    
+    @property
+    def disabled(self) -> bool:
+        return True if self.lexer_data.flag & LFLAG_DISABLED else False
+    
+    @disabled.setter
+    def disabled(self, val: bool) -> None:
+        if val:
+            self.lexer_data.flag |= LFLAG_DISABLED
+        else:
+            self.lexer_data.flag &= ~LFLAG_DISABLED
+            
+    @property
+    def no_lstrip(self) -> bool:
+        return True if self.lexer_data.flag & LFLAG_NOLSTRIP else False
+    
+    @no_lstrip.setter
+    def no_lstrip(self, val: bool) -> None:
+        if val:
+            self.lexer_data.flag |= LFLAG_NOLSTRIP
+        else:
+            self.lexer_data.flag &= ~LFLAG_NOLSTRIP
+
 
 cdef class BaseLexer(object):
     """
@@ -78,14 +152,15 @@ cdef class BaseLexer(object):
 
     def __cinit__(self, *args, **kwds):
         self.encoding = "utf-8"
+        self.lexer_data.filename = "<unknown>"
+        self.lexer_data.command_threshold = 1
         if yylex_init_extra(&self.lexer_data, &self.scanner):
             PyErr_SetFromErrno(RuntimeError)
     
-    def __init__(self, *, str encoding not None = "utf-8", uint8_t command_threshold = 1):
+    def __init__(self, **kwds):
         yyrestart(stdin, self.scanner)
         self.lexer_data.filename = "<stdin>"
-        self.lexer_data.command_threshold = command_threshold
-        self.encoding = encoding
+        LexerConfig(self).set(**kwds)
     
     def __dealloc__(self):
         self.close()
@@ -106,7 +181,7 @@ cdef class BaseLexer(object):
             errno = 10
         kola_set_error(KoiLangSyntaxError, errno, self.lexer_data.filename, lineno, text)
     
-    cdef (int, const char*, Py_ssize_t) next_syn(self):
+    cdef (int, const char*, Py_ssize_t) next_syn(self) nogil:
         cdef int syn = yylex(self.scanner)
         return syn, yyget_text(self.scanner), yyget_leng(self.scanner)
     
@@ -119,7 +194,8 @@ cdef class BaseLexer(object):
             const char* text
             Py_ssize_t text_len
             const char* encoding
-        syn, text, text_len = self.next_syn()
+        with nogil:
+            syn, text, text_len = self.next_syn()
 
         val = None
         if syn == NUM or syn == CMD_N:
@@ -168,11 +244,11 @@ cdef class BaseLexer(object):
         return yyget_column(self.scanner)
     
     @property
-    def command_threshold(self):
-        return self.lexer_data.command_threshold
+    def config(self) -> LexerConfig:
+        return LexerConfig(self)
     
     @property
-    def closed(self):
+    def closed(self) -> bool:
         return not yylex_check(self.scanner)
     
     def __iter__(self):
@@ -206,11 +282,7 @@ cdef class FileLexer(BaseLexer):
     KoiLang lexer reading from file
     """
 
-    def __init__(
-        self, __path not None, *,
-        str encoding not None = "utf-8",
-        uint8_t command_threshold = 1
-    ):
+    def __init__(self, __path not None, **kwds):
         if self.fp:
             fclose(self.fp)
 
@@ -221,10 +293,9 @@ cdef class FileLexer(BaseLexer):
         self._filenameb = <bytes>p if isinstance(p, bytes) else (<str>p).encode()
         Py_DECREF(p)
 
-        self.encoding = encoding
         yyrestart(self.fp, self.scanner)
         self.lexer_data.filename = self._filenameb
-        self.lexer_data.command_threshold = command_threshold
+        LexerConfig(self).set(**kwds)
     
     cpdef void close(self):
         BaseLexer.close(self)
@@ -242,11 +313,7 @@ cdef class StringLexer(BaseLexer):
     KoiLang lexer reading from string provided
     """
 
-    def __init__(
-        self, content not None, *,
-        str encoding not None = "utf-8",
-        uint8_t command_threshold = 1
-    ):
+    def __init__(self, content: Union[str, bytes], **kwds):
         if not self.content is None:
             yypop_buffer_state(self.scanner)
 
@@ -255,7 +322,6 @@ cdef class StringLexer(BaseLexer):
         else:
             self.content = content
 
-        self.encoding = encoding
         yy_scan_bytes(self.content, len(self.content), self.scanner)
         self.lexer_data.filename = "<string>"
-        self.lexer_data.command_threshold = command_threshold
+        LexerConfig(self).set(**kwds)

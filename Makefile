@@ -17,16 +17,16 @@ build_cython:
 build:
 	python setup.py build_ext --inplace
 
-install: build
+install:
 	python setup.py install
 
 run:
 	python -m kola
 
-develop: build
+develop:
 	python setup.py develop
 
-build_dist: test
+build_dist:
 	python setup.py sdist bdist_wheel
 
 lint:
