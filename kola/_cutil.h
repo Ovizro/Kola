@@ -220,10 +220,13 @@ static __inline FILE* kola_open(PyObject* raw_path, PyObject** out, const char* 
     Py_END_ALLOW_THREADS
 #endif
     if (fp == NULL) {
-        PyErr_Format(PyExc_OSError, "fail to open '%S'", raw_path);
+        PyErr_SetFromErrno(PyExc_OSError);
+        // PyErr_Format(PyExc_OSError, "fail to open '%S'", raw_path);
     }
     if (out)
         *out = stringobj;
+    else
+        Py_DECREF(stringobj);
     return fp;
 }
 

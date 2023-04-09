@@ -1,3 +1,10 @@
+"""
+Kola sub libraries support modules
+
+Include some useful builtin kola sub module.
+And modules imported from `load_library()` will be mounted as a sub module.
+"""
+
 import inspect
 import os
 import re
@@ -21,6 +28,15 @@ _module_pattern = re.compile(r"^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*$", re.A)
 
 
 class KolaSpec(NamedTuple):
+    """
+    Kola module spec
+    
+    Usage:
+        __kola_spec__ = KolaSpec(
+            __name__,
+            collect_all()
+        )
+    """
     name: str
     command_set_classes: List[CommandSetMeta]
     
@@ -29,22 +45,39 @@ class KolaSpec(NamedTuple):
 
 
 def collect_all() -> List[CommandSetMeta]:
+    """get all CommandSet class defined in the module
+
+    :return: a list of CommandSet class found
+    :rtype: List[CommandSetMeta]
+    """
     frame = inspect.currentframe()
-    assert frame and frame.f_back
+    if not frame or not frame.f_back:
+        raise ValueError("cannot read variables from the frame")
     return [
         i for i in frame.f_back.f_locals.values()
         if isinstance(i, CommandSetMeta)
     ]
 
 
-def load_library(name: str, bases: List[str] = KOLA_LIB_PATH) -> ModuleType:
+def load_library(name: str, paths: List[str] = KOLA_LIB_PATH) -> ModuleType:
+    """load a Phython script or package as a Kola module
+
+    :param name: module name like 'mymodule.sub'
+    :type name: str
+    :param paths: base path to load the module, defaults to KOLA_LIB_PATH
+    :type paths: List[str], optional
+    :raises ValueError: illegal module name
+    :raises ImportError: fail to load the module
+    :return: the Kola module
+    :rtype: ModuleType
+    """
     if not _module_pattern.match(name):
         raise ValueError(f"illegal module name '{name}'")
     module_name = "kola.lib." + name
     if module_name in sys.modules:
         return sys.modules[module_name]
 
-    for b in bases:
+    for b in paths:
         spec = None
         b = os.path.abspath(b)
         full_path = os.path.join(b, name)

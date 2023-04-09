@@ -5,6 +5,10 @@ from cpython cimport PyObject
 from ._cutil cimport *
 
 
+cdef extern from *:
+    bint PyDescr_IsData(object desc)
+
+
 cdef class Token:
     cdef:
         Token next     # used in grammar parser

@@ -1,4 +1,4 @@
-.PHONY: build build_cython install build_dist test clean
+.PHONY: build build_cython install build_dist test docs clean
 
 MODULE := kola
 PIP_MODULE := KoiLang
@@ -35,10 +35,13 @@ lint:
 test:
 	python -m unittest
 
+uninstall:
+	pip uninstall ${PIP_MODULE} -y || true
+
+docs:
+	cd docs/api && make html
+
 clean:
 	rm -rf build
 	rm -rf dist
 	rm -rf ${PIP_MODULE}.egg-info
-
-uninstall:
-	pip uninstall ${PIP_MODULE} -y || true

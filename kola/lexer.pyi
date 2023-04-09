@@ -1,5 +1,5 @@
 import os
-from typing import Any, Final, Union, final, TypedDict
+from typing import Any, ClassVar, Final, FrozenSet, Union, final, TypedDict
 from typing_extensions import Self
 
 
@@ -48,6 +48,8 @@ class LexerConfig:
     """
     Python-level interface to access extra lexer data
     """
+    data_names: ClassVar[FrozenSet[str]]
+
     def __init__(self, lexer: BaseLexer) -> None: ...
     def dict(self) -> _LexerData: ...
     def set(

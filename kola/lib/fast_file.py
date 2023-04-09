@@ -54,8 +54,8 @@ class FastFile(KoiLang):
         def at_initialize(self, cur_top: CommandSet) -> None:
             if isinstance(cur_top, FastFile.file):
                 home = self.home
-                cache = home.pop_start()
-                home.pop_end(cache)
+                cache = home.pop_prepare()
+                home.pop_apply(cache)
                 # update self.back
                 self.back = home.top
             return super().at_initialize(cur_top)

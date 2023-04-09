@@ -172,15 +172,15 @@ class KoiLangRunner(BaseDebugger):
             **kwds
         )
     
-    def push_end(self, __push_cache: Environment) -> None:
+    def push_apply(self, __push_cache: Environment) -> None:
         if self.flag & FLAG_DEBUG:
             print(f"## [DEBUG] Push env: {__push_cache}")
-        return super().push_end(__push_cache)
+        return super().push_apply(__push_cache)
     
-    def pop_end(self, __env_cache: Environment) -> None:
+    def pop_apply(self, __env_cache: Environment) -> None:
         if self.flag & FLAG_DEBUG:
             print(f"## [DEBUG] Pop env: {__env_cache}")
-        return super().pop_end(__env_cache)
+        return super().pop_apply(__env_cache)
 
 
 __kola_spec__ = KolaSpec(

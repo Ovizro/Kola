@@ -2,8 +2,11 @@
 cimport cython
 from libc.stdint cimport uint8_t
 from libc.string cimport strchr, strcmp
-from cpython cimport Py_DECREF, PyLong_FromString, PyFloat_FromString, PyUnicode_FromStringAndSize, \
-    PyBytes_FromStringAndSize, PyUnicode_Decode, PyErr_Format, PyErr_SetFromErrno
+from cpython cimport Py_DECREF, PyLong_FromString, PyFloat_FromString, PyBytes_FromStringAndSize
+from cpython.unicode cimport PyUnicode_FromStringAndSize, PyUnicode_Decode
+from cpython.exc cimport PyErr_Format, PyErr_SetFromErrno
+from cpython.object cimport PyTypeObject
+from cpython.type cimport PyType_Modified
 from ._yylex cimport *
 
 from .exception import KoiLangSyntaxError
@@ -83,14 +86,14 @@ cdef class LexerConfig:
         self.lexer_data = &lexer.lexer_data
     
     def dict(self) -> dict:
-        cdef dict data = <dict>self.lexer_data[0]
-        data["filename"] = (<bytes>data["filename"]).decode()
-        data["encoding"] = self.lexer.encoding
+        cdef dict data = {}
+        for i in _lexer_data_names:
+            data[i] = getattr(self, <str>i)
         return data
     
     def set(self, **kwds) -> None:
         for k, v in kwds.items():
-            if k.startswith('__') and k.endswith('__'):
+            if not k in _lexer_data_names:
                 PyErr_Format(AttributeError, "invalid config item '%U'", <void*>k)
             setattr(self, k, v)
     
@@ -145,6 +148,16 @@ cdef class LexerConfig:
             self.lexer_data.flag &= ~LFLAG_NOLSTRIP
 
 
+cdef set _lexer_data_names = {
+    i for i in dir(LexerConfig)
+    if not (<str>i).startswith('__') and not (<str>i).endswith('__') and PyDescr_IsData(getattr(LexerConfig, (<str>i)))
+}
+
+# update LexerConfig.attr_names
+(<dict>(<PyTypeObject*>LexerConfig).tp_dict)["data_names"] = frozenset(_lexer_data_names)
+PyType_Modified(LexerConfig)
+
+
 cdef class BaseLexer(object):
     """
     KoiLang lexer reading from stdin
@@ -152,7 +165,7 @@ cdef class BaseLexer(object):
 
     def __cinit__(self, *args, **kwds):
         self.encoding = "utf-8"
-        self.lexer_data.filename = "<unknown>"
+        self.lexer_data.filename = "<kolafile>"
         self.lexer_data.command_threshold = 1
         if yylex_init_extra(&self.lexer_data, &self.scanner):
             PyErr_SetFromErrno(RuntimeError)
@@ -268,7 +281,10 @@ cdef class BaseLexer(object):
     
     def __repr__(self):
         if not yylex_check(self.scanner):
-            return PyUnicode_FromFormat("<kola lexer in file \"%s\" closed>")
+            return PyUnicode_FromFormat(
+                "<kola lexer in file \"%s\" closed>",
+                self.lexer_data.filename
+            )
         else:
             return PyUnicode_FromFormat(
                 "<kola lexer in file \"%s\" line %d>",

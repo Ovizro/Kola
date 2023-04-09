@@ -46,9 +46,9 @@ class EnvironmentEntry(EnvironmentCommand):
     def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
         assert self.env_class
         home = vmobj.home
-        env = home.push_start(self.env_class)
+        env = home.push_prepare(self.env_class)
         ret = super().__call__(env, *args, **kwds)
-        home.push_end(env)
+        home.push_apply(env)
         return ret
 
 
@@ -57,9 +57,9 @@ class EnvironmentExit(EnvironmentCommand):
 
     def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
         home = vmobj.home
-        pop_env = home.pop_start(self.env_class)
+        pop_env = home.pop_prepare(self.env_class)
         ret = super().__call__(vmobj, *args, **kwds)
-        home.pop_end(pop_env)
+        home.pop_apply(pop_env)
         return ret
 
 
@@ -70,11 +70,11 @@ class EnvironmentAutopop(EnvironmentCommand):
         assert self.env_class
         home = vmobj.home
 
-        cache = home.pop_start(self.env_class)
-        home.pop_end(cache)
-        cache = home.push_start(self.env_class)
+        cache = home.pop_prepare(self.env_class)
+        home.pop_apply(cache)
+        cache = home.push_prepare(self.env_class)
         ret = super().__call__(cache, *args, **kwds)
-        home.push_end(cache)
+        home.push_apply(cache)
         return ret
 
 

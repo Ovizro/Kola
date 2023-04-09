@@ -1,8 +1,8 @@
-from contextlib import contextmanager
 import os
 import sys
 from threading import Lock
 from types import TracebackType, new_class
+from contextlib import contextmanager, suppress
 from typing import Any, Callable, ClassVar, Dict, Generator, Optional, Tuple, Type, TypeVar, Union, overload
 from typing_extensions import Literal, Self
 
@@ -24,14 +24,23 @@ class KoiLangMeta(CommandSetMeta):
     Provide encoding and command threshold support.
     """
     __text_encoding__: str
+    __text_lstrip__: bool
     __command_threshold__: int
 
     builtin_mapping: ClassVar[Dict[str, str]] = {
         "at_start": "@start", "at_end": "@end", "on_exception": "@exception"
     }
 
-    def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any],
-                command_threshold: int = 0, encoding: Optional[str] = None, **kwds: Any):
+    def __new__(
+        cls,
+        name: str,
+        bases: Tuple[type, ...],
+        attr: Dict[str, Any],
+        command_threshold: int = 0,
+        encoding: Optional[str] = None,
+        lstrip_text: Optional[bool] = None,
+        **kwds: Any
+    ) -> Self:
         """
         create a top-level language class
 
@@ -45,15 +54,24 @@ class KoiLangMeta(CommandSetMeta):
         :type command_threshold: int, optional
         :param encoding: encoding for file parsing, defaults to None
         :type encoding: Optional[str], optional
+        :param lstrip_text: whether to remove text indentation, defaults to True
+        :type lstrip_text: bool, optional
         :return: new class
         :rtype: KoiLangMeta
         """
-        has_base = any(isinstance(i, cls) for i in bases)
-        if command_threshold or not has_base:
+        # if not base KoiLang class, set a default value
+        if not any(isinstance(i, cls) for i in bases):
+            command_threshold = command_threshold or 1
+            encoding = encoding or "utf-8"
+            lstrip_text = lstrip_text if lstrip_text is not None else True
+        
+        if command_threshold:
             assert command_threshold >= 0
-            attr["__command_threshold__"] = command_threshold or 1
-        if encoding or not has_base:
-            attr["__text_encoding__"] = encoding or "utf-8"
+            attr["__command_threshold__"] = command_threshold
+        if lstrip_text is not None:
+            attr["__text_lstrip__"] = lstrip_text
+        if encoding:
+            attr["__text_encoding__"] = encoding
         for k, n in cls.builtin_mapping.items():
             if k not in attr:
                 continue
@@ -68,11 +86,18 @@ class KoiLangMeta(CommandSetMeta):
     
     @property
     def writer(self) -> Type:
-        cache = getattr(self, "__writer_class__", None)
+        """writer class for KoiLang file building
+
+        :return: the writer class, which is a subclass of KoiLangWriter and current KoiLang class
+        :rtype: Type[KoiLang, Self]
+        """
+        cache = None
+        with suppress(AttributeError):
+            cache = self.__writer_class
         if cache is not None:
             return cache
         cache = new_class(f"{self.__qualname__}.writer", (KoiLangWriter, self))
-        self.__writer_class__ = cache
+        self.__writer_class = cache
         return cache
 
 
@@ -91,17 +116,17 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         self.__top = self
         self.__exec_level = 0
     
-    def push_start(self, __env_type: Type[Environment]) -> Environment:
+    def push_prepare(self, __env_type: Type[Environment]) -> Environment:
         env = __env_type(self.__top)
         env.at_initialize(self.__top)
         return env
 
-    def push_end(self, __env_cache: Environment) -> None:
+    def push_apply(self, __env_cache: Environment) -> None:
         assert __env_cache.back is self.__top
         with self._lock:
             self.__top = __env_cache
     
-    def pop_start(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
+    def pop_prepare(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
         top = self.__top
         if top is self:
             raise ValueError('cannot pop the inital environment')
@@ -117,7 +142,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
                     raise ValueError("unmatched environment")
         return top
 
-    def pop_end(self, __env_cache: Environment) -> None:
+    def pop_apply(self, __env_cache: Environment) -> None:
         with self._lock:
             top = self.__top
             self.__top = __env_cache.back
@@ -247,8 +272,17 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     ) -> Generator[Any, None, None]: ...
     
     def parse(self, lexer: Union[BaseLexer, str], *, with_ret: bool = False, close_lexer: bool = True) -> Any:
-        """
-        Parse kola text or lexer from other method.
+        """parse kola text
+
+        :param lexer: Lexer object or legal KoiLang string
+        :type lexer: Union[BaseLexer, str]
+        :param with_ret: if true, return a gererater where command returns would be yielded, defaults to False
+        :type with_ret: bool, optional
+        :param close_lexer: whether or not to close the lexer, defaults to True
+        :type close_lexer: bool, optional
+        :raises ValueError: when a KoiLang string given without trying to close it
+        :return: return a generator if `with_ret` set
+        :rtype: Generator[Any, None, None] or None
         """
         if isinstance(lexer, str):
             if not close_lexer:
@@ -256,7 +290,8 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             lexer = StringLexer(
                 lexer,
                 encoding=self.__class__.__text_encoding__,
-                command_threshold=self.__class__.__command_threshold__
+                command_threshold=self.__class__.__command_threshold__,
+                no_lstrip=not self.__class__.__text_lstrip__
             )
         if with_ret:
             return self.__parse_and_ret(lexer, close_lexer=close_lexer)
@@ -265,12 +300,13 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         
     def parse_file(self, path: Union[str, bytes, os.PathLike], *, encoding: Optional[str] = None, **kwds: Any) -> Any:
         """
-        Parse a kola file.
+        parse a kola file.
         """
         return self.parse(
             FileLexer(
                 path, encoding=encoding or self.__class__.__text_encoding__,
-                command_threshold=self.__class__.__command_threshold__
+                command_threshold=self.__class__.__command_threshold__,
+                no_lstrip=not self.__class__.__text_lstrip__
             ), **kwds
         )
     
@@ -328,8 +364,8 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         will be that of 'parse' method.
         """
         while isinstance(self.__top, Environment) and self.__top.__class__.__env_autopop__:
-            cache = self.pop_start()
-            self.pop_end(cache)
+            cache = self.pop_prepare()
+            self.pop_apply(cache)
     
     def on_exception(self, exc_type: Type[BaseException], exc_ins: BaseException, traceback: TracebackType) -> None:
         """

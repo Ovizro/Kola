@@ -49,13 +49,13 @@ class KoiLangWriter(KoiLang):
                 encoding=self.__class__.__text_encoding__
             )
     
-    def push_end(self, __push_cache: Environment) -> None:
+    def push_apply(self, __push_cache: Environment) -> None:
         self._writer.inc_indent()
-        return super().push_end(__push_cache)
+        return super().push_apply(__push_cache)
     
-    def pop_start(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
+    def pop_prepare(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
         self._writer.dec_indent()
-        return super().pop_start(__env_type)
+        return super().pop_prepare(__env_type)
     
     def __kola_caller__(
         self,

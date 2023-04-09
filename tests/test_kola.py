@@ -55,7 +55,7 @@ class EnvTest(KoiLang):
                 return 6
 
 
-class KolaTest(KoiLang, command_threshold=2):
+class KolaTest(KoiLang, command_threshold=2, lstrip_text=False):
     @kola_command(envs="+__init__")
     def version(self, __ver: int) -> int:
         return __ver
@@ -120,18 +120,18 @@ class TestKoiLang(TestCase):
         self.assertIs(vmobj.top, vmobj)
     
     def test_mainlang(self) -> None:
-        string = """
-        ##version 200
-
-        # This is a text
-        This is a text, too
-        ##error "Raise an error"
-        ### This is an annotation
-        """
+        string = (
+            "##version 200\n"
+            "\n"
+            "# This is a text\n"
+            "   This is a text, too\n"
+            "##error \"Raise an error\"\n"
+            "### This is an annotation\n"
+        )
         vmobj = KolaTest()
         self.assertEqual(
             list(vmobj.parse(string, with_ret=True)),
-            [200, "text: # This is a text", "text: This is a text, too", "annotation: ### This is an annotation"]
+            [200, "text: # This is a text", "text:    This is a text, too", "annotation: ### This is an annotation"]
         )
         self.assertEqual(vmobj.errors, [None])
     

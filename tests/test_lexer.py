@@ -93,11 +93,19 @@ class TestLexer(TestCase):
             next(it)
         self.assertTrue(lexer.closed)
         self.assertEqual(
+            lexer.config.data_names,
+            {'command_threshold', 'disabled', 'encoding', 'filename', 'flag', 'lexer', 'no_lstrip'}
+        )
+        self.assertIsInstance(lexer.config.data_names, frozenset)
+        self.assertEqual(
             lexer.config.dict(),
             {
                 "filename": "<string>",
                 "encoding": "utf-8",
                 "command_threshold": 2,
-                "flag": F_DISABLED | F_LSTRIP_TEXT
+                "flag": F_DISABLED | F_LSTRIP_TEXT,
+                "lexer": lexer,
+                "disabled": True,
+                "no_lstrip": True
             }
         )

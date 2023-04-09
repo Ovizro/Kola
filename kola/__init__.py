@@ -1,3 +1,7 @@
+"""
+simple python module for KoiLang parsing
+"""
+
 from .lexer import BaseLexer, FileLexer, StringLexer
 from .parser import Parser
 from .writer import BaseWriter, FileWriter, StringWriter, BaseWriterItem, FormatItem, ComplexArg, WriterItemLike
