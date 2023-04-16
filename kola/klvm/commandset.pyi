@@ -17,28 +17,28 @@ class CommandSetMeta(ABCMeta):
         self, __func: Callable[..., Any], **kwds) -> Command: ...
     @overload
     def register_command(
-        self, __name: Optional[str] = ..., *, alias: Union[Iterable[str], str] = ..., **kwds: Any
+        self, __name: Optional[str] = ..., *, alias: Union[Iterable[str], str] = ..., virtual: bool = False, **kwds: Any
     ) -> Callable[[Callable[..., Any]], Command]: ...
     @overload
     def register_text(
         self, __func: Callable[..., Any], **kwds) -> Command: ...
     @overload
     def register_text(
-        self, *, alias: Union[Iterable[str], str] = ..., **kwds: Any
+        self, *, alias: Union[Iterable[str], str] = ..., virtual: bool = False, **kwds: Any
     ) -> Callable[[Callable[..., Any]], Command]: ...
     @overload
     def register_number(
         self, __func: Callable[..., Any], **kwds) -> Command: ...
     @overload
     def register_number(
-        self, *, alias: Union[Iterable[str], str] = ..., **kwds: Any
+        self, *, alias: Union[Iterable[str], str] = ..., virtual: bool = False, **kwds: Any
     ) -> Callable[[Callable[..., Any]], Command]: ...
     @overload
     def register_annotation(
         self, __func: Callable[..., Any], **kwds) -> Command: ...
     @overload
     def register_annotation(
-        self, *, alias: Union[Iterable[str], str] = ..., **kwds: Any
+        self, *, alias: Union[Iterable[str], str] = ..., virtual: bool = False, **kwds: Any
     ) -> Callable[[Callable[..., Any]], Command]: ...
     
 

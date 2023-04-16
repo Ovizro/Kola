@@ -3,6 +3,9 @@ from kola.lib.debugger.base import BaseDebugger
 
 
 class CommandDebugger(BaseDebugger):
+    """
+    output the command and additional arguments to stdout
+    """
     def __getitem__(self, __key: str) -> Callable[..., None]:
         if __key != "@exception":
             return lambda *args, **kwds: \

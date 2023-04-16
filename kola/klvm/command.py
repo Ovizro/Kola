@@ -13,7 +13,7 @@ class CommandLike(Protocol):
 
 
 class Command(object):
-    __slots__ = ["__name__", "__func__", "suppression", "alias", "extra_data"]
+    __slots__ = ["__name__", "__func__", "suppression", "virtual", "alias", "extra_data"]
 
     def __init__(
         self,
@@ -22,12 +22,14 @@ class Command(object):
         *,
         alias: Union[Iterable[str], str] = tuple(),
         suppression: bool = False,
+        virtual: bool = False,
         **kwds: Any
     ) -> None:
         self.__name__ = __name
         self.__func__ = func
         self.alias = (alias,) if isinstance(alias, str) else tuple(alias)
         self.suppression = suppression
+        self.virtual = virtual
         self.extra_data = kwds
     
     @overload
@@ -74,6 +76,8 @@ class Command(object):
     def __get__(self, ins: Any, owner: type) -> Any:
         if ins is None:
             return self
+        elif self.virtual and (not hasattr(owner, "check_virtual") or ins.check_virtual(self)):
+            return ins[self.__name__]
         return MethodType(self, ins)
 
     def __call__(self, vmobj: Any, *args: Any, **kwds: Any) -> Any:

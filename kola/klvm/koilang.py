@@ -1,9 +1,10 @@
+from functools import partial
 import os
 import sys
 from threading import Lock
 from types import TracebackType, new_class
 from contextlib import contextmanager, suppress
-from typing import Any, Callable, ClassVar, Dict, Generator, Optional, Tuple, Type, TypeVar, Union, overload
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type, TypeVar, Union, overload
 from typing_extensions import Literal, Self
 
 from ..lexer import BaseLexer, FileLexer, StringLexer
@@ -26,10 +27,6 @@ class KoiLangMeta(CommandSetMeta):
     __text_encoding__: str
     __text_lstrip__: bool
     __command_threshold__: int
-
-    builtin_mapping: ClassVar[Dict[str, str]] = {
-        "at_start": "@start", "at_end": "@end", "on_exception": "@exception"
-    }
 
     def __new__(
         cls,
@@ -72,12 +69,6 @@ class KoiLangMeta(CommandSetMeta):
             attr["__text_lstrip__"] = lstrip_text
         if encoding:
             attr["__text_encoding__"] = encoding
-        for k, n in cls.builtin_mapping.items():
-            if k not in attr:
-                continue
-            cmd = attr[k]
-            if not isinstance(cmd, Command):
-                attr[k] = Command(n, cmd)
         return super().__new__(cls, name, bases, attr, **kwds)
 
     def register_environment(self, env_class: _T_EnvCls) -> _T_EnvCls:
@@ -182,7 +173,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         raise ValueError(f"unmatched environment name {reachable[0]}")
     
     @staticmethod
-    def _ensure_env(reachable: list, name: str) -> bool:
+    def _ensure_env(reachable: List[str], name: str) -> bool:
         if name.startswith('+'):
             strict = True
             name = name[1:]
@@ -235,7 +226,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
                         # Parser.exec() is a fast C level loop
                         parser.exec()
                     except KoiLangError:
-                        if not self["@exception"](*sys.exc_info()):
+                        if not self.on_exception(*sys.exc_info()):
                             raise
                     else:
                         break
@@ -251,7 +242,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
                     try:
                         yield from parser
                     except KoiLangError:
-                        if not self["@exception"](*sys.exc_info()):
+                        if not self.on_exception(*sys.exc_info()):
 
                             raise
                     else:
@@ -313,14 +304,14 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     @contextmanager
     def exec_block(self) -> Generator[Self, None, None]:
         if not self.__exec_level:
-            self["@start"]()
+            self.at_start()
         self.__exec_level += 1
         try:
             yield self
         finally:
             self.__exec_level -= 1
             if not self.__exec_level:
-                self["@end"]()
+                self.at_end()
 
     def __getitem__(self, __key: str) -> Callable:
         if self.__top is self:
@@ -335,11 +326,13 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         *,
         bound_instance: Optional[CommandSet] = None,
         envs: Tuple[str, ...] = (),
+        skip: bool = False,
         **kwds: Any
     ) -> Any:
         if envs:
             self.ensure_env(envs)
-        return command.__func__(bound_instance or self, *args, **kwargs)
+        if skip:
+            return command.__func__(bound_instance or self, *args, **kwargs)
 
     @property
     def top(self) -> CommandSet:
@@ -349,6 +342,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     def home(self) -> Self:
         return self
 
+    @partial(Command, "@start", virtual=True)
     def at_start(self) -> None:
         """
         parser initalize command
@@ -356,6 +350,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         It is called before parsing start.
         """
 
+    @partial(Command, "@end", virtual=True)
     def at_end(self) -> None:
         """
         parser finalize command
@@ -363,10 +358,8 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         It is called after parsing end. And the return value
         will be that of 'parse' method.
         """
-        while isinstance(self.__top, Environment) and self.__top.__class__.__env_autopop__:
-            cache = self.pop_prepare()
-            self.pop_apply(cache)
     
+    @partial(Command, "@exception", virtual=True)
     def on_exception(self, exc_type: Type[BaseException], exc_ins: BaseException, traceback: TracebackType) -> None:
         """
         exception handling command

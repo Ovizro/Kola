@@ -1,3 +1,4 @@
+from types import MethodType
 from typing import Any, Callable, Dict, Generator, Iterable, Optional, Set, Tuple, Type, TypeVar, Union, overload
 from typing_extensions import Self
 
@@ -141,22 +142,22 @@ class EnvironmentMeta(CommandSetMeta):
         """
         interface for entry points in Python level
         """
-        __slots__ = ["env_class", "bound_ins"]
+        __slots__ = ["__env_class", "__bound_ins"]
 
         def __init__(self, env_class: "EnvironmentMeta", bound_ins: CommandSet) -> None:
-            self.env_class = env_class
-            self.bound_ins = bound_ins
+            self.__env_class = env_class
+            self.__bound_ins = bound_ins
         
         def __getattr__(self, __name: str) -> Any:
-            attr = getattr(self.env_class, __name)
+            attr = getattr(self.__env_class, __name)
             if isinstance(attr, EnvironmentEntry):
-                return attr.__get__(self.bound_ins, self.bound_ins.__class__)
+                return attr.__get__(self.__bound_ins, self.__bound_ins.__class__)
             elif isinstance(attr, Command):
                 raise AttributeError(f"cannot fetch command '{__name}' before the environment initialization")
             raise AttributeError("only entry commands can be accessed through the interface")
         
         def __repr__(self) -> str:
-            return f"<kola environment '{self.env_class.__name__}' entry point command interface>"
+            return f"<kola environment '{self.__env_class.__name__}' entry point command interface>"
 
 
 class Environment(CommandSet, metaclass=EnvironmentMeta):
@@ -199,10 +200,21 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
         return cmd_set
     
     def at_initialize(self, cur_top: CommandSet) -> None:
-        pass
+        """called before the environment added to the env stack top"""
 
     def at_finalize(self, cur_top: CommandSet) -> None:
-        pass
+        """called after the environment removed from the env stack top"""
+
+    @MethodType(Command, "@end")
+    def at_end(self) -> None:
+        """
+        ensure autopop environments properly popped at the end of parsing
+        """
+        if not self.__class__.__env_autopop__:
+            return
+        home = self.home
+        home.pop_apply(home.pop_prepare(self.__class__))
+        home["@end"]()
     
 
 from .koilang import KoiLang

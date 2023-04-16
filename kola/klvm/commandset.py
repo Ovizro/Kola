@@ -11,12 +11,25 @@ class CommandSetMeta(ABCMeta):
     metaclass for all command sets
     """
     __command_field__: Set[CommandLike]
+    __virtual_table__: Dict[str, str]
 
-    def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any], **kwds: Any) -> Self:
-        command_field = {
-            i for i in attr.values() if isinstance(i, (Command, CommandLike))
-        }
+    def __new__(cls, name: str, bases: Tuple[Type, ...], attr: Dict[str, Any], **kwds: Any) -> Self:
+        command_field = set()
+        virtual_table = {}
+        for i in bases:
+            if isinstance(i, CommandSetMeta):
+                virtual_table.update(i.__virtual_table__)
+        for k, v in attr.items():
+            if isinstance(v, Command):
+                if v.virtual:
+                    virtual_table[k] = v.__name__
+            elif k in virtual_table:
+                v = Command(virtual_table[k], v, virtual=True)
+            elif not isinstance(v, CommandLike):
+                continue
+            command_field.add(v)
         attr["__command_field__"] = command_field
+        attr["__virtual_table__"] = virtual_table
         return super().__new__(cls, name, bases, attr, **kwds)
 
     def generate_raw_commands(self) -> Dict[str, Any]:
@@ -89,6 +102,9 @@ class CommandSet(object, metaclass=CommandSetMeta):
         bound_cmd = MethodType(raw_cmd, self)
         self._bound_command_cache[__key] = bound_cmd
         return bound_cmd
+
+    def check_virtual(self, command: Command) -> bool:
+        return command is self.raw_command_set[command.__name__]
 
     def __kola_caller__(self, command: Command, args: tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
         """hook function used to change the calling behavior of the `Command` class

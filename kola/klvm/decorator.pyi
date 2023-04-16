@@ -1,7 +1,7 @@
 from typing import Any, Callable, Iterable, Optional, Type, overload, Union
-from typing_extensions import Literal
 
-from .commandset import Command, CommandSet
+from .command import Command
+from .commandset import CommandSet
 from .environment import Environment, EnvironmentEntry, EnvironmentExit
 from .koilang import KoiLang
 
@@ -14,6 +14,7 @@ def kola_command(
     *,
     envs: Union[Iterable[str], str] = ...,
     alias: Union[Iterable[str], str] = ...,
+    virtual: bool = False,
     **kwds: Any
 ) -> Callable[[Callable[..., Any]], Command]: ...
 @overload
@@ -23,6 +24,7 @@ def kola_text(
     *,
     envs: Union[Iterable[str], str] = ...,
     alias: Union[Iterable[str], str] = ...,
+    virtual: bool = False,
     **kwds: Any
 ) -> Callable[[Callable[..., Any]], Command]: ...
 @overload
@@ -32,6 +34,7 @@ def kola_number(
     *,
     envs: Union[Iterable[str], str] = ...,
     alias: Union[Iterable[str], str] = ...,
+    virtual: bool = False,
     **kwds: Any
 ) -> Callable[[Callable[..., Any]], Command]: ...
 @overload
@@ -41,6 +44,7 @@ def kola_annotation(
     *,
     envs: Union[Iterable[str], str] = ...,
     alias: Union[Iterable[str], str] = ...,
+    virtual: bool = False,
     **kwds: Any
 ) -> Callable[[Callable[..., Any]], Command]: ...
 @overload
@@ -51,6 +55,7 @@ def kola_env_enter(
     *,
     envs: Union[Iterable[str], str] = ...,
     alias: Union[Iterable[str], str] = ...,
+    virtual: bool = False,
     **kwds: Any
 ) -> Callable[[Callable[..., Any]], EnvironmentEntry]: ...
 @overload
@@ -61,6 +66,7 @@ def kola_env_exit(
     *,
     envs: Union[Iterable[str], str] = ...,
     alias: Union[Iterable[str], str] = ...,
+    virtual: bool = False,
     **kwds: Any
 ) -> Callable[[Callable[..., Any]], EnvironmentExit]: ...
 @overload

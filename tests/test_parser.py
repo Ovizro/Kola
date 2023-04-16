@@ -2,14 +2,13 @@ from unittest import TestCase
 from kola.exception import KoiLangSyntaxError
 from kola.lexer import FileLexer, StringLexer
 from kola.parser import Parser
-
-from .util import cmd_test
+from kola.lib.recoder import recorder
 
 
 class TestParser(TestCase):
     def test_parser(self) -> None:
         lexer = FileLexer("examples/example0.kola")
-        Parser(lexer, cmd_test).exec()
+        Parser(lexer, recorder).exec()
 
     def test_command(self) -> None:
         lexer = StringLexer(
@@ -20,7 +19,7 @@ class TestParser(TestCase):
             """
         )
         self.assertEqual(
-            [i[0] for i in Parser(lexer, cmd_test)],
+            [i[0] for i in Parser(lexer, recorder)],
             ["hello", "@text", "@annotation"]
         )
         
@@ -38,7 +37,7 @@ class TestParser(TestCase):
             #test t(.0e-2)
             """
         )
-        Parser(lexer, cmd_test).exec()
+        Parser(lexer, recorder).exec()
     
     def test_recovery(self) -> None:
         lexer = StringLexer(
@@ -49,7 +48,7 @@ class TestParser(TestCase):
  meet you.
             """
         )
-        parser = Parser(lexer, cmd_test)
+        parser = Parser(lexer, recorder)
         with self.assertRaises(KoiLangSyntaxError):
             parser.exec()
         
@@ -65,7 +64,7 @@ class TestParser(TestCase):
             #normal
             """
         )
-        parser = Parser(lexer, cmd_test)
+        parser = Parser(lexer, recorder)
         with self.assertRaises(KoiLangSyntaxError):
             parser.exec()
         
@@ -81,7 +80,7 @@ class TestParser(TestCase):
             #normal
             """
         )
-        parser = Parser(lexer, cmd_test)
+        parser = Parser(lexer, recorder)
         with self.assertRaises(KoiLangSyntaxError):
             parser.exec()
         
@@ -97,4 +96,4 @@ class TestParser(TestCase):
             """
         )
         with self.assertRaises(KoiLangSyntaxError):
-            Parser(lexer, cmd_test).exec()
+            Parser(lexer, recorder).exec()
