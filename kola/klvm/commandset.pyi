@@ -9,6 +9,7 @@ from .command import Command, CommandLike
 
 class CommandSetMeta(ABCMeta):
     __command_field__: Set[CommandLike]
+    __virtual_table__: Dict[str, str]
 
     def __new__(cls, name: str, bases: Tuple[type, ...], attr: Dict[str, Any], **kwds: Any) -> Self: ...
     def generate_raw_commands(self) -> Dict[str, Any]: ...

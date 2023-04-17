@@ -39,4 +39,4 @@ jobs:
         pip install typing-extensions==4.1.1
     - name: Build dist and test with unittest
       run: |
-        make install build_dist
+        make install test build_dist

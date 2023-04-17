@@ -214,7 +214,10 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
             return
         home = self.home
         home.pop_apply(home.pop_prepare(self.__class__))
-        home["@end"]()
+        home.at_end()
+
+
+Environment.__virtual_table__["on_exception"] = "@exception"
     
 
 from .koilang import KoiLang

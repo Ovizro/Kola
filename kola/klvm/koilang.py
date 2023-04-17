@@ -191,32 +191,6 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             is_in = name in reachable
         return not is_in if inverse else is_in
 
-        # for n in names:
-        #     if n.startswith('+!'):
-        #         while n[2:] in reachable:
-        #             if len(reachable) < 2:
-        #                 break
-        #             cache = self.pop_start()
-        #             self.pop_end(cache)
-        #             reachable.popleft()
-        #         else:
-        #             continue
-        #     elif n.startswith('!'):
-        #         if any(i != n[1:] for i in reachable):
-        #             continue
-        #     elif n.startswith('+'):
-        #         while reachable[0] != n[1:]:
-        #             if len(reachable) < 2:
-        #                 break
-        #             cache = self.pop_start()
-        #             self.pop_end(cache)
-        #             reachable.popleft()
-        #         else:
-        #             continue
-        #     elif n in reachable:
-        #         continue
-        #     raise ValueError(f"unmatched environment name {n}")
-    
     def __parse(self, __lexer: BaseLexer, *, close_lexer: bool = True) -> None:
         parser = Parser(__lexer, self)
         try:
@@ -331,7 +305,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     ) -> Any:
         if envs:
             self.ensure_env(envs)
-        if skip:
+        if not skip:
             return command.__func__(bound_instance or self, *args, **kwargs)
 
     @property
