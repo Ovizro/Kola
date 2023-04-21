@@ -1,3 +1,5 @@
+from functools import partial
+import os
 from types import TracebackType
 from typing import Type
 from unittest import TestCase
@@ -7,6 +9,7 @@ from kola.parser import Parser
 from kola.klvm import CommandSet, Environment, KoiLang, kola_command, kola_annotation, kola_env_enter, kola_env_exit, kola_text
 from kola.klvm.decorator import kola_environment
 from kola.klvm.writer import KoiLangWriter
+from kola.writer import BaseWriter
 
 
 class CommandSetTest(CommandSet):
@@ -32,9 +35,9 @@ class EnvTest(KoiLang):
         return __ver
 
     class NumberEnv(Environment):
-        id: int
+        __slots__ = ["id"]
 
-        @kola_env_enter("@number")
+        @kola_env_enter("@number", envs=("__init__", "!+number"))
         def number(self, id: int) -> int:
             assert not hasattr(self, "id")
             self.id = id
@@ -44,7 +47,7 @@ class EnvTest(KoiLang):
         def text(self, text: str) -> str:
             return f"[{self.id}] text: {text}"
         
-        @kola_environment
+        @kola_environment()
         class SubEnv:
             @kola_env_enter
             def enter(self) -> int:
@@ -57,8 +60,12 @@ class EnvTest(KoiLang):
 
 class KolaTest(KoiLang, command_threshold=2, lstrip_text=False):
     @kola_command(envs="+__init__")
-    def version(self, __ver: int) -> int:
+    def version(self, __ver: int) -> int:  # type: ignore
         return __ver
+    
+    @version.writer
+    def version(writer: BaseWriter, __ver: int) -> None:  # type: ignore
+        writer.write_command("version", 120)
 
     @kola_text
     def text(self, string: str) -> str:
@@ -86,6 +93,7 @@ class TestKoiLang(TestCase):
         self.assertEqual(KolaTest.__command_threshold__, 2)
         with self.assertRaises(TypeError):
             Environment(CommandSet())
+        KoiLang().parse("")
 
     def test_commandset(self) -> None:
         string = """
@@ -137,16 +145,20 @@ class TestKoiLang(TestCase):
     
     def test_writer(self) -> None:
         writer = KolaTest.writer
+        self.assertIs(writer, KolaTest.writer)
         self.assertTrue(issubclass(writer, KoiLangWriter))
         self.assertTrue(issubclass(writer, KolaTest))
-        with writer() as wr:
+
+        path = "tests/tmp.kola"
+        with writer(path) as wr:
+            self.addCleanup(partial(os.remove, path))
             with self.assertRaises(TypeError):
                 wr.version()
-            wr.version(120)
+            wr.version(10)
             wr.text("Hello")
             wr.annotation("?")
-            text = wr.getvalue()
-        self.assertEqual(text, "##version 120\nHello\n###?\n")
+        ret = list(KolaTest().parse_file(path, with_ret=True))
+        self.assertEqual(ret, [120, "text: Hello", "annotation: ###?"])
 
     def test_writer2(self) -> None:
         with EnvTest.writer() as wr:

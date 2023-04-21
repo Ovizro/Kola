@@ -1,6 +1,9 @@
-from types import MethodType
+from functools import partial
+from types import TracebackType
 from typing import Any, Callable, Dict, Generator, Iterable, Optional, Set, Tuple, Type, TypeVar, Union, overload
 from typing_extensions import Self
+
+from ..exception import KoiLangError
 
 from .command import Command
 from .commandset import CommandSet, CommandSetMeta
@@ -56,7 +59,7 @@ class EnvironmentEntry(EnvironmentCommand):
 class EnvironmentExit(EnvironmentCommand):
     __slots__ = []
 
-    def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
+    def __call__(self, vmobj: "Environment", *args: Any, **kwds: Any) -> Any:
         home = vmobj.home
         pop_env = home.pop_prepare(self.env_class)
         ret = super().__call__(vmobj, *args, **kwds)
@@ -67,12 +70,11 @@ class EnvironmentExit(EnvironmentCommand):
 class EnvironmentAutopop(EnvironmentCommand):
     __slots__ = []
 
-    def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
+    def __call__(self, vmobj: "Environment", *args: Any, **kwds: Any) -> Any:
         assert self.env_class
         home = vmobj.home
 
-        cache = home.pop_prepare(self.env_class)
-        home.pop_apply(cache)
+        vmobj.on_autopop()
         cache = home.push_prepare(self.env_class)
         ret = super().__call__(cache, *args, **kwds)
         home.push_apply(cache)
@@ -87,8 +89,8 @@ class EnvironmentMeta(CommandSetMeta):
         entry = set()
         exit = set()
         
-        # usually, there are not many entry points and exit points.
-        # so, no like attr `__command_field__`, I calculate these here.
+        # Usually, there are not many entry points and exit points.
+        # Therefore, unlike the attribute `__command_fields__`, they are computed here
         for i in bases:
             if not isinstance(i, EnvironmentMeta):
                 continue
@@ -156,7 +158,7 @@ class EnvironmentMeta(CommandSetMeta):
                 raise AttributeError(f"cannot fetch command '{__name}' before the environment initialization")
             raise AttributeError("only entry commands can be accessed through the interface")
         
-        def __repr__(self) -> str:
+        def __repr__(self) -> str:  # pragma: no cover
             return f"<kola environment '{self.__env_class.__name__}' entry point command interface>"
 
 
@@ -199,13 +201,17 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
         assert isinstance(cmd_set, KoiLang)
         return cmd_set
     
-    def at_initialize(self, cur_top: CommandSet) -> None:
+    def set_up(self, cur_top: CommandSet) -> None:
         """called before the environment added to the env stack top"""
 
-    def at_finalize(self, cur_top: CommandSet) -> None:
+    def tear_down(self, cur_top: CommandSet) -> None:
         """called after the environment removed from the env stack top"""
 
-    @MethodType(Command, "@end")
+    def on_autopop(self) -> None:
+        home = self.home
+        home.pop_apply(home.pop_prepare(self.__class__))
+
+    @partial(Command, "@end")
     def at_end(self) -> None:
         """
         ensure autopop environments properly popped at the end of parsing
@@ -215,9 +221,10 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
         home = self.home
         home.pop_apply(home.pop_prepare(self.__class__))
         home.at_end()
-
-
-Environment.__virtual_table__["on_exception"] = "@exception"
     
+    @partial(Command, "@exception", virtual=True, suppression=True)
+    def on_exception(self, exc_type: Type[KoiLangError], exc_ins: Optional[KoiLangError], traceback: TracebackType) -> Any:
+        return self.back["@exception"]
+
 
 from .koilang import KoiLang

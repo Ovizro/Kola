@@ -2,7 +2,7 @@ from unittest import TestCase
 from kola.exception import KoiLangSyntaxError
 from kola.lexer import FileLexer, StringLexer
 from kola.parser import Parser
-from kola.lib.recoder import recorder
+from kola.lib.recorder import recorder
 
 
 class TestParser(TestCase):

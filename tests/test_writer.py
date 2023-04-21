@@ -86,7 +86,7 @@ class TestWriter(TestCase):
             def help(self) -> None:  # type: ignore
                 print("No, there is no help!")
             
-            @help.writer
+            @help.set_data("writer_func")
             def help(writer: BaseWriter) -> None:  # type: ignore
                 writer.write_command("help", "In fact, no help can be provided.")
             

@@ -74,7 +74,7 @@ class KoiLangWriter(KoiLang):
         if envs:
             self.ensure_env(envs)
         
-        if command.__name__ in ["@start", "@end"]:
+        if command.__name__ in ["@start", "@end"]:  # pragma: no cover
             # writer do not need to initalize
             return
         if not writer_func:
@@ -87,7 +87,7 @@ class KoiLangWriter(KoiLang):
         self._writer.newline()
     
     def getvalue(self) -> str:
-        if not isinstance(self._writer, StringWriter):
+        if not isinstance(self._writer, StringWriter):  # pragma: no cover
             raise TypeError("only `StringWriter` object can use 'getvalue' method")
         return self._writer.getvalue()
 

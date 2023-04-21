@@ -18,7 +18,7 @@ from typing import List, NamedTuple, Optional, Type
 from ..klvm import CommandSetMeta, KoiLang
 
 
-if "KOLA_LIB_PATH" in os.environ:
+if "KOLA_LIB_PATH" in os.environ:  # pragma: no cover
     KOLA_LIB_PATH = os.environ["KOLA_LIB_PATH"].split(os.pathsep)
 else:
     KOLA_LIB_PATH = ['.', './kola_lib', os.path.dirname(__file__)]
@@ -51,7 +51,7 @@ def collect_all() -> List[CommandSetMeta]:
     :rtype: List[CommandSetMeta]
     """
     frame = inspect.currentframe()
-    if not frame or not frame.f_back:
+    if not frame or not frame.f_back:  # pragma: no cover
         raise ValueError("cannot read variables from the frame")
     return [
         i for i in frame.f_back.f_locals.values()
@@ -71,7 +71,7 @@ def load_library(name: str, paths: List[str] = KOLA_LIB_PATH) -> ModuleType:
     :return: the Kola module
     :rtype: ModuleType
     """
-    if not _module_pattern.match(name):
+    if not _module_pattern.match(name):  # pragma: no cover
         raise ValueError(f"illegal module name '{name}'")
     module_name = "kola.lib." + name
     if module_name in sys.modules:
@@ -81,9 +81,7 @@ def load_library(name: str, paths: List[str] = KOLA_LIB_PATH) -> ModuleType:
         spec = None
         b = os.path.abspath(b)
         full_path = os.path.join(b, name)
-        if os.path.isfile(full_path):
-            spec = spec_from_file_location(module_name, full_path)
-        elif os.path.isdir(full_path):
+        if os.path.isdir(full_path):
             spec = spec_from_file_location(
                 module_name, os.path.join(full_path, "__init__.py"),
                 submodule_search_locations=[full_path]
@@ -97,7 +95,7 @@ def load_library(name: str, paths: List[str] = KOLA_LIB_PATH) -> ModuleType:
         if spec:
             spec.name = module_name
             return _load(spec)
-    raise ImportError(f"cannot load script {name}", name=name)
+    raise ImportError(f"cannot load script {name}", name=name)  # pragma: no cover
 
 
 def main_class_from_module(module: ModuleType) -> Type[KoiLang]:
@@ -114,6 +112,6 @@ def main_class_from_module(module: ModuleType) -> Type[KoiLang]:
         for i in module.__dict__.values():
             if isinstance(i, type) and issubclass(i, KoiLang) and i is not KoiLang:
                 return i
-    raise ValueError(
+    raise ValueError(  # pragma: no cover
         f"no available main class for kola module '{spec.name if spec else module.__name__}'"
     )

@@ -32,8 +32,13 @@ build_dist:
 lint:
 	flake8 ${MODULE}/ tests/ --exclude __init__.py --count --max-line-length=127 --extend-ignore=W293,E402
 
-test:
+test: build
 	python -m unittest
+
+coverage:
+	coverage run --source ${MODULE} --parallel-mode -m unittest
+	coverage combine
+	coverage html -i
 
 uninstall:
 	pip uninstall ${PIP_MODULE} -y || true

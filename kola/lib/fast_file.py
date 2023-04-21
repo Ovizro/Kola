@@ -30,9 +30,9 @@ class FastFile(KoiLang):
         def text(self, text: str) -> None:
             self.fp.write(text)
 
-        def at_finalize(self, cur_top: CommandSet) -> None:
+        def tear_down(self, cur_top: CommandSet) -> None:
             self.fp.close()
-            return super().at_finalize(cur_top)
+            return super().tear_down(cur_top)
     
     class space(Environment):
         @kola_env_enter("space", envs="!file")
@@ -51,11 +51,11 @@ class FastFile(KoiLang):
         def exit(self) -> None:
             os.chdir(self.pwd)
         
-        def at_initialize(self, cur_top: CommandSet) -> None:
+        def set_up(self, cur_top: CommandSet) -> None:
             if isinstance(cur_top, FastFile.file):
                 home = self.home
                 cache = home.pop_prepare()
                 home.pop_apply(cache)
                 # update self.back
                 self.back = home.top
-            return super().at_initialize(cur_top)
+            return super().set_up(cur_top)

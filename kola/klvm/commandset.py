@@ -15,7 +15,7 @@ class CommandSetMeta(ABCMeta):
 
     def __new__(cls, name: str, bases: Tuple[Type, ...], attr: Dict[str, Any], **kwds: Any) -> Self:
         command_field = set()
-        virtual_table = {}
+        virtual_table = attr.get("__virtual_table__", {})
         for i in bases:
             if isinstance(i, CommandSetMeta):
                 virtual_table.update(i.__virtual_table__)

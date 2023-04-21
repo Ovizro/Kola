@@ -109,7 +109,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     
     def push_prepare(self, __env_type: Type[Environment]) -> Environment:
         env = __env_type(self.__top)
-        env.at_initialize(self.__top)
+        env.set_up(self.__top)
         return env
 
     def push_apply(self, __env_cache: Environment) -> None:
@@ -119,7 +119,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     
     def pop_prepare(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
         top = self.__top
-        if top is self:
+        if top is self:  # pragma: no cover
             raise ValueError('cannot pop the inital environment')
         if __env_type is None:
             assert isinstance(top, Environment)
@@ -129,7 +129,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
                     break
                 top = top.back
             else:
-                if not isinstance(top, __env_type):
+                if not isinstance(top, __env_type):  # pragma: no cover
                     raise ValueError("unmatched environment")
         return top
 
@@ -138,7 +138,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             top = self.__top
             self.__top = __env_cache.back
         while isinstance(top, Environment):
-            top.at_finalize(self.__top)
+            top.tear_down(self.__top)
             if top is __env_cache:
                 break
             top = top.back
@@ -170,7 +170,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         if ((not ng or all(not self._ensure_env(reachable, i) for i in ng)) and
                 (not pt or any(self._ensure_env(reachable, i) for i in pt))):
             return
-        raise ValueError(f"unmatched environment name {reachable[0]}")
+        raise ValueError(f"unmatched environment name {reachable[0]}")  # pragma: no cover
     
     @staticmethod
     def _ensure_env(reachable: List[str], name: str) -> bool:
@@ -250,7 +250,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         :rtype: Generator[Any, None, None] or None
         """
         if isinstance(lexer, str):
-            if not close_lexer:
+            if not close_lexer:  # pragma: no cover
                 raise ValueError("inner string lexer must be closed at the end of parsing")
             lexer = StringLexer(
                 lexer,
@@ -334,7 +334,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         """
     
     @partial(Command, "@exception", virtual=True)
-    def on_exception(self, exc_type: Type[BaseException], exc_ins: BaseException, traceback: TracebackType) -> None:
+    def on_exception(self, exc_type: Type[KoiLangError], exc_ins: Optional[KoiLangError], traceback: TracebackType) -> None:
         """
         exception handling command
 

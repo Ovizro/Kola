@@ -1,3 +1,4 @@
+from functools import partialmethod
 from types import MethodType
 from typing import Any, Callable, Dict, Generator, Iterable, Tuple, Union, overload
 from typing_extensions import Self, Protocol, runtime_checkable
@@ -47,9 +48,7 @@ class Command(object):
             return self
         return wrapper
 
-    def writer(self, func: Callable) -> Self:
-        self.extra_data["writer_func"] = func
-        return self
+    writer = partialmethod(set_data, "writer_func")
     
     @classmethod
     def from_command(cls, command: "Command", **kwds: Any) -> Self:
@@ -63,7 +62,7 @@ class Command(object):
         )
     
     @property
-    def __wrapped__(self) -> Callable:
+    def __wrapped__(self) -> Callable:  # pragma: no cover
         return self.__func__
     
     def __kola_command__(self, force: bool = False) -> Generator[Tuple[str, Self], None, None]:
@@ -82,7 +81,7 @@ class Command(object):
 
     def __call__(self, vmobj: Any, *args: Any, **kwds: Any) -> Any:
         caller = getattr(vmobj, "__kola_caller__", None)
-        if caller is None:
+        if caller is None:  # pragma: no cover
             return self.__func__(vmobj, *args, **kwds)
         return caller(self, args, kwds, **self.extra_data)
 
