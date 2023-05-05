@@ -15,11 +15,8 @@ base_path = os.path.dirname(__file__)
 
 
 class TestLibImport(TestCase):
-    def setUp(self) -> None:
-        super().setUp()
-        KOLA_LIB_PATH.append(base_path)
-
     def test_lib(self) -> None:
+        KOLA_LIB_PATH.append(base_path)
         recorder = load_library("recorder")
 
         recorder = load_library("recorder_test")
@@ -51,3 +48,8 @@ class TestLibImport(TestCase):
         main = main_class_from_module(recorder)
         from kola.lib.recorder_bin import _Recorder  # type: ignore
         self.assertIs(main, _Recorder)
+
+        debugger = load_library("debugger")
+        main = main_class_from_module(debugger)
+        from kola.lib.debugger import KoiLangRunner
+        self.assertIs(main, KoiLangRunner)
