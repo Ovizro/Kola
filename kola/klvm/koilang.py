@@ -1,21 +1,23 @@
-from functools import partial
 import os
 import sys
+from contextlib import contextmanager, suppress
+from functools import partial
 from threading import Lock
 from types import TracebackType, new_class
-from contextlib import contextmanager, suppress
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type, TypeVar, Union, overload
+from typing import (Any, Callable, Dict, Generator, List, Optional, Tuple,
+                    Type, TypeVar, Union, overload)
 from typing_extensions import Literal, Self
 
+from ..exception import KoiLangError
 from ..lexer import BaseLexer, FileLexer, StringLexer
 from ..parser import Parser
-from ..exception import KoiLangError
 from .command import Command
-from .commandset import CommandSetMeta, CommandSet
+from .commandset import CommandSet, CommandSetMeta
 from .environment import Environment
 
 
 _T_EnvCls = TypeVar("_T_EnvCls", bound=Type[Environment])
+_T_Handler = TypeVar("_T_Handler", bound=Type["AbstractHandler"])
 
 
 class KoiLangMeta(CommandSetMeta):
@@ -27,6 +29,7 @@ class KoiLangMeta(CommandSetMeta):
     __text_encoding__: str
     __text_lstrip__: bool
     __command_threshold__: int
+    __command_handlers__: List[Type["AbstractHandler"]]
 
     def __new__(
         cls,
@@ -61,6 +64,8 @@ class KoiLangMeta(CommandSetMeta):
             command_threshold = command_threshold or 1
             encoding = encoding or "utf-8"
             lstrip_text = lstrip_text if lstrip_text is not None else True
+            if "__command_handlers__" not in attr:
+                attr["__command_handlers__"] = []
         
         if command_threshold:
             assert command_threshold >= 0
@@ -74,6 +79,13 @@ class KoiLangMeta(CommandSetMeta):
     def register_environment(self, env_class: _T_EnvCls) -> _T_EnvCls:
         self.__command_field__.add(env_class)
         return env_class
+    
+    def register_handler(self, handler: _T_Handler) -> _T_Handler:
+        if "__command_handlers__" not in self.__dict__:
+            # copy the handler list to avoid changing the base classes
+            self.__command_handlers__ = self.__command_handlers__.copy()
+        self.__command_handlers__.append(handler)
+        return handler
     
     @property
     def writer(self) -> Type:
@@ -99,13 +111,14 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     `KoiLang` class is the top-level interface of 'kola' package.
     Just create a subclass to define your own markup language based on KoiLang.
     """
-    __slots__ = ["_lock", "__top", "__exec_level"]
+    __slots__ = ["_handler", "_lock", "__top", "__exec_level"]
 
     def __init__(self) -> None:
         super().__init__()
         self._lock = Lock()
         self.__top = self
         self.__exec_level = 0
+        self._handler = build_handlers(self.__class__.__command_handlers__, self)
     
     def push_prepare(self, __env_type: Type[Environment]) -> Environment:
         env = __env_type(self.__top)
@@ -145,51 +158,16 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         else:
             raise ValueError('cannot pop the inital environment')
     
-    def ensure_env(self, names: Tuple[str, ...]) -> None:
-        if isinstance(names, str):
-            names = (names,)
-
-        ng, pt = [], []
-        for i in names:
-            if i.startswith('!'):
-                ng.append(i[1:])
-            else:
-                pt.append(i)
-
-        reachable = []
-        top = self.top
-        while isinstance(top, Environment):
-            reachable.append(top.__class__.__name__)
-            if not top.__class__.__env_autopop__:
-                break
-            top = top.back
-        else:
-            # the base KoiLang object name is '__init__'
-            reachable.append("__init__")
-
-        if ((not ng or all(not self._ensure_env(reachable, i) for i in ng)) and
-                (not pt or any(self._ensure_env(reachable, i) for i in pt))):
-            return
-        raise ValueError(f"unmatched environment name {reachable[0]}")  # pragma: no cover
+    def add_handler(self, handler: Type["AbstractHandler"]) -> "AbstractHandler":
+        hdl = handler(self)
+        self._handler = self._handler.insert(hdl)
+        return hdl
     
-    @staticmethod
-    def _ensure_env(reachable: List[str], name: str) -> bool:
-        if name.startswith('+'):
-            strict = True
-            name = name[1:]
-        else:
-            strict = False
-        if name.startswith('!'):
-            inverse = True
-            name = name[1:]
-        else:
-            inverse = False
-
-        if strict:
-            is_in = reachable[0] == name
-        else:
-            is_in = name in reachable
-        return not is_in if inverse else is_in
+    def remove_handler(self, handler: "AbstractHandler") -> None:
+        hdl = self._handler.remove(handler)
+        if hdl is None:  # pragma: no cover
+            raise ValueError("cannot remove all handlers")
+        self._handler = hdl
 
     def __parse(self, __lexer: BaseLexer, *, close_lexer: bool = True) -> None:
         parser = Parser(__lexer, self)
@@ -217,7 +195,6 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
                         yield from parser
                     except KoiLangError:
                         if not self.on_exception(*sys.exc_info()):
-
                             raise
                     else:
                         break
@@ -279,11 +256,13 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     def exec_block(self) -> Generator[Self, None, None]:
         if not self.__exec_level:
             self.at_start()
-        self.__exec_level += 1
+        with self._lock:
+            self.__exec_level += 1
         try:
             yield self
         finally:
-            self.__exec_level -= 1
+            with self._lock:
+                self.__exec_level -= 1
             if not self.__exec_level:
                 self.at_end()
 
@@ -292,21 +271,8 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             return super().__getitem__(__key)
         return self.__top[__key]
 
-    def __kola_caller__(
-        self,
-        command: Command,
-        args: tuple,
-        kwargs: Dict[str, Any],
-        *,
-        bound_instance: Optional[CommandSet] = None,
-        envs: Tuple[str, ...] = (),
-        skip: bool = False,
-        **kwds: Any
-    ) -> Any:
-        if envs:
-            self.ensure_env(envs)
-        if not skip:
-            return command.__func__(bound_instance or self, *args, **kwargs)
+    def __kola_caller__(self, command: Command, args: tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
+        return self._handler(command, args, kwargs, **kwds)
 
     @property
     def top(self) -> CommandSet:
@@ -343,4 +309,5 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         """
 
 
+from .handler import AbstractHandler, build_handlers
 from .writer import KoiLangWriter

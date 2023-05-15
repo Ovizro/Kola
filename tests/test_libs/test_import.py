@@ -1,6 +1,6 @@
 import os
 from shutil import copy
-from unittest import TestCase
+from unittest import TestCase, skipUnless
 
 from kola.lib import KOLA_LIB_PATH, load_library, main_class_from_module
 
@@ -24,14 +24,14 @@ class TestLibImport(TestCase):
         from kola.lib.recorder_test import _Recorder  # type: ignore
         self.assertIs(main, _Recorder)
         
-        recorder = load_library("recorder_spec")
+        recorder = load_library("_recorder_spec")
         main = main_class_from_module(recorder)
-        from kola.lib.recorder_spec import _Recorder  # type: ignore
+        from kola.lib._recorder_spec import _Recorder  # type: ignore
         self.assertIs(main, _Recorder)
 
-        if pyx_to_dll is None:
-            self.skipTest("Cython module is not available")
-        
+    @skipUnless(pyx_to_dll, "Cython module is not available")
+    def test_binlib(self) -> None:
+        assert pyx_to_dll
         bin_name = "recorder_bin"
         bin_path = bin_name + ".pyx"
         copy(os.path.join(base_path, "recorder_test.py"), bin_path)

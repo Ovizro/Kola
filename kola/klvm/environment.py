@@ -74,7 +74,8 @@ class EnvironmentAutopop(EnvironmentCommand):
         assert self.env_class
         home = vmobj.home
 
-        vmobj.on_autopop()
+        cache = home.pop_prepare(self.env_class)
+        home.pop_apply(cache)
         cache = home.push_prepare(self.env_class)
         ret = super().__call__(cache, *args, **kwds)
         home.push_apply(cache)
@@ -206,10 +207,6 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
 
     def tear_down(self, cur_top: CommandSet) -> None:
         """called after the environment removed from the env stack top"""
-
-    def on_autopop(self) -> None:
-        home = self.home
-        home.pop_apply(home.pop_prepare(self.__class__))
 
     @partial(Command, "@end")
     def at_end(self) -> None:

@@ -1,14 +1,14 @@
-from functools import partial
 import os
+from functools import partial
 from types import TracebackType
 from typing import Type
 from unittest import TestCase
 
+from kola.klvm import CommandSet, Environment, KoiLang, kola_environment
+from kola.klvm.decorator import kola_command, kola_annotation, kola_text, kola_env_enter, kola_env_exit
+from kola.klvm.writer import KoiLangWriter
 from kola.lexer import StringLexer
 from kola.parser import Parser
-from kola.klvm import CommandSet, Environment, KoiLang, kola_command, kola_annotation, kola_env_enter, kola_env_exit, kola_text
-from kola.klvm.decorator import kola_environment
-from kola.klvm.writer import KoiLangWriter
 from kola.writer import BaseWriter
 
 
@@ -37,7 +37,7 @@ class EnvTest(KoiLang):
     class NumberEnv(Environment):
         __slots__ = ["id"]
 
-        @kola_env_enter("@number", envs=("__init__", "!+number"))
+        @kola_env_enter("@number", envs=("$__init__", "!+number"))
         def number(self, id: int) -> int:
             assert not hasattr(self, "id")
             self.id = id
@@ -59,7 +59,7 @@ class EnvTest(KoiLang):
 
 
 class KolaTest(KoiLang, command_threshold=2, lstrip_text=False):
-    @kola_command(envs="+__init__")
+    @kola_command(envs="+$0")
     def version(self, __ver: int) -> int:  # type: ignore
         return __ver
     

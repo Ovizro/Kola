@@ -7,6 +7,7 @@ from typing_extensions import Self
 from ..writer import BaseWriter, FileWriter, StringWriter
 from .command import Command
 from .environment import Environment
+from .handler import AbstractHandler
 from .koilang import KoiLang
 
 
@@ -57,32 +58,6 @@ class KoiLangWriter(KoiLang):
         self._writer.dec_indent()
         return super().pop_prepare(__env_type)
     
-    def __kola_caller__(
-        self,
-        command: Command,
-        args: tuple,
-        kwargs: Dict[str, Any],
-        *,
-        envs: Tuple[str, ...] = (),
-        writer_func: Optional[Callable] = None,
-        **kwds: Any
-    ) -> None:
-        # if isinstance(command.__wrapped__, Command):
-        #     return super().__kola_caller__(
-        #         command, args, kwargs, envs=envs, writer_func=writer_func, **kwds
-        #     )
-        if envs:
-            self.ensure_env(envs)
-        
-        if command.__name__ in ["@start", "@end"]:  # pragma: no cover
-            # writer do not need to initalize
-            return
-        if not writer_func:
-            writer_func = _default_writer_factory(
-                command.__name__, signature(command.__func__)
-            )
-        writer_func(self._writer, *args, **kwargs)
-    
     def newline(self) -> None:
         self._writer.newline()
     
@@ -97,3 +72,30 @@ class KoiLangWriter(KoiLang):
 
     def __exit__(self, *args) -> None:
         return self._writer.__exit__(*args)
+
+
+@KoiLangWriter.register_handler
+class WriterHandler(AbstractHandler):
+    __slots__ = []
+
+    priority = 3
+    owner: "KoiLangWriter"
+
+    def __call__(
+        self,
+        command: Command,
+        args: Tuple,
+        kwargs: Dict[str, Any],
+        *,
+        writer_func: Optional[Callable] = None,
+        **kwds: Any
+    ) -> Any:
+        name = command.__name__
+        if name.startswith('@') and name not in ["@text", "@number", "@annotation"]:  # pragma: no cover
+            return super().__call__(command, args, kwargs, **kwds)
+        
+        if not writer_func:
+            writer_func = _default_writer_factory(
+                command.__name__, signature(command.__func__)
+            )
+        return writer_func(self.owner._writer, *args, **kwargs)

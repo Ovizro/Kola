@@ -5,6 +5,7 @@ from typing import (Any, Callable, Dict, Iterable, Optional, Set, Tuple, Union,
 from typing_extensions import Self
 
 from .command import Command, CommandLike
+from .mask import Mask, ClassTypeMask
 
 
 class CommandSetMeta(ABCMeta):
@@ -44,11 +45,15 @@ class CommandSetMeta(ABCMeta):
     
 
 class CommandSet(metaclass=CommandSetMeta):
+    __slots__ = ["raw_command_set", "_bound_command_cache"]
+
     raw_command_set: Dict[str, Callable]
     _bound_command_set: Dict[str, Callable]
 
     def __init__(self) -> None: ...
+    def check_virtual(self, command: Command) -> bool: ...
     def get(self, __key: str, default: Optional[Callable] = ...) -> Optional[Callable]: ...
+    @classmethod
+    def mask(cls, type: Union["Mask.MType", str] = "") -> ClassTypeMask: ...
     def __kola_caller__(self, command: Command, args: tuple, kwargs: Dict[str, Any], **kwds) -> Any: ...
     def __getitem__(self, __key: str) -> Callable: ...
-

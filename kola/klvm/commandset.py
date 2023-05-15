@@ -106,6 +106,10 @@ class CommandSet(object, metaclass=CommandSetMeta):
     def check_virtual(self, command: Command) -> bool:
         return command is self.raw_command_set[command.__name__]
 
+    @classmethod
+    def mask(cls, type: Union["Mask.MType", str] = "") -> "Mask":
+        return ClassTypeMask(cls, type)  # type: ignore
+
     def __kola_caller__(self, command: Command, args: tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
         """hook function used to change the calling behavior of the `Command` class
 
@@ -128,3 +132,6 @@ class CommandSet(object, metaclass=CommandSetMeta):
     
     def __repr__(self) -> str:
         return f"<kola {self.__class__.__name__} object at 0x{id(self):08X}>"
+
+
+from .mask import Mask, ClassTypeMask

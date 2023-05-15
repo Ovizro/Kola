@@ -26,7 +26,7 @@ recorder = _Recorder()
 def parse(__lexer: BaseLexer) -> List[Instruction]: ...
 @overload
 def parse(__str: str, *, command_threshold: int = 1, no_lstrip: bool = ...) -> List[Instruction]: ...
-def parse(__lexer_or_str: Union[str, BaseLexer], **kwds: Any) -> List[Instruction]:
+def parse(__lexer_or_str: Union[str, BaseLexer], **kwds: Any) -> List[Instruction]:  # noqa: E302
     if isinstance(__lexer_or_str, str):
         __lexer_or_str = StringLexer(__lexer_or_str, **kwds)
     else:
