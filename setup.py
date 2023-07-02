@@ -56,10 +56,10 @@ setup(
     long_description=description,
     long_description_content_type='text/markdown',
 
-    author="Ovizro",
-    author_email="Ovizro@hypercol.com",
+    author="Visecy",
+    author_email="Visecy@visecy.top",
     maintainer="Ovizro",
-    maintainer_email="Ovizro@hypercol.com",
+    maintainer_email="Ovizro@visecy.top",
     license="Apache 2.0",
 
     url="https://github.com/Ovizro/Kola",

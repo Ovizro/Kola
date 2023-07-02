@@ -17,7 +17,7 @@ class BaseDebugger(KoiLang):
     def version(self, __chk_ver: Optional[int] = None) -> None:
         if __chk_ver is None:
             print(__version__)
-        elif __chk_ver != 100:
+        elif __chk_ver < 100 or __chk_ver > 120:
             print(f"version {__chk_ver} is not support by runner {__version__}")
             sys.exit(2)
 

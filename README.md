@@ -3,6 +3,7 @@ Simple python module for KoiLang parsing.
 
 [![License](https://img.shields.io/github/license/Ovizro/Kola.svg)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/KoiLang.svg)](https://pypi.python.org/pypi/KoiLang)
+![PyPI - Downloads](https://img.shields.io/pypi/dw/KoiLang)
 ![Python Version](https://img.shields.io/badge/python-3.6%20|%203.7%20|%203.8%20|%203.9%20|%203.10-blue.svg)
 
 ## Installation

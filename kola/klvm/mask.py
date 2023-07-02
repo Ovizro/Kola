@@ -71,6 +71,8 @@ class ClassNameMask(Mask):
             name = env_name[1:]
             if name in kwds:
                 env_name = kwds[name].__class__.__name__
+        elif env_name == "__init__":
+            env_name = kwds["__init__"].__class__.__name__
         self.env_name = env_name
         super().__init__(type=type, not_=not_)
     

@@ -106,7 +106,7 @@ class KoiLangRunner(BaseDebugger):
     
     @kola_command(alias=["load_lib", "load_library"])
     def load_script(self, name: str, lib_path: Optional[List[str]] = None) -> None:
-        kola_module = load_library(name, bases=lib_path or KOLA_LIB_PATH)
+        kola_module = load_library(name, lib_path or KOLA_LIB_PATH)
         self.load_command_set(kola_module)
     
     def at_start(self) -> None:

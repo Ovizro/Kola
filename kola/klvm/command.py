@@ -21,7 +21,7 @@ class Command(object):
         __name: str,
         func: Callable,
         *,
-        alias: Union[Iterable[str], str] = tuple(),
+        alias: Union[Iterable[str], str] = (),
         suppression: bool = False,
         virtual: bool = False,
         **kwds: Any

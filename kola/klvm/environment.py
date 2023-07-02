@@ -137,8 +137,9 @@ class EnvironmentMeta(CommandSetMeta):
                     return cur
                 cur = cur.back
             else:
-                return self.EntryPointInterface(self, ins)
-                # raise ValueError(f"cannot find env '{self.__name__}' in the {home}")
+                if ins is home.top:
+                    return self.EntryPointInterface(self, ins)
+                raise ValueError(f"cannot find env '{self.__name__}' in the {home}")
         return self
     
     class EntryPointInterface:
@@ -202,10 +203,10 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
         assert isinstance(cmd_set, KoiLang)
         return cmd_set
     
-    def set_up(self, cur_top: CommandSet) -> None:
+    def set_up(self, top: CommandSet) -> None:
         """called before the environment added to the env stack top"""
 
-    def tear_down(self, cur_top: CommandSet) -> None:
+    def tear_down(self, top: CommandSet) -> None:
         """called after the environment removed from the env stack top"""
 
     @partial(Command, "@end")

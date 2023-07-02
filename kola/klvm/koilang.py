@@ -158,10 +158,11 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         else:
             raise ValueError('cannot pop the inital environment')
     
-    def add_handler(self, handler: Type["AbstractHandler"]) -> "AbstractHandler":
-        hdl = handler(self)
-        self._handler = self._handler.insert(hdl)
-        return hdl
+    def add_handler(self, handler: Union[Type["AbstractHandler"], "AbstractHandler"]) -> "AbstractHandler":
+        if isinstance(handler, type):
+            handler = handler(self)
+        self._handler = self._handler.insert(handler)
+        return handler
     
     def remove_handler(self, handler: "AbstractHandler") -> None:
         hdl = self._handler.remove(handler)

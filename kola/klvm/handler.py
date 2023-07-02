@@ -117,6 +117,7 @@ class EnsureEnvHandler(AbstractHandler):
                 contains = reachable.copy()
                 while isinstance(top, Environment):
                     contains.append(top)
+                    top = top.back
                 contains.append(self.owner)
                 break
             top = top.back
@@ -127,7 +128,7 @@ class EnsureEnvHandler(AbstractHandler):
         self._cache = (reachable, contains)
     
     def eval_masks(self, checker: CommandSet, names: Iterable[Union[str, Mask]]) -> List[Mask]:
-        if isinstance(names, str):
+        if isinstance(names, (str, Mask)):
             names = (names,)
         var_dict = {str(i): self.contains[i] for i in range(len(self.contains) - 1, -1, -1)}
         var_dict["top"] = self.contains[0]

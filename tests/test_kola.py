@@ -37,7 +37,7 @@ class EnvTest(KoiLang):
     class NumberEnv(Environment):
         __slots__ = ["id"]
 
-        @kola_env_enter("@number", envs=("$__init__", "!+number"))
+        @kola_env_enter("@number", envs=("__init__", "!+number"))
         def number(self, id: int) -> int:
             assert not hasattr(self, "id")
             self.id = id
