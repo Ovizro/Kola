@@ -7,7 +7,7 @@ from kola.lib import KOLA_LIB_PATH, load_library, main_class_from_module
 try:
     from pyximport.pyxbuild import pyx_to_dll
     from pyximport.pyximport import get_distutils_extension
-except ImportError:
+except ImportError:  # pragma: no cover
     pyx_to_dll = None
 
 

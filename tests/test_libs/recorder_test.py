@@ -1,3 +1,4 @@
+# pragma: no cover
 from typing import Any, Callable, Dict, NamedTuple, Tuple
 
 from kola.klvm import KoiLang

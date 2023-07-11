@@ -1,12 +1,14 @@
 import os
 from functools import partial
 from types import TracebackType
-from typing import Type
+from typing import Any, Dict, Tuple, Type
 from unittest import TestCase
 
-from kola.klvm import CommandSet, Environment, KoiLang, kola_environment
-from kola.klvm.decorator import kola_command, kola_annotation, kola_text, kola_env_enter, kola_env_exit
+from kola.klvm import CommandSet, Environment, KoiLang
+from kola.klvm.command import Command
+from kola.klvm.decorator import kola_command, kola_environment, kola_annotation, kola_text, kola_env_enter, kola_env_exit
 from kola.klvm.writer import KoiLangWriter
+from kola.klvm.handler import AbstractHandler, SkipHandler, EnsureEnvHandler
 from kola.lexer import StringLexer
 from kola.parser import Parser
 from kola.writer import BaseWriter
@@ -83,6 +85,18 @@ class KolaTest(KoiLang, command_threshold=2, lstrip_text=False):
         self.errors.append(exc_ins.__cause__)
         super().on_exception(exc_type, exc_ins, traceback)
         return True
+
+
+class Handler1(AbstractHandler):
+    def __call__(self, command: Command, args: Tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
+        super().__call__(command, args, kwargs, **kwds)
+        return 1
+
+
+class Handler2(AbstractHandler):
+    def __call__(self, command: Command, args: Tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
+        super().__call__(command, args, kwargs, **kwds)
+        return 2
             
 
 class TestKoiLang(TestCase):
@@ -183,6 +197,12 @@ class TestKoiLang(TestCase):
             "    #enter\n"
         )
         self.assertEqual(text, string)
+    
+    def test_handler(self) -> None:
+        vmobj = KoiLang()
+        self.assertIsInstance(vmobj._handler, SkipHandler)
+        self.assertIsInstance(vmobj._handler.next, EnsureEnvHandler)
+        
 
 
 if __name__ == "__main__":

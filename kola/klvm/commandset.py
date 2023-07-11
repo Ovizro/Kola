@@ -23,6 +23,8 @@ class CommandSetMeta(ABCMeta):
             if isinstance(v, Command):
                 if v.virtual:
                     virtual_table[k] = v.__name__
+                elif k in virtual_table:
+                    v.virtual = True
             elif k in virtual_table:
                 attr[k] = v = Command(virtual_table[k], v, virtual=True)
             elif not isinstance(v, CommandLike):

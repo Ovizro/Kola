@@ -1,14 +1,14 @@
 from unittest import TestCase
 from kola.exception import KoiLangSyntaxError
-from kola.lexer import FileLexer, StringLexer
+from kola.lexer import StringLexer
 from kola.parser import Parser
-from kola.lib.recorder import recorder
+
+from kola.lib.recorder import parse, parse_file, recorder
 
 
 class TestParser(TestCase):
     def test_parser(self) -> None:
-        lexer = FileLexer("examples/example0.kola")
-        Parser(lexer, recorder).exec()
+        parse_file("examples/example0.kola")
 
     def test_command(self) -> None:
         lexer = StringLexer(
@@ -24,7 +24,7 @@ class TestParser(TestCase):
         )
         
     def test_number(self) -> None:
-        lexer = StringLexer(
+        parse(
             """
             #test t(0)
             #test t(0x0)
@@ -37,7 +37,6 @@ class TestParser(TestCase):
             #test t(.0e-2)
             """
         )
-        Parser(lexer, recorder).exec()
     
     def test_recovery(self) -> None:
         lexer = StringLexer(

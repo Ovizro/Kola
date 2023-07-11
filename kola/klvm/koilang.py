@@ -94,10 +94,10 @@ class KoiLangMeta(CommandSetMeta):
         :return: the writer class, which is a subclass of KoiLangWriter and current KoiLang class
         :rtype: Type[KoiLang, Self]
         """
+        # sourcery skip: inline-immediately-returned-variable
         cache = None
         with suppress(AttributeError):
             cache = self.__writer_class
-        if cache is not None:
             return cache
         cache = new_class(f"{self.__qualname__}.writer", (KoiLangWriter, self))
         self.__writer_class = cache
@@ -120,10 +120,11 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         self.__exec_level = 0
         self._handler = build_handlers(self.__class__.__command_handlers__, self)
     
-    def push_prepare(self, __env_type: Type[Environment]) -> Environment:
-        env = __env_type(self.__top)
-        env.set_up(self.__top)
-        return env
+    def push_prepare(self, __env_type: Union[Type[Environment], Environment]) -> Environment:
+        if not isinstance(__env_type, Environment):
+            __env_type = __env_type(self.__top)
+        __env_type.set_up(self.__top)
+        return __env_type
 
     def push_apply(self, __env_cache: Environment) -> None:
         assert __env_cache.back is self.__top
@@ -282,6 +283,10 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     @property
     def home(self) -> Self:
         return self
+    
+    @property
+    def handlers(self) -> "HandlerSequence":
+        return HandlerSequence(self._handler)
 
     @partial(Command, "@start", virtual=True)
     def at_start(self) -> None:
@@ -310,5 +315,5 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         """
 
 
-from .handler import AbstractHandler, build_handlers
+from .handler import AbstractHandler, HandlerSequence, build_handlers
 from .writer import KoiLangWriter
