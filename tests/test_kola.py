@@ -8,7 +8,7 @@ from kola.klvm import CommandSet, Environment, KoiLang
 from kola.klvm.command import Command
 from kola.klvm.decorator import kola_command, kola_environment, kola_annotation, kola_text, kola_env_enter, kola_env_exit
 from kola.klvm.writer import KoiLangWriter
-from kola.klvm.handler import AbstractHandler, SkipHandler, EnsureEnvHandler
+from kola.klvm.handler import AbstractHandler, SkipHandler
 from kola.lexer import StringLexer
 from kola.parser import Parser
 from kola.writer import BaseWriter
@@ -88,12 +88,16 @@ class KolaTest(KoiLang, command_threshold=2, lstrip_text=False):
 
 
 class Handler1(AbstractHandler):
+    priority = 1
+
     def __call__(self, command: Command, args: Tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
         super().__call__(command, args, kwargs, **kwds)
         return 1
 
 
 class Handler2(AbstractHandler):
+    priority = 2
+
     def __call__(self, command: Command, args: Tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
         super().__call__(command, args, kwargs, **kwds)
         return 2
@@ -199,10 +203,21 @@ class TestKoiLang(TestCase):
         self.assertEqual(text, string)
     
     def test_handler(self) -> None:
-        vmobj = KoiLang()
-        self.assertIsInstance(vmobj._handler, SkipHandler)
-        self.assertIsInstance(vmobj._handler.next, EnsureEnvHandler)
-        
+        vmobj = KolaTest()
+        self.assertIsInstance(vmobj._handler.next, SkipHandler)
+        self.assertEqual(vmobj.version(100), 100)
+        hdl1 = vmobj.add_handler(Handler1)
+        self.assertIs(vmobj.handlers[4], hdl1)
+        self.assertIs(vmobj.handlers[-2], hdl1)
+        self.assertEqual(vmobj.version(100), 1)
+        hdl2 = vmobj.add_handler(Handler2)
+        self.assertIs(vmobj.handlers[4], hdl2)
+        self.assertEqual(vmobj.version(100), 2)
+        vmobj.remove_handler(hdl1)
+        self.assertNotIn(hdl1, vmobj.handlers)
+        self.assertEqual(vmobj.version(100), 2)
+        vmobj.remove_handler(hdl2)
+        self.assertEqual(vmobj.version(100), 100)
 
 
 if __name__ == "__main__":

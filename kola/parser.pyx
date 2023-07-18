@@ -3,7 +3,7 @@ from cpython cimport PyErr_Format
 from typing import TypeVar
 from typing_extensions import Protocol
 
-from .exception import KoiLangError, KoiLangSyntaxError, KoiLangCommandError
+from .exception import KoiLangError, KoiLangSyntaxError, KoiLangCommandError, KoiLangCommandNotFoundError
 
 
 class SupportGetCommand(Protocol):
@@ -159,7 +159,7 @@ cdef class Parser:
         except KeyError:
             if token.syn == ANNOTATION:
                 return
-            kola_set_errcause(KoiLangCommandError, 2, 
+            kola_set_errcause(KoiLangCommandNotFoundError, 2, 
                 self.lexer.lexer_data.filename, token.lineno, token.raw_val, None)
         
         try:

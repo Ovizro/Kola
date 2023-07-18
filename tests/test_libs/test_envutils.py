@@ -71,5 +71,5 @@ class TestEnvUtils(TestCase):
             self.assertIs(vmobj.WrapperEnvTest.enter(), RET_OBJ2)
             handler = vmobj.add_handler(HandlerTest)
             self.assertIs(vmobj.WrapperEnvTest.test(), RET_OBJ1)
-        self.assertEqual(vmobj._handler, handler)
+        self.assertEqual(vmobj._handler.next, handler)
         vmobj.remove_handler(handler)

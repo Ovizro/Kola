@@ -1,5 +1,4 @@
 from functools import partialmethod
-from types import MethodType
 from typing import Any, Callable, Dict, Generator, Iterable, Tuple, Union, overload
 from typing_extensions import Self, Protocol, runtime_checkable
 
@@ -26,6 +25,8 @@ class Command(object):
         virtual: bool = False,
         **kwds: Any
     ) -> None:
+        if virtual and not __name.startswith('@'):
+            raise ValueError("the name of a virtual command should start with '@'")
         self.__name__ = __name
         self.__func__ = func
         self.alias = (alias,) if isinstance(alias, str) else tuple(alias)
@@ -60,6 +61,12 @@ class Command(object):
             alias=command.alias,
             **data
         )
+
+    def call_command(self, vmobj: Any, args: Tuple, kwargs: Dict[str, Any], **options: Any) -> Any:
+        caller = getattr(vmobj, "__kola_caller__", None)
+        if caller is None:  # pragma: no cover
+            return self.__func__(vmobj, *args, **kwargs)
+        return caller(self, args, kwargs, **self.extra_data, **options)
     
     @property
     def __wrapped__(self) -> Callable:  # pragma: no cover
@@ -75,15 +82,15 @@ class Command(object):
     def __get__(self, ins: Any, owner: type) -> Any:
         if ins is None:
             return self
-        elif self.virtual and (not hasattr(owner, "check_virtual") or ins.check_virtual(self)):
+        elif self.virtual and self is ins.raw_command_set[self.__name__]:
             return ins[self.__name__]
-        return MethodType(self, ins)
-
+        def wrapper(*args: Any, **kwds: Any) -> Any:
+            return self.call_command(ins, args, kwds, manual_call=True)
+        wrapper.__name__ = self.__name__
+        return wrapper
+    
     def __call__(self, vmobj: Any, *args: Any, **kwds: Any) -> Any:
-        caller = getattr(vmobj, "__kola_caller__", None)
-        if caller is None:  # pragma: no cover
-            return self.__func__(vmobj, *args, **kwds)
-        return caller(self, args, kwds, **self.extra_data)
+        return self.call_command(vmobj, args, kwds)
 
     def __repr__(self) -> str:
         return f"<kola command {self.__name__} with {self.__func__}>"

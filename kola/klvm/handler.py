@@ -1,9 +1,12 @@
+import sys
 from abc import ABC, abstractmethod
 from operator import index as op_index
-from threading import Lock
 from typing import Any, ClassVar, Dict, Generator, Iterable, List, NamedTuple, Optional, SupportsIndex, Tuple, Type, TypeVar, Union
 from typing_extensions import Self
 
+from kola.klvm.command import Command
+
+from ..exception import KoiLangError
 from .mask import ClassNameMask, Mask
 from .command import Command
 from .commandset import CommandSet
@@ -115,6 +118,70 @@ class CallerHandler(AbstractHandler):
         ret = command.__func__(bound_instance or self.owner, *args, **kwargs)
         super().__call__(command, args, kwargs, bound_instance=bound_instance, ret_value=ret, **kwds)
         return ret
+
+
+@default_handler
+class EnvironmentHandler(AbstractHandler):
+    __slots__ = []
+
+    priority = 15
+
+    def __call__(
+        self,
+        command: Command,
+        args: Tuple,
+        kwargs: Dict[str, Any],
+        *,
+        bound_instance: Optional[CommandSet] = None,
+        push: Optional[Type["Environment"]] = None,
+        pop: Optional[Type["Environment"]] = None,
+        **kwds: Any
+    ) -> Any:
+        home = self.owner
+        if push is not None:
+            if pop is not None:
+                # auto pop mod
+                assert pop is push and isinstance(bound_instance, Environment)
+                home.pop_apply(home.pop_prepare(bound_instance))
+            bound_instance = home.push_prepare(push)
+        elif pop is not None:
+            assert isinstance(bound_instance, Environment)
+            back = home.pop_prepare(bound_instance)
+        ret = super().__call__(command, args, kwargs, bound_instance=bound_instance, **kwds)
+        if push is not None:
+            self.owner.push_apply(bound_instance)  # type: ignore
+        elif pop is not None:
+            home.pop_apply(back)  # type: ignore
+        return ret
+
+
+class ExceptionRecord(NamedTuple):
+    command: Command
+    exception: Exception
+
+
+@default_handler
+class ExceptionHandler(AbstractHandler):
+    __slots__ = []
+    
+    priority = 3
+
+    def __call__(
+        self,
+        command: Command,
+        args: Tuple,
+        kwargs: Dict[str, Any],
+        *,
+        bound_instance: Optional[CommandSet] = None,
+        **kwds: Any
+    ) -> Any:
+        ins = bound_instance or self.owner
+        try:
+            return super().__call__(command, args, kwargs, bound_instance=ins, **kwds)
+        except Exception as e:
+            if not ins["@exception"](*sys.exc_info()):
+                raise
+            return ExceptionRecord(command, e)
 
 
 @default_handler

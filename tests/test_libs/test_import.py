@@ -29,7 +29,7 @@ class TestLibImport(TestCase):
         from kola.lib._recorder_spec import _Recorder  # type: ignore
         self.assertIs(main, _Recorder)
 
-    @skipUnless(pyx_to_dll, "Cython module is not available")
+    @skipUnless(pyx_to_dll and "TEST_BIN_IMP" in os.environ, "Cython module is not available")
     def test_binlib(self) -> None:
         assert pyx_to_dll
         bin_name = "recorder_bin"

@@ -17,7 +17,7 @@ from .environment import Environment
 
 
 _T_EnvCls = TypeVar("_T_EnvCls", bound=Type[Environment])
-_T_Handler = TypeVar("_T_Handler", bound=Type["AbstractHandler"])
+_T_Handler = TypeVar("_T_Handler", bound="AbstractHandler")
 
 
 class KoiLangMeta(CommandSetMeta):
@@ -80,7 +80,7 @@ class KoiLangMeta(CommandSetMeta):
         self.__command_field__.add(env_class)
         return env_class
     
-    def register_handler(self, handler: _T_Handler) -> _T_Handler:
+    def register_handler(self, handler: Type[_T_Handler]) -> Type[_T_Handler]:
         if "__command_handlers__" not in self.__dict__:
             # copy the handler list to avoid changing the base classes
             self.__command_handlers__ = self.__command_handlers__.copy()
@@ -131,20 +131,19 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         with self._lock:
             self.__top = __env_cache
     
-    def pop_prepare(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
+    def pop_prepare(self, __env_type: Optional[Environment] = None) -> Environment:
         top = self.__top
         if top is self:  # pragma: no cover
             raise ValueError('cannot pop the inital environment')
-        if __env_type is None:
-            assert isinstance(top, Environment)
-        else:
+        if __env_type is not None:
             while isinstance(top, Environment) and top.__class__.__env_autopop__:
-                if isinstance(top, __env_type):
+                if top is __env_type:
                     break
                 top = top.back
             else:
-                if not isinstance(top, __env_type):  # pragma: no cover
+                if top is not __env_type:  # pragma: no cover
                     raise ValueError("unmatched environment")
+        assert isinstance(top, Environment)
         return top
 
     def pop_apply(self, __env_cache: Environment) -> None:
@@ -159,7 +158,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         else:
             raise ValueError('cannot pop the inital environment')
     
-    def add_handler(self, handler: Union[Type["AbstractHandler"], "AbstractHandler"]) -> "AbstractHandler":
+    def add_handler(self, handler: Union[Type[_T_Handler], _T_Handler]) -> _T_Handler:
         if isinstance(handler, type):
             handler = handler(self)
         self._handler = self._handler.insert(handler)
@@ -315,5 +314,5 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         """
 
 
-from .handler import AbstractHandler, HandlerSequence, build_handlers
+from .handler import AbstractHandler, ExceptionRecord, HandlerSequence, build_handlers
 from .writer import KoiLangWriter
