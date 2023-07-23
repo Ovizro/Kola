@@ -16,11 +16,7 @@ class JKoiLang(JBase, KoiLang):
     """
     a KoiLang implementation that can use global jump instructions
     """
-    __slots__ = ["vm", "labels", "state", "offset", "length"]
-
-    def exec(self) -> Generator[Any, None, None]:
-        with self.exec_block():
-            yield from super().exec()
+    __slots__ = ["vm", "section"]
 
     @overload
     def parse(self, lexer: Union[BaseLexer, str], *, with_ret: Literal[False] = False, close_lexer: bool = True) -> None: ...
@@ -44,29 +40,29 @@ class JKoiLang(JBase, KoiLang):
             )
         
         # read all command info
-        vm = JKoiLangVM()
-        while True:
-            try:
-                vm.codes.extend(Parser(lexer, recorder))
-            except KoiLangError:
-                if not self.on_exception(*sys.exc_info()):
-                    if close_lexer:
-                        lexer.close()
-                    raise
-            else:
-                break
-        if close_lexer:
-            lexer.close()
-        
-        # start execution
-        self.vm = vm
-        self.vm.freeze()
-        self.length = len(self.vm.codes)
-        gen = self.exec()
-        if with_ret:
-            return gen
-        _loop(gen)
+        with self.exec_block():
+            vm = self.vm
+            while True:
+                try:
+                    vm.codes.extend(Parser(lexer, recorder))
+                except KoiLangError:
+                    if not self.on_exception(*sys.exc_info()):
+                        if close_lexer:
+                            lexer.close()
+                        raise
+                else:
+                    break
+            if close_lexer:
+                lexer.close()
+            
+            # start execution
+            vm.freeze()
+            gen = self.exec()
+            if with_ret:
+                return gen
+            _loop(gen)
     
     def at_start(self) -> None:
         super().at_start()
-        self.labels: Dict[str, int] = {}
+        self.vm = JKoiLangVM()
+        self.section = self.vm.cur_section

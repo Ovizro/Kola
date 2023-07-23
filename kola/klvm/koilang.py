@@ -193,7 +193,10 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             with self.exec_block():
                 while True:
                     try:
-                        yield from parser
+                        yield from filter(
+                            lambda i: not isinstance(i, ExceptionRecord) or not isinstance(i.exception, KoiLangError),
+                            parser
+                        )
                     except KoiLangError:
                         if not self.on_exception(*sys.exc_info()):
                             raise
@@ -304,12 +307,25 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         will be that of 'parse' method.
         """
     
+    @partial(Command, "@command_exception", virtual=True)
+    def on_command_exception(self, exc_type: Type[Exception], exc_ins: Optional[Exception], traceback: TracebackType) -> None:
+        """
+        command exception handling command
+
+        Called when an exception occurs during command execution.
+        If the exception is not caught here, it will be wrapped as KoiLangCommandError passed to on_exception.
+        When there is a sub-section, the exception handling thrown from the command in the current environment will not be affected
+        by the command exception handler function defined by the sub-section.
+        If the command wishes to suppress the exception, it should a true value.
+        """
+    
     @partial(Command, "@exception", virtual=True)
     def on_exception(self, exc_type: Type[KoiLangError], exc_ins: Optional[KoiLangError], traceback: TracebackType) -> None:
         """
         exception handling command
 
-        It is called when a KoiLang error occurs.
+        Called when a KoiLang error occurs.
+        Unlike the on_command_exception function, this function can catch exceptions thrown by the KoiLang language parser.
         If the command wishes to suppress the exception, it should a true value.
         """
 

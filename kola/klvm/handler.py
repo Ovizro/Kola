@@ -6,7 +6,6 @@ from typing_extensions import Self
 
 from kola.klvm.command import Command
 
-from ..exception import KoiLangError
 from .mask import ClassNameMask, Mask
 from .command import Command
 from .commandset import CommandSet
@@ -18,9 +17,9 @@ _T_Handler = TypeVar("_T_Handler", bound="AbstractHandler")
 class AbstractHandler(ABC):
     __slots__ = ["next", "owner"]
 
-    priority: ClassVar[int] = 0
+    priority: ClassVar[float] = 0
 
-    def __init__(self, owner: "KoiLang", next: Optional["AbstractHandler"] = None) -> None:
+    def __init__(self, owner: CommandSet, next: Optional["AbstractHandler"] = None) -> None:
         super().__init__()
         self.owner = owner
         self.next = next
@@ -138,6 +137,7 @@ class EnvironmentHandler(AbstractHandler):
         **kwds: Any
     ) -> Any:
         home = self.owner
+        assert isinstance(home, KoiLang)
         if push is not None:
             if pop is not None:
                 # auto pop mod
@@ -179,7 +179,7 @@ class ExceptionHandler(AbstractHandler):
         try:
             return super().__call__(command, args, kwargs, bound_instance=ins, **kwds)
         except Exception as e:
-            if not ins["@exception"](*sys.exc_info()):
+            if not ins["@command_exception"](*sys.exc_info()):
                 raise
             return ExceptionRecord(command, e)
 
@@ -214,7 +214,7 @@ class _EnvChecker(NamedTuple):
         var_dict["top"] = self.contains[0]
         var_dict.update({'?': checker, "cur": checker, "current": checker})
         var_dict.update(base=self.contains[-1], __init__=self.contains[-1])
-        return [i if isinstance(i, Mask) else ClassNameMask(i, **var_dict) for i in names]
+        return [i if isinstance(i, Mask) else ClassNameMask(i, var_dict=var_dict) for i in names]
     
     def ensure_envs(self, masks: List[Mask]) -> None:
         ng, pt = [], []
@@ -227,7 +227,7 @@ class _EnvChecker(NamedTuple):
         if ((not ng or all(not self.check_mask(i) for i in ng)) and
                 (not pt or any(self.check_mask(i) for i in pt))):
             return
-        raise ValueError(f"unmatched environment name {self.reachable[0]}")  # pragma: no cover
+        raise ValueError(f"unmatched env ironment name {self.reachable[0]}")  # pragma: no cover
     
     def check_mask(self, mask: Mask) -> bool:
         if mask.type == Mask.MType.default:
@@ -246,6 +246,7 @@ class EnsureEnvHandler(AbstractHandler):
     priority = 5
 
     def _eval_checker(self) -> _EnvChecker:
+        assert isinstance(self.owner, KoiLang)
         reachable: List[CommandSet] = []
         top = self.owner.top
         while isinstance(top, Environment):

@@ -41,6 +41,7 @@ def _kola_class_decorator_factory(base: Type[CommandSet] = CommandSet):
     def kola_class_decoractor(kola_cls: Union[Type[KoiLang], str, None] = None, **kwds):
         def wrapper(wrapped_class: Type) -> Type[CommandSet]:
             if isinstance(kola_cls, str):
+                assert kola_cls.isidentifier()
                 env_name = kola_cls
             else:
                 env_name = wrapped_class.__name__

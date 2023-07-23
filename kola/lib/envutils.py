@@ -3,6 +3,8 @@ from inspect import currentframe
 from typing import Any, ClassVar, Dict, Optional, Tuple, Type, Union
 
 from kola.klvm import Command, CommandSet, Environment, KoiLang, AbstractHandler
+from kola.klvm.command import Command
+from kola.klvm.commandset import CommandSet
 from kola.klvm.environment import EnvironmentAutopop
 
 
@@ -18,7 +20,7 @@ class EnvRunner(KoiLang):
             self.push_apply(self.push_prepare(self.env_class))
     
 
-class HnadlerEnv(Environment):
+class HandlerEnv(Environment):
     __slots__ = ["_handler"]
 
     Handler: ClassVar = AbstractHandler
@@ -35,7 +37,7 @@ class HnadlerEnv(Environment):
                 )
 
     def set_up(self, top: CommandSet) -> None:
-        self._handler = self.home.add_handler(self.__class__.Handler)
+        self._handler = self.home.add_handler(self.__class__.Handler(self))  # type: ignore
         super().set_up(top)
     
     def tear_down(self, top: CommandSet) -> None:
@@ -44,11 +46,9 @@ class HnadlerEnv(Environment):
         del self._handler
 
 
-class WrapperEnv(HnadlerEnv):
+class WrapperEnv(HandlerEnv):
     __slots__ = []
     
-    _handler: "WrapperEnv.Handler"
-
     @abstractmethod
     def wrapper(self, command: Command, args: Tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
         return self.pass_down()
@@ -76,25 +76,18 @@ class WrapperEnv(HnadlerEnv):
         assert handler_frame
         try:
             handler: WrapperEnv.Handler = handler_frame.f_locals["self"]
-            assert handler.bound_env is self
         except Exception as e:
             raise RuntimeError("Incorrect handler object call stack frame") from e
         return super(handler.__class__, handler).__call__(command, args, kwargs, **kwds)
-    
-    def set_up(self, top: CommandSet) -> None:
-        super().set_up(top)
-        self._handler.bound(self)
 
     class Handler(AbstractHandler):
-        __slots__ = ["bound_env"]
+        __slots__ = []
 
         priority = 1
-
-        def bound(self, env: "WrapperEnv") -> None:
-            self.bound_env = env
+        owner: "WrapperEnv"
 
         def __call__(self, command: Command, args: Tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
-            return self.bound_env.wrapper(command, args, kwargs, **kwds)
+            return self.owner.wrapper(command, args, kwargs, **kwds)
 
 
 env_runner = EnvRunner

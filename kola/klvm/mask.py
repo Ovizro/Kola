@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Type, Union
+from typing import Any, Dict, Type, Union
 
 
 from .commandset import CommandSet
@@ -49,7 +49,8 @@ class ClassNameMask(Mask):
         env_name: str,
         type: Union[Mask.MType, str, None] = None,
         not_: bool = False,
-        **kwds: CommandSet
+        *,
+        var_dict: Dict[str, CommandSet] = {}
     ) -> None:
         if env_name.startswith('!'):
             env_name = env_name[1:]
@@ -69,10 +70,10 @@ class ClassNameMask(Mask):
             )
         if env_name.startswith('$'):
             name = env_name[1:]
-            if name in kwds:
-                env_name = kwds[name].__class__.__name__
+            if name in var_dict:
+                env_name = var_dict[name].__class__.__name__
         elif env_name == "__init__":
-            env_name = kwds["__init__"].__class__.__name__
+            env_name = var_dict["__init__"].__class__.__name__
         self.env_name = env_name
         super().__init__(type=type, not_=not_)
     

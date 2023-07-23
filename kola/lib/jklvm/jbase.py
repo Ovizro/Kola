@@ -8,8 +8,8 @@ from kola.klvm import Command, CommandSet, kola_command, AbstractHandler
 from kola.klvm.handler import ExceptionRecord
 from kola.lib.recorder import Instruction
 
-from .vm import JKoiLangVM, _loop, VMState
-from .exception import JKLvmException, JKLvmAddressError, JKLvmAddressFault, JKLvmExit, JKLvmJump
+from .vm import JKoiLangVM, SectionInfo, _loop, VMState
+from .exception import JKLvmException, JKLvmAddressError, JKLvmExit, JKLvmJump
 
 
 class _JKLvmMethod:
@@ -40,12 +40,8 @@ class JBase(CommandSet):
     __slots__ = []
 
     vm: JKoiLangVM
+    section: SectionInfo
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.offset = 0
-        self.length = 0
-        
     def exec(self, pc: int = 0) -> Generator[Any, None, None]:
         for name, args, kwargs in self.vm.run(pc=pc):
             try:
@@ -56,43 +52,46 @@ class JBase(CommandSet):
             except KoiLangError:
                 if not self.on_exception(*sys.exc_info()):
                     raise
-    
-    add_label = _JKLvmMethod()
-    
+
     def goto(self, __addr_or_label: Union[int, str]) -> NoReturn:
         raise JKLvmJump(__addr_or_label)
     
     def exit(self) -> NoReturn:
         raise JKLvmExit(0, target=self)
     
+    add_label = _JKLvmMethod()
+    get_label = _JKLvmMethod()
+    has_label = _JKLvmMethod()
+    
     @property
     def pc(self) -> int:
-        assert self.offset <= self.vm.pc < self.offset + self.length
-        return self.vm.pc - self.offset
+        pc = self.vm.pc
+        assert pc - 1 in self.section
+        return pc - self.section.start
     
-    @pc.setter
-    def pc(self, val: int) -> None:
-        assert val >= 0 and (not self.length or val < self.length), "the value of pc out of range"
-        self.vm.goto(val + self.offset, absolute=True)
-    
-    @kola_command("@exception", virtual=True)
-    def on_exception(self, exc_type: Type[KoiLangError], exc_ins: Optional[KoiLangError], traceback: TracebackType) -> Any:
+    @kola_command("@command_exception", virtual=True)
+    def on_command_exception(self, exc_type: Type[Exception], exc_ins: Optional[Exception], traceback: TracebackType) -> Any:
         if issubclass(exc_type, JKLvmExit):
             # set the value of the ip register to the length of
             # the code cache to make JKlvm exit the loop.
-            self.vm.skip_until(-1, )
+            self.vm.skip_until(-1)
             return True
         elif issubclass(exc_type, JKLvmJump):
             assert isinstance(exc_ins, JKLvmJump)
-            addr = exc_ins.target
-            if addr == len(self.vm.codes):  # pragma: no cover
-                raise JKLvmAddressError("instruction access out of bounds")
-            self.vm.goto(addr)
+            vm = self.vm
+            addr = vm._eval_addr(exc_ins.target)
+            if self.vm.running:
+                self.vm.goto(addr)
+            elif vm._check_addr(addr) == 3:
+                vm.skip_until(addr)
+            else:
+                self.exec(addr)
             return True
-        elif issubclass(exc_type, JKLvmAddressFault):
-            assert isinstance(exc_ins, JKLvmAddressFault)
-            _loop(self.exec())
         return False
+    
+    @kola_command("@exception", virtual=True, suppression=True)
+    def on_exception(self, exc_type: Type[KoiLangError], exc_ins: Optional[KoiLangError], traceback: TracebackType) -> Any:
+        pass
 
 
 class JHandler(AbstractHandler):
@@ -107,5 +106,9 @@ class JHandler(AbstractHandler):
         vm = self.vm
         if VMState.FROZEN | VMState.RUNNING not in vm.state and not command.virtual and not manual_call:
             vm.add_instruction(Instruction(command.__name__, args, kwargs))
-        elif VMState.SKIPPING not in vm.state:
-            return super().__call__(command, args, kwargs, **kwds)
+        elif VMState.SKIPPING in vm.state:
+            if vm.pc == vm._skip_count:
+                vm.state &= ~VMState.SKIPPING
+            else:
+                return
+        super().__call__(command, args, kwargs, **kwds)

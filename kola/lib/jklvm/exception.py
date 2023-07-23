@@ -9,15 +9,6 @@ class JKLvmException(KoiLangError):
     __slots__ = []
 
 
-class JKLvmAddressFault(JKLvmException):
-    """address """
-    __slots__ = ["address"]
-
-    def __init__(self, address: int) -> None:
-        super().__init__()
-        self.address = address
-
-
 class JKLvmExit(JKLvmException):
     """exit from an environemnt"""
     __slots__ = ["target"]

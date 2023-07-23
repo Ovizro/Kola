@@ -105,7 +105,7 @@ class Handler2(AbstractHandler):
 
 class TestKoiLang(TestCase):
     def test_init(self) -> None:
-        self.assertEqual(len(KoiLang.__command_field__), 3)
+        self.assertEqual(len(KoiLang.__command_field__), 4)
         self.assertEqual(KoiLang.__command_threshold__, 1)
         self.assertEqual(KoiLang.__text_encoding__, "utf-8")
         self.assertEqual(KolaTest.__command_threshold__, 2)

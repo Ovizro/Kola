@@ -5586,7 +5586,7 @@ static PyObject *__pyx_pf_4kola_5lexer_11LexerConfig_8__setstate_cython__(CYTHON
  * 
  *     def __cinit__(self, *args, **kwds):             # <<<<<<<<<<<<<<
  *         self.encoding = "utf-8"
- *         self.lexer_data.filename = "<unknown>"
+ *         self.lexer_data.filename = "<kolafile>"
  */
 
 /* Python wrapper */
@@ -5625,7 +5625,7 @@ static int __pyx_pf_4kola_5lexer_9BaseLexer___cinit__(struct __pyx_obj_4kola_5le
  * 
  *     def __cinit__(self, *args, **kwds):
  *         self.encoding = "utf-8"             # <<<<<<<<<<<<<<
- *         self.lexer_data.filename = "<unknown>"
+ *         self.lexer_data.filename = "<kolafile>"
  *         self.lexer_data.command_threshold = 1
  */
   __Pyx_INCREF(__pyx_kp_u_utf_8);
@@ -5637,15 +5637,15 @@ static int __pyx_pf_4kola_5lexer_9BaseLexer___cinit__(struct __pyx_obj_4kola_5le
   /* "kola/lexer.pyx":168
  *     def __cinit__(self, *args, **kwds):
  *         self.encoding = "utf-8"
- *         self.lexer_data.filename = "<unknown>"             # <<<<<<<<<<<<<<
+ *         self.lexer_data.filename = "<kolafile>"             # <<<<<<<<<<<<<<
  *         self.lexer_data.command_threshold = 1
  *         if yylex_init_extra(&self.lexer_data, &self.scanner):
  */
-  __pyx_v_self->lexer_data.filename = ((char const *)"<unknown>");
+  __pyx_v_self->lexer_data.filename = ((char const *)"<kolafile>");
 
   /* "kola/lexer.pyx":169
  *         self.encoding = "utf-8"
- *         self.lexer_data.filename = "<unknown>"
+ *         self.lexer_data.filename = "<kolafile>"
  *         self.lexer_data.command_threshold = 1             # <<<<<<<<<<<<<<
  *         if yylex_init_extra(&self.lexer_data, &self.scanner):
  *             PyErr_SetFromErrno(RuntimeError)
@@ -5653,7 +5653,7 @@ static int __pyx_pf_4kola_5lexer_9BaseLexer___cinit__(struct __pyx_obj_4kola_5le
   __pyx_v_self->lexer_data.command_threshold = 1;
 
   /* "kola/lexer.pyx":170
- *         self.lexer_data.filename = "<unknown>"
+ *         self.lexer_data.filename = "<kolafile>"
  *         self.lexer_data.command_threshold = 1
  *         if yylex_init_extra(&self.lexer_data, &self.scanner):             # <<<<<<<<<<<<<<
  *             PyErr_SetFromErrno(RuntimeError)
@@ -5672,7 +5672,7 @@ static int __pyx_pf_4kola_5lexer_9BaseLexer___cinit__(struct __pyx_obj_4kola_5le
     __pyx_t_2 = PyErr_SetFromErrno(__pyx_builtin_RuntimeError); if (unlikely(__pyx_t_2 == ((PyObject *)NULL))) __PYX_ERR(1, 171, __pyx_L1_error)
 
     /* "kola/lexer.pyx":170
- *         self.lexer_data.filename = "<unknown>"
+ *         self.lexer_data.filename = "<kolafile>"
  *         self.lexer_data.command_threshold = 1
  *         if yylex_init_extra(&self.lexer_data, &self.scanner):             # <<<<<<<<<<<<<<
  *             PyErr_SetFromErrno(RuntimeError)
@@ -5685,7 +5685,7 @@ static int __pyx_pf_4kola_5lexer_9BaseLexer___cinit__(struct __pyx_obj_4kola_5le
  * 
  *     def __cinit__(self, *args, **kwds):             # <<<<<<<<<<<<<<
  *         self.encoding = "utf-8"
- *         self.lexer_data.filename = "<unknown>"
+ *         self.lexer_data.filename = "<kolafile>"
  */
 
   /* function exit code */
