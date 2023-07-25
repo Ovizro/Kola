@@ -2,7 +2,6 @@ from typing import Any, Dict, Tuple
 from unittest import TestCase
 
 from kola.klvm import AbstractHandler, Command, CommandSet, Environment, KoiLang, kola_command, kola_env_enter
-from kola.klvm.commandset import CommandSet
 from kola.lib.envutils import EnvRunner, WrapperEnv
 
 

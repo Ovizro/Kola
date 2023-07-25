@@ -84,6 +84,7 @@ class Command(object):
             return self
         elif self.virtual and self is ins.raw_command_set[self.__name__]:
             return ins[self.__name__]
+        
         def wrapper(*args: Any, **kwds: Any) -> Any:
             return self.call_command(ins, args, kwds, manual_call=True)
         wrapper.__name__ = self.__name__

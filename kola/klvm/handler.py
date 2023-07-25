@@ -1,14 +1,13 @@
 import sys
 from abc import ABC, abstractmethod
 from operator import index as op_index
-from typing import Any, ClassVar, Dict, Generator, Iterable, List, NamedTuple, Optional, SupportsIndex, Tuple, Type, TypeVar, Union
+from typing import (Any, ClassVar, Dict, Generator, Iterable, List, NamedTuple,
+                    Optional, SupportsIndex, Tuple, Type, TypeVar, Union)
 from typing_extensions import Self
 
-from kola.klvm.command import Command
-
-from .mask import ClassNameMask, Mask
 from .command import Command
 from .commandset import CommandSet
+from .mask import ClassNameMask, Mask
 
 
 _T_Handler = TypeVar("_T_Handler", bound="AbstractHandler")
@@ -97,7 +96,6 @@ def build_handlers(handlers: List[Type[AbstractHandler]], ins: Any) -> AbstractH
 
 from .koilang import KoiLang
 
-
 default_handler = KoiLang.register_handler
 
 
@@ -123,7 +121,7 @@ class CallerHandler(AbstractHandler):
 class EnvironmentHandler(AbstractHandler):
     __slots__ = []
 
-    priority = 15
+    priority = 20
 
     def __call__(
         self,

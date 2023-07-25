@@ -314,8 +314,8 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
 
         Called when an exception occurs during command execution.
         If the exception is not caught here, it will be wrapped as KoiLangCommandError passed to on_exception.
-        When there is a sub-section, the exception handling thrown from the command in the current environment will not be affected
-        by the command exception handler function defined by the sub-section.
+        When there is a sub-section, the exception handling thrown from the command in the current environment
+        will not be affected by the command exception handler function defined by the sub-section.
         If the command wishes to suppress the exception, it should a true value.
         """
     

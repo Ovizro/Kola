@@ -4358,7 +4358,7 @@ static void __pyx_f_4kola_6parser_6Parser_set_error(struct __pyx_obj_4kola_6pars
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("kola.parser.Parser.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  //__Pyx_AddTraceback("kola.parser.Parser.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_cur);
   __Pyx_RefNannyFinishContext();
@@ -6179,7 +6179,7 @@ static PyObject *__pyx_pf_4kola_6parser_6Parser_8exec_once(struct __pyx_obj_4kol
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("kola.parser.Parser.exec_once", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  // __Pyx_AddTraceback("kola.parser.Parser.exec_once", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);

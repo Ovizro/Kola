@@ -1,5 +1,5 @@
 import sys
-from typing import Any, Dict, Generator, Union, overload
+from typing import Any, Generator, Union, overload
 from typing_extensions import Literal
 
 from kola.exception import KoiLangError
@@ -42,9 +42,10 @@ class JKoiLang(JBase, KoiLang):
         # read all command info
         with self.exec_block():
             vm = self.vm
+            parser = Parser(lexer, recorder)
             while True:
                 try:
-                    vm.codes.extend(Parser(lexer, recorder))
+                    vm.codes.extend(parser)
                 except KoiLangError:
                     if not self.on_exception(*sys.exc_info()):
                         if close_lexer:

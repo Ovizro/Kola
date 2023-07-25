@@ -1,6 +1,6 @@
 from functools import partial
 from types import TracebackType
-from typing import Any, Callable, Dict, Generator, Iterable, Optional, Set, Tuple, Type, TypeVar, Union, overload
+from typing import Any, Callable, Dict, Generator, Optional, Set, Tuple, Type, TypeVar, Union, overload
 from typing_extensions import Self
 
 from ..exception import KoiLangError

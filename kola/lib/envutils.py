@@ -3,21 +3,22 @@ from inspect import currentframe
 from typing import Any, ClassVar, Dict, Optional, Tuple, Type, Union
 
 from kola.klvm import Command, CommandSet, Environment, KoiLang, AbstractHandler
-from kola.klvm.command import Command
-from kola.klvm.commandset import CommandSet
 from kola.klvm.environment import EnvironmentAutopop
 
 
 class EnvRunner(KoiLang):
-    __slots__ = ["env_class"]
+    __slots__ = ["env_obj"]
 
     def __init__(self, env_class: Type[Environment]) -> None:
         super().__init__()
-        self.env_class = env_class
+        self.env_obj = self.push_prepare(env_class)
+        self.push_apply(self.env_obj)
     
     def at_start(self) -> None:
-        if self.top is self:
-            self.push_apply(self.push_prepare(self.env_class))
+        self.env_obj.set_up(self.top)
+    
+    def at_end(self) -> None:
+        self.env_obj.tear_down(self.top)
     
 
 class HandlerEnv(Environment):

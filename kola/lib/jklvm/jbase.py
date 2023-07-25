@@ -1,5 +1,5 @@
-from functools import wraps
 import sys
+from functools import wraps
 from types import TracebackType
 from typing import Any, Dict, Generator, NoReturn, Optional, Tuple, Type, Union
 
@@ -8,8 +8,8 @@ from kola.klvm import Command, CommandSet, kola_command, AbstractHandler
 from kola.klvm.handler import ExceptionRecord
 from kola.lib.recorder import Instruction
 
-from .vm import JKoiLangVM, SectionInfo, _loop, VMState
-from .exception import JKLvmException, JKLvmAddressError, JKLvmExit, JKLvmJump
+from .vm import JKoiLangVM, SectionInfo, VMState
+from .exception import JKLvmException, JKLvmExit, JKLvmJump
 
 
 class _JKLvmMethod:
@@ -26,6 +26,7 @@ class _JKLvmMethod:
     def __get__(self, ins: Optional["JBase"], owner: Type["JBase"]) -> Any:
         if ins is None:
             func = getattr(JKoiLangVM, self.__name__)
+            
             @wraps(func)
             def wrapper(self: JBase, *args, **kwds) -> Any:
                 return func(self.vm, *args, **kwds)
@@ -53,11 +54,11 @@ class JBase(CommandSet):
                 if not self.on_exception(*sys.exc_info()):
                     raise
 
-    def goto(self, __addr_or_label: Union[int, str]) -> NoReturn:
-        raise JKLvmJump(__addr_or_label)
+    def goto(self, __addr_or_label: Union[int, str], *, absolute: bool = False) -> NoReturn:
+        raise JKLvmJump(self.vm.eval_addr(__addr_or_label, absolute=absolute))
     
     def exit(self) -> NoReturn:
-        raise JKLvmExit(0, target=self)
+        raise JKLvmExit()
     
     add_label = _JKLvmMethod()
     get_label = _JKLvmMethod()
@@ -72,18 +73,14 @@ class JBase(CommandSet):
     @kola_command("@command_exception", virtual=True)
     def on_command_exception(self, exc_type: Type[Exception], exc_ins: Optional[Exception], traceback: TracebackType) -> Any:
         if issubclass(exc_type, JKLvmExit):
-            # set the value of the ip register to the length of
-            # the code cache to make JKlvm exit the loop.
-            self.vm.skip_until(-1)
+            self.vm.exit()
             return True
         elif issubclass(exc_type, JKLvmJump):
             assert isinstance(exc_ins, JKLvmJump)
             vm = self.vm
-            addr = vm._eval_addr(exc_ins.target)
-            if self.vm.running:
-                self.vm.goto(addr)
-            elif vm._check_addr(addr) == 3:
-                vm.skip_until(addr)
+            addr = exc_ins.addr
+            if vm.running:
+                vm.goto(addr)
             else:
                 self.exec(addr)
             return True
@@ -95,20 +92,16 @@ class JBase(CommandSet):
 
 
 class JHandler(AbstractHandler):
-    __slots__ = ["vm"]
+    __slots__ = []
 
     priority = 20
 
-    def bound_vm(self, vm: JKoiLangVM) -> None:
-        self.vm = vm
+    owner: JBase
 
     def __call__(self, command: Command, args: Tuple, kwargs: Dict[str, Any], manual_call: bool = False, **kwds: Any) -> Any:
-        vm = self.vm
+        vm = self.owner.vm
         if VMState.FROZEN | VMState.RUNNING not in vm.state and not command.virtual and not manual_call:
             vm.add_instruction(Instruction(command.__name__, args, kwargs))
         elif VMState.SKIPPING in vm.state:
-            if vm.pc == vm._skip_count:
-                vm.state &= ~VMState.SKIPPING
-            else:
-                return
+            return vm.skip_once()
         super().__call__(command, args, kwargs, **kwds)

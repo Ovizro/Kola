@@ -1,6 +1,5 @@
-from typing import Optional, Union
+from typing import Optional
 
-from kola.klvm import CommandSet
 from kola.exception import KoiLangError
 
 
@@ -11,23 +10,16 @@ class JKLvmException(KoiLangError):
 
 class JKLvmExit(JKLvmException):
     """exit from an environemnt"""
-    __slots__ = ["target"]
-    
-    def __init__(self, *args: object, target: Optional["CommandSet"] = None) -> None:
-        super().__init__(*args)
-        self.target = target
+    __slots__ = []
 
 
 class JKLvmJump(JKLvmException):
     """jump to a new address"""
-    __slots__ = ["target"]
+    __slots__ = ["addr"]
     
-    def __init__(self, target: Union[int, str]) -> None:
-        if isinstance(target, str):
-            super().__init__(f"label: {target}")
-        else:
-            super().__init__(f"pc+{target:08X}")
-        self.target = target
+    def __init__(self, __addr: int) -> None:
+        super().__init__(format(__addr, "08X"))
+        self.addr = __addr
 
 
 class JKLvmAddressError(ValueError):

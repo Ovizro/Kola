@@ -4,8 +4,8 @@ from enum import IntFlag, auto
 from typing import DefaultDict, Dict, Generator, Iterable, List, Optional,  Union
 from typing_extensions import Self
 
-from kola.klvm import CommandSet, Environment
 from kola.lib.recorder import Instruction
+
 from .exception import JKLvmAddressError
 
 
@@ -74,9 +74,12 @@ class JKoiLangVM(object):
         self.codes.append(ins)
     
     def add_label(self, name: str, offset: int = 0) -> None:
-        if name in self.labels:
+        addr = offset + self.pc
+        if addr not in self.section_table[0][0]:
+            raise JKLvmAddressError("address out of range", address=addr)
+        elif name in self.labels and self.labels[name] != addr:
             raise ValueError("duplicate label")
-        self.labels[name] = offset + self.pc
+        self.labels[name] = addr
     
     def get_label(self, name: str) -> int:
         return self.labels[name]
@@ -84,20 +87,24 @@ class JKoiLangVM(object):
     def have_label(self, name: str) -> bool:
         return name in self.labels
     
-    def fetch_section(self, start: int, length: int = -1) -> SectionInfo:
+    def fetch_section(self, start: Optional[int] = None) -> SectionInfo:
+        if start is None:
+            start = self._pc
         l_section = self.section_table[start]
         if start == self.cur_section.start and l_section[-1] is not self.cur_section:
             index = l_section.index(self.cur_section)
             return l_section[index + 1]
-        section = SectionInfo(start, length, self.cur_section)
+        section = SectionInfo(start, back=self.cur_section)
         self.cur_section = section
         l_section.append(section)
         return section
 
     def release_section(self, section: SectionInfo) -> None:
         cur = self.cur_section
-        assert cur is section and cur.back
-        if section.length == 0:
+        assert cur is section
+        if cur.back is None:
+            raise ValueError("cannot release base section")
+        elif section.length == 0:
             raise ValueError("cannot release incomplete section")
         self.cur_section = cur.back
     
@@ -114,7 +121,7 @@ class JKoiLangVM(object):
         if check_code == 3:
             self.skip_until(pc)
         elif check_code:
-            raise ValueError(f"pc({pc}) out of range")
+            raise JKLvmAddressError(f"pc({pc}) out of range", address=pc)
         else:
             self._pc = pc
     
@@ -124,6 +131,12 @@ class JKoiLangVM(object):
         self.state |= VMState.SKIPPING
         self._skip_count = offset
     
+    def skip_once(self) -> None:
+        assert VMState.SKIPPING in self.state
+        self._skip_count -= 1
+        if self._skip_count == 0:
+            self.state &= ~VMState.SKIPPING
+    
     def exit(self) -> None:
         self._pc = len(self.codes)
     
@@ -131,7 +144,7 @@ class JKoiLangVM(object):
         self.state |= VMState.FROZEN
         self.section_table[0][0].length = len(self.codes)
     
-    def _eval_addr(self, target: Union[int, str], *, absolute: bool = False) -> int:
+    def eval_addr(self, target: Union[int, str], *, absolute: bool = False) -> int:
         if isinstance(target, str):
             pc = self.labels[target]
         else:
@@ -140,16 +153,15 @@ class JKoiLangVM(object):
     
     def _check_addr(self, addr: int) -> int:
         section = self.cur_section
-        print(section)
         if addr not in section:
             return 1  # out of range
+        elif addr >= len(self.codes):
+            return 3  # command not recorded
         elif any(
-            any(addr in j for j in self.section_table[i] if j is not section)
+            any(addr in j for j in self.section_table[i] if j is not section and j.length)
             for i in self.section_table if i in section
         ):
             return 2  # target environment not initialized
-        elif addr >= len(self.codes):
-            return 3  # command not recorded
         return 0
     
     @property
@@ -163,10 +175,10 @@ class JKoiLangVM(object):
     @contextmanager
     def _run_block(self) -> Generator[Self, None, None]:
         if self.running:
-            raise RuntimeError("JKLVM is already runing")
+            raise RuntimeError("JKoiLangVM is already runing")
         self.state |= VMState.RUNNING
         try:
             yield self
-        except:
+        except:  # noqa: E722
             self.state &= ~VMState.RUNNING
             raise
