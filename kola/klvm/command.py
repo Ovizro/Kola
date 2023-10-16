@@ -1,5 +1,5 @@
 from functools import partialmethod
-from typing import Any, Callable, Dict, Generator, Iterable, Tuple, Union, overload
+from typing import Any, Callable, Dict, Generator, Iterable, Tuple, Type, Union, overload
 from typing_extensions import Self, Protocol, runtime_checkable
 
 
@@ -79,14 +79,18 @@ class Command(object):
             for i in self.alias:
                 yield i, bound_func
 
-    def __get__(self, ins: Any, owner: type) -> Any:
+    def __get__(self, ins: "CommandSet", owner: Type["CommandSet"]) -> Any:
         if ins is None:
             return self
-        elif self.virtual and self is ins.raw_command_set[self.__name__]:
+        
+        is_super = self is not ins.raw_command_set.get(self.__name__, self)\
+            if not self.suppression and isinstance(ins, CommandSet) else False
+        
+        if self.virtual and not is_super:
             return ins[self.__name__]
         
         def wrapper(*args: Any, **kwds: Any) -> Any:
-            return self.call_command(ins, args, kwds, manual_call=True)
+            return self.call_command(ins, args, kwds, manual_call=True, is_super=is_super)
         wrapper.__name__ = self.__name__
         return wrapper
     
@@ -95,3 +99,6 @@ class Command(object):
 
     def __repr__(self) -> str:
         return f"<kola command {self.__name__} with {self.__func__}>"
+
+
+from .commandset import CommandSet

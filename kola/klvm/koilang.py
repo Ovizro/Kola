@@ -275,8 +275,18 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             return super().__getitem__(__key)
         return self.__top[__key]
 
-    def __kola_caller__(self, command: Command, args: tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
-        return self._handler(command, args, kwargs, **kwds)
+    def __kola_caller__(
+        self,
+        command: Command,
+        args: tuple,
+        kwargs: Dict[str, Any],
+        *,
+        is_super: bool = False,
+        **options: Any
+    ) -> Any:
+        if is_super:
+            return super().__kola_caller__(command, args, kwargs, **options)
+        return self._handler(command, args, kwargs, **options)
 
     @property
     def top(self) -> CommandSet:

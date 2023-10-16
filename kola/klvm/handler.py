@@ -96,6 +96,7 @@ def build_handlers(handlers: List[Type[AbstractHandler]], ins: Any) -> AbstractH
 
 from .koilang import KoiLang
 
+
 default_handler = KoiLang.register_handler
 
 
@@ -114,42 +115,6 @@ class CallerHandler(AbstractHandler):
     ) -> Any:
         ret = command.__func__(bound_instance or self.owner, *args, **kwargs)
         super().__call__(command, args, kwargs, bound_instance=bound_instance, ret_value=ret, **kwds)
-        return ret
-
-
-@default_handler
-class EnvironmentHandler(AbstractHandler):
-    __slots__ = []
-
-    priority = 20
-
-    def __call__(
-        self,
-        command: Command,
-        args: Tuple,
-        kwargs: Dict[str, Any],
-        *,
-        bound_instance: Optional[CommandSet] = None,
-        push: Optional[Type["Environment"]] = None,
-        pop: Optional[Type["Environment"]] = None,
-        **kwds: Any
-    ) -> Any:
-        home = self.owner
-        assert isinstance(home, KoiLang)
-        if push is not None:
-            if pop is not None:
-                # auto pop mod
-                assert pop is push and isinstance(bound_instance, Environment)
-                home.pop_apply(home.pop_prepare(bound_instance))
-            bound_instance = home.push_prepare(push)
-        elif pop is not None:
-            assert isinstance(bound_instance, Environment)
-            back = home.pop_prepare(bound_instance)
-        ret = super().__call__(command, args, kwargs, bound_instance=bound_instance, **kwds)
-        if push is not None:
-            self.owner.push_apply(bound_instance)  # type: ignore
-        elif pop is not None:
-            home.pop_apply(back)  # type: ignore
         return ret
 
 
@@ -201,6 +166,42 @@ class SkipHandler(AbstractHandler):
             return super().__call__(command, args, kwargs, **kwds)
 
 
+@default_handler
+class EnvironmentHandler(AbstractHandler):
+    __slots__ = []
+
+    priority = 20
+
+    def __call__(
+        self,
+        command: Command,
+        args: Tuple,
+        kwargs: Dict[str, Any],
+        *,
+        bound_instance: Optional[CommandSet] = None,
+        push: Optional[Type["Environment"]] = None,
+        pop: Optional[Type["Environment"]] = None,
+        **kwds: Any
+    ) -> Any:
+        home = self.owner
+        assert isinstance(home, KoiLang)
+        if push is not None:
+            if pop is not None:
+                # auto pop mod
+                assert pop is push and isinstance(bound_instance, Environment)
+                home.pop_apply(home.pop_prepare(bound_instance))
+            bound_instance = home.push_prepare(push)
+        elif pop is not None:
+            assert isinstance(bound_instance, Environment)
+            back = home.pop_prepare(bound_instance)
+        ret = super().__call__(command, args, kwargs, bound_instance=bound_instance, **kwds)
+        if push is not None:
+            self.owner.push_apply(bound_instance)  # type: ignore
+        elif pop is not None:
+            home.pop_apply(back)  # type: ignore
+        return ret
+
+
 class _EnvChecker(NamedTuple):
     reachable: List[CommandSet]
     contains: List[CommandSet]
@@ -225,23 +226,32 @@ class _EnvChecker(NamedTuple):
         if ((not ng or all(not self.check_mask(i) for i in ng)) and
                 (not pt or any(self.check_mask(i) for i in pt))):
             return
-        raise ValueError(f"unmatched env ironment name {self.reachable[0]}")  # pragma: no cover
+        raise ValueError(f"unmatched environment name {self.reachable[0]}")  # pragma: no cover
     
     def check_mask(self, mask: Mask) -> bool:
-        if mask.type == Mask.MType.default:
-            env_set = self.reachable
-        elif mask.type == Mask.MType.all:
+        if mask.type == Mask.MType.all:
             env_set = self.contains
         else:
-            return self.reachable[0] in mask
-        return any(i in mask for i in env_set)
+            env_set = self.reachable
+        if all(i not in mask for i in env_set):
+            return False
+        elif mask.type == Mask.MType.exact:
+            for i in env_set:
+                if i in mask:
+                    return True
+                elif isinstance(i, Environment) and i.__class__.__env_autopop__:
+                    klmain = i.home
+                    klmain.pop_apply(klmain.pop_prepare(i))
+            raise RuntimeError("failed to match mask")
+        return True
+                
 
 
 @default_handler
 class EnsureEnvHandler(AbstractHandler):
     __slots__ = []
 
-    priority = 5
+    priority = 25
 
     def _eval_checker(self) -> _EnvChecker:
         assert isinstance(self.owner, KoiLang)
@@ -270,7 +280,7 @@ class EnsureEnvHandler(AbstractHandler):
         kwargs: Dict[str, Any],
         *,
         bound_instance: Optional[CommandSet] = None,
-        envs: Tuple[str, ...] = (),
+        envs: Optional[Tuple[str, ...]] = None,
         **kwds: Any
     ) -> Any:
         if envs:
