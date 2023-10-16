@@ -1,11 +1,13 @@
+import sys
 from abc import ABC, abstractmethod
-from threading import Lock
-from typing import Any, ClassVar, Dict, Iterable, List, Optional, Tuple, Type, TypeVar, Union
+from operator import index as op_index
+from typing import (Any, ClassVar, Dict, Generator, Iterable, List, NamedTuple,
+                    Optional, SupportsIndex, Tuple, Type, TypeVar, Union)
 from typing_extensions import Self
 
-from .mask import ClassNameMask, Mask
 from .command import Command
 from .commandset import CommandSet
+from .mask import ClassNameMask, Mask
 
 
 _T_Handler = TypeVar("_T_Handler", bound="AbstractHandler")
@@ -14,9 +16,9 @@ _T_Handler = TypeVar("_T_Handler", bound="AbstractHandler")
 class AbstractHandler(ABC):
     __slots__ = ["next", "owner"]
 
-    priority: ClassVar[int] = 0
+    priority: ClassVar[float] = 0
 
-    def __init__(self, owner: "KoiLang", next: Optional["AbstractHandler"] = None) -> None:
+    def __init__(self, owner: CommandSet, next: Optional["AbstractHandler"] = None) -> None:
         super().__init__()
         self.owner = owner
         self.next = next
@@ -47,7 +49,44 @@ class AbstractHandler(ABC):
         return self.next(command, args, kwargs, **kwds)
 
 
+class HandlerSequence:
+    __slots__ = ["head"]
+
+    def __init__(self, head: AbstractHandler) -> None:
+        self.head = head
+    
+    def __getitem__(self, __index: SupportsIndex) -> AbstractHandler:
+        hdl = self.__get(__index)
+        if hdl is None:
+            raise KeyError(__index)
+        return hdl
+    
+    def __iter__(self) -> Generator[AbstractHandler, None, None]:
+        head = self.head
+        while head is not None:
+            yield head
+            head = head.next
+    
+    def __contains__(self, hdl: AbstractHandler) -> bool:
+        if not isinstance(hdl, AbstractHandler):
+            return NotImplemented
+        return any(hdl is i for i in self)
+    
+    def __get(self, __index: SupportsIndex, default: Optional[AbstractHandler] = None) -> Optional[AbstractHandler]:
+        i = op_index(__index)
+        if i < 0:
+            return list(self)[i]
+        for hdl in self:
+            if i == 0:
+                return hdl
+            i -= 1
+        return default
+    
+    get = __get
+
+
 def build_handlers(handlers: List[Type[AbstractHandler]], ins: Any) -> AbstractHandler:
+    assert handlers
     base = handlers[0](ins)
     for i in handlers[1:]:
         hdl = i(ins)
@@ -79,6 +118,35 @@ class CallerHandler(AbstractHandler):
         return ret
 
 
+class ExceptionRecord(NamedTuple):
+    command: Command
+    exception: Exception
+
+
+@default_handler
+class ExceptionHandler(AbstractHandler):
+    __slots__ = []
+    
+    priority = 3
+
+    def __call__(
+        self,
+        command: Command,
+        args: Tuple,
+        kwargs: Dict[str, Any],
+        *,
+        bound_instance: Optional[CommandSet] = None,
+        **kwds: Any
+    ) -> Any:
+        ins = bound_instance or self.owner
+        try:
+            return super().__call__(command, args, kwargs, bound_instance=ins, **kwds)
+        except Exception as e:
+            if not ins["@command_exception"](*sys.exc_info()):
+                raise
+            return ExceptionRecord(command, e)
+
+
 @default_handler
 class SkipHandler(AbstractHandler):
     __slots__ = []
@@ -99,16 +167,94 @@ class SkipHandler(AbstractHandler):
 
 
 @default_handler
-class EnsureEnvHandler(AbstractHandler):
-    __slots__ = ["_cache", "_lock"]
+class EnvironmentHandler(AbstractHandler):
+    __slots__ = []
 
-    priority = 5
+    priority = 20
 
-    def __init__(self, owner: "KoiLang", next: Optional["AbstractHandler"] = None) -> None:
-        super().__init__(owner, next)
-        self._lock = Lock()
+    def __call__(
+        self,
+        command: Command,
+        args: Tuple,
+        kwargs: Dict[str, Any],
+        *,
+        bound_instance: Optional[CommandSet] = None,
+        push: Optional[Type["Environment"]] = None,
+        pop: Optional[Type["Environment"]] = None,
+        **kwds: Any
+    ) -> Any:
+        home = self.owner
+        assert isinstance(home, KoiLang)
+        if push is not None:
+            if pop is not None:
+                # auto pop mod
+                assert pop is push and isinstance(bound_instance, Environment)
+                home.pop_apply(home.pop_prepare(bound_instance))
+            bound_instance = home.push_prepare(push)
+        elif pop is not None:
+            assert isinstance(bound_instance, Environment)
+            back = home.pop_prepare(bound_instance)
+        ret = super().__call__(command, args, kwargs, bound_instance=bound_instance, **kwds)
+        if push is not None:
+            self.owner.push_apply(bound_instance)  # type: ignore
+        elif pop is not None:
+            home.pop_apply(back)  # type: ignore
+        return ret
+
+
+class _EnvChecker(NamedTuple):
+    reachable: List[CommandSet]
+    contains: List[CommandSet]
+
+    def eval_masks(self, checker: CommandSet, names: Iterable[Union[str, Mask]]) -> List[Mask]:
+        if isinstance(names, (str, Mask)):
+            names = (names,)
+        var_dict = {str(i): self.contains[i] for i in range(len(self.contains) - 1, -1, -1)}
+        var_dict["top"] = self.contains[0]
+        var_dict.update({'?': checker, "cur": checker, "current": checker})
+        var_dict.update(base=self.contains[-1], __init__=self.contains[-1])
+        return [i if isinstance(i, Mask) else ClassNameMask(i, var_dict=var_dict) for i in names]
     
-    def _flush_cache(self) -> None:
+    def ensure_envs(self, masks: List[Mask]) -> None:
+        ng, pt = [], []
+        for i in masks:
+            if i.not_:
+                ng.append(i)
+            else:
+                pt.append(i)
+
+        if ((not ng or all(not self.check_mask(i) for i in ng)) and
+                (not pt or any(self.check_mask(i) for i in pt))):
+            return
+        raise ValueError(f"unmatched environment name {self.reachable[0]}")  # pragma: no cover
+    
+    def check_mask(self, mask: Mask) -> bool:
+        if mask.type == Mask.MType.all:
+            env_set = self.contains
+        else:
+            env_set = self.reachable
+        if all(i not in mask for i in env_set):
+            return False
+        elif mask.type == Mask.MType.exact:
+            for i in env_set:
+                if i in mask:
+                    return True
+                elif isinstance(i, Environment) and i.__class__.__env_autopop__:
+                    klmain = i.home
+                    klmain.pop_apply(klmain.pop_prepare(i))
+            raise RuntimeError("failed to match mask")
+        return True
+                
+
+
+@default_handler
+class EnsureEnvHandler(AbstractHandler):
+    __slots__ = []
+
+    priority = 25
+
+    def _eval_checker(self) -> _EnvChecker:
+        assert isinstance(self.owner, KoiLang)
         reachable: List[CommandSet] = []
         top = self.owner.top
         while isinstance(top, Environment):
@@ -125,47 +271,8 @@ class EnsureEnvHandler(AbstractHandler):
             # the base KoiLang object name is '__init__'
             reachable.append(self.owner)
             contains = reachable
-        self._cache = (reachable, contains)
+        return _EnvChecker(reachable, contains)
     
-    def eval_masks(self, checker: CommandSet, names: Iterable[Union[str, Mask]]) -> List[Mask]:
-        if isinstance(names, (str, Mask)):
-            names = (names,)
-        var_dict = {str(i): self.contains[i] for i in range(len(self.contains) - 1, -1, -1)}
-        var_dict["top"] = self.contains[0]
-        var_dict.update({'?': checker, "cur": checker, "current": checker})
-        var_dict.update(base=self.contains[-1], __init__=self.contains[-1])
-        return [i if isinstance(i, Mask) else ClassNameMask(i, **var_dict) for i in names]
-
-    def ensure_envs(self, masks: List[Mask]) -> None:
-        ng, pt = [], []
-        for i in masks:
-            if i.not_:
-                ng.append(i)
-            else:
-                pt.append(i)
-
-        if ((not ng or all(not self.check_mask(i) for i in ng)) and
-                (not pt or any(self.check_mask(i) for i in pt))):
-            return
-        raise ValueError(f"unmatched environment name {self.reachable[0]}")  # pragma: no cover
-    
-    def check_mask(self, mask: Mask) -> bool:
-        if mask.type == Mask.MType.default:
-            env_set = self.reachable
-        elif mask.type == Mask.MType.all:
-            env_set = self.contains
-        else:
-            return self.reachable[0] in mask
-        return any((i in mask) for i in env_set)
-
-    @property
-    def reachable(self) -> List[CommandSet]:
-        return self._cache[0]
-    
-    @property
-    def contains(self) -> List[CommandSet]:
-        return self._cache[1]
-
     def __call__(
         self,
         command: Command,
@@ -173,14 +280,13 @@ class EnsureEnvHandler(AbstractHandler):
         kwargs: Dict[str, Any],
         *,
         bound_instance: Optional[CommandSet] = None,
-        envs: Tuple[str, ...] = (),
+        envs: Optional[Tuple[str, ...]] = None,
         **kwds: Any
     ) -> Any:
         if envs:
-            with self._lock:
-                self._flush_cache()
-                masks = self.eval_masks(bound_instance or self.owner, envs)
-                self.ensure_envs(masks)
+            checker = self._eval_checker()
+            masks = checker.eval_masks(bound_instance or self.owner, envs)
+            checker.ensure_envs(masks)
         return super().__call__(command, args, kwargs, bound_instance=bound_instance, **kwds)
 
 

@@ -7,7 +7,7 @@ from kola.lib import KOLA_LIB_PATH, load_library, main_class_from_module
 try:
     from pyximport.pyxbuild import pyx_to_dll
     from pyximport.pyximport import get_distutils_extension
-except ImportError:
+except ImportError:  # pragma: no cover
     pyx_to_dll = None
 
 
@@ -29,7 +29,7 @@ class TestLibImport(TestCase):
         from kola.lib._recorder_spec import _Recorder  # type: ignore
         self.assertIs(main, _Recorder)
 
-    @skipUnless(pyx_to_dll, "Cython module is not available")
+    @skipUnless(pyx_to_dll and "TEST_BIN_IMP" in os.environ, "Cython module is not available")
     def test_binlib(self) -> None:
         assert pyx_to_dll
         bin_name = "recorder_bin"

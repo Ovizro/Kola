@@ -1,12 +1,14 @@
 import os
 from functools import partial
 from types import TracebackType
-from typing import Type
+from typing import Any, Dict, Tuple, Type
 from unittest import TestCase
 
-from kola.klvm import CommandSet, Environment, KoiLang, kola_environment
-from kola.klvm.decorator import kola_command, kola_annotation, kola_text, kola_env_enter, kola_env_exit
+from kola.klvm import CommandSet, Environment, KoiLang
+from kola.klvm.command import Command
+from kola.klvm.decorator import kola_command, kola_environment, kola_annotation, kola_text, kola_env_enter, kola_env_exit
 from kola.klvm.writer import KoiLangWriter
+from kola.klvm.handler import AbstractHandler, SkipHandler
 from kola.lexer import StringLexer
 from kola.parser import Parser
 from kola.writer import BaseWriter
@@ -83,11 +85,27 @@ class KolaTest(KoiLang, command_threshold=2, lstrip_text=False):
         self.errors.append(exc_ins.__cause__)
         super().on_exception(exc_type, exc_ins, traceback)
         return True
+
+
+class Handler1(AbstractHandler):
+    priority = 1
+
+    def __call__(self, command: Command, args: Tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
+        super().__call__(command, args, kwargs, **kwds)
+        return 1
+
+
+class Handler2(AbstractHandler):
+    priority = 2
+
+    def __call__(self, command: Command, args: Tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
+        super().__call__(command, args, kwargs, **kwds)
+        return 2
             
 
 class TestKoiLang(TestCase):
     def test_init(self) -> None:
-        self.assertEqual(len(KoiLang.__command_field__), 3)
+        self.assertEqual(len(KoiLang.__command_field__), 4)
         self.assertEqual(KoiLang.__command_threshold__, 1)
         self.assertEqual(KoiLang.__text_encoding__, "utf-8")
         self.assertEqual(KolaTest.__command_threshold__, 2)
@@ -183,6 +201,23 @@ class TestKoiLang(TestCase):
             "    #enter\n"
         )
         self.assertEqual(text, string)
+    
+    def test_handler(self) -> None:
+        vmobj = KolaTest()
+        self.assertIsInstance(vmobj._handler.next, SkipHandler)
+        self.assertEqual(vmobj.version(100), 100)
+        hdl1 = vmobj.add_handler(Handler1)
+        self.assertIs(vmobj.handlers[4], hdl1)
+        self.assertIs(vmobj.handlers[-2], hdl1)
+        self.assertEqual(vmobj.version(100), 1)
+        hdl2 = vmobj.add_handler(Handler2)
+        self.assertIs(vmobj.handlers[4], hdl2)
+        self.assertEqual(vmobj.version(100), 2)
+        vmobj.remove_handler(hdl1)
+        self.assertNotIn(hdl1, vmobj.handlers)
+        self.assertEqual(vmobj.version(100), 2)
+        vmobj.remove_handler(hdl2)
+        self.assertEqual(vmobj.version(100), 100)
 
 
 if __name__ == "__main__":

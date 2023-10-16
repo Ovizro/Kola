@@ -50,11 +50,11 @@ class KoiLangWriter(KoiLang):
                 encoding=self.__class__.__text_encoding__
             )
     
-    def push_apply(self, __push_cache: Environment) -> None:
+    def push_apply(self, __env_cache: Environment) -> None:
         self._writer.inc_indent()
-        return super().push_apply(__push_cache)
+        return super().push_apply(__env_cache)
     
-    def pop_prepare(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
+    def pop_prepare(self, __env_type: Optional[Environment] = None) -> Environment:
         self._writer.dec_indent()
         return super().pop_prepare(__env_type)
     
@@ -78,7 +78,8 @@ class KoiLangWriter(KoiLang):
 class WriterHandler(AbstractHandler):
     __slots__ = []
 
-    priority = 3
+    priority = 4
+    
     owner: "KoiLangWriter"
 
     def __call__(

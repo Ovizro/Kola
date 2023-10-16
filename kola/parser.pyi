@@ -1,5 +1,6 @@
 from typing import Any, Callable, Final, Generic, Tuple, TypeVar
 from typing_extensions import Protocol, Self
+
 from .lexer import BaseLexer, Token
 
 

@@ -3,7 +3,6 @@ from libc.string cimport strlen
 from cpython cimport PyObject, PySequence_Check, PyMapping_Check, PyErr_Format, PyErr_SetString,\
     PyUnicode_FindChar, PyUnicode_FromStringAndSize, PyUnicode_AsEncodedString
 
-import re
 from typing_extensions import Protocol, runtime_checkable
 
 
@@ -24,9 +23,6 @@ cdef extern from *:
     const char* _prefix_string
 
 
-cdef object literal_pattarn = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
-
-
 cdef inline void _write_writeritemlike(BaseWriter writer, object obj, ItemLevel level) except *:
     if isinstance(obj, BaseWriterItem):
         (<BaseWriterItem>obj).__kola_write__(writer, level)
@@ -40,12 +36,11 @@ cdef inline void _write_writeritemlike(BaseWriter writer, object obj, ItemLevel 
 cdef bint _write_base_item(BaseWriter writer, object value) except -1:
     cdef str lt
     if isinstance(value, str):
-        if literal_pattarn.match(value) is None:
-            lt = <str>repr(<str>value)
+        lt = <str>value
+        if not lt.isidentifier():
+            lt = <str>repr(lt)
             PyUnicode_WriteChar(lt, 0, ord('"'))
             PyUnicode_WriteChar(lt, len(lt) - 1, ord('"'))
-        else:
-            lt = <str>value
         writer.raw_write(lt)
     elif isinstance(value, bytes):
         writer.raw_write_string(<const char*>(<bytes>value), len(<bytes>value))
@@ -124,7 +119,7 @@ cdef class ComplexArg(BaseWriterItem):
     def __init__(self, str name not None, value, *, bint split_line = False):
         if not (isinstance(value, (str, int, float)) or PySequence_Check(value) or PyMapping_Check(value)):
             PyErr_Format(TypeError, "unsupport type '%s'", get_type_qualname(value))
-        if literal_pattarn.match(name) is None:
+        if not name.isidentifier():
             PyErr_Format(ValueError, "'%U' is not a valid item name", <PyObject*>name)
         self.name = name
         self.value = value
@@ -241,11 +236,13 @@ cdef class BaseWriter(object):
         cdef:
             int number_name
             char cache[11]
+            str name
         if isinstance(__name, str):
-            if literal_pattarn.match(__name) is None:
-                PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>__name)
+            name = <str>__name
+            if not name.isidentifier():
+                PyErr_Format(ValueError, "%U is an invalid command name", <PyObject*>name)
             self._write_prefix(self.command_threshold)
-            self.raw_write(__name)
+            self.raw_write(name)
         elif isinstance(__name, int):
             number_name = <int>__name
             if number_name < 0:

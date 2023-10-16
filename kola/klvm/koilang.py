@@ -17,7 +17,7 @@ from .environment import Environment
 
 
 _T_EnvCls = TypeVar("_T_EnvCls", bound=Type[Environment])
-_T_Handler = TypeVar("_T_Handler", bound=Type["AbstractHandler"])
+_T_Handler = TypeVar("_T_Handler", bound="AbstractHandler")
 
 
 class KoiLangMeta(CommandSetMeta):
@@ -80,7 +80,7 @@ class KoiLangMeta(CommandSetMeta):
         self.__command_field__.add(env_class)
         return env_class
     
-    def register_handler(self, handler: _T_Handler) -> _T_Handler:
+    def register_handler(self, handler: Type[_T_Handler]) -> Type[_T_Handler]:
         if "__command_handlers__" not in self.__dict__:
             # copy the handler list to avoid changing the base classes
             self.__command_handlers__ = self.__command_handlers__.copy()
@@ -94,10 +94,10 @@ class KoiLangMeta(CommandSetMeta):
         :return: the writer class, which is a subclass of KoiLangWriter and current KoiLang class
         :rtype: Type[KoiLang, Self]
         """
+        # sourcery skip: inline-immediately-returned-variable
         cache = None
         with suppress(AttributeError):
             cache = self.__writer_class
-        if cache is not None:
             return cache
         cache = new_class(f"{self.__qualname__}.writer", (KoiLangWriter, self))
         self.__writer_class = cache
@@ -120,30 +120,30 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         self.__exec_level = 0
         self._handler = build_handlers(self.__class__.__command_handlers__, self)
     
-    def push_prepare(self, __env_type: Type[Environment]) -> Environment:
-        env = __env_type(self.__top)
-        env.set_up(self.__top)
-        return env
+    def push_prepare(self, __env_type: Union[Type[Environment], Environment]) -> Environment:
+        if not isinstance(__env_type, Environment):
+            __env_type = __env_type(self.__top)
+        __env_type.set_up(self.__top)
+        return __env_type
 
     def push_apply(self, __env_cache: Environment) -> None:
         assert __env_cache.back is self.__top
         with self._lock:
             self.__top = __env_cache
     
-    def pop_prepare(self, __env_type: Optional[Type[Environment]] = None) -> Environment:
+    def pop_prepare(self, __env_type: Optional[Environment] = None) -> Environment:
         top = self.__top
         if top is self:  # pragma: no cover
             raise ValueError('cannot pop the inital environment')
-        if __env_type is None:
-            assert isinstance(top, Environment)
-        else:
+        if __env_type is not None:
             while isinstance(top, Environment) and top.__class__.__env_autopop__:
-                if isinstance(top, __env_type):
+                if top is __env_type:
                     break
                 top = top.back
             else:
-                if not isinstance(top, __env_type):  # pragma: no cover
+                if top is not __env_type:  # pragma: no cover
                     raise ValueError("unmatched environment")
+        assert isinstance(top, Environment)
         return top
 
     def pop_apply(self, __env_cache: Environment) -> None:
@@ -158,7 +158,7 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         else:
             raise ValueError('cannot pop the inital environment')
     
-    def add_handler(self, handler: Union[Type["AbstractHandler"], "AbstractHandler"]) -> "AbstractHandler":
+    def add_handler(self, handler: Union[Type[_T_Handler], _T_Handler]) -> _T_Handler:
         if isinstance(handler, type):
             handler = handler(self)
         self._handler = self._handler.insert(handler)
@@ -193,7 +193,10 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             with self.exec_block():
                 while True:
                     try:
-                        yield from parser
+                        yield from filter(
+                            lambda i: not isinstance(i, ExceptionRecord) or not isinstance(i.exception, KoiLangError),
+                            parser
+                        )
                     except KoiLangError:
                         if not self.on_exception(*sys.exc_info()):
                             raise
@@ -272,8 +275,18 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
             return super().__getitem__(__key)
         return self.__top[__key]
 
-    def __kola_caller__(self, command: Command, args: tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
-        return self._handler(command, args, kwargs, **kwds)
+    def __kola_caller__(
+        self,
+        command: Command,
+        args: tuple,
+        kwargs: Dict[str, Any],
+        *,
+        is_super: bool = False,
+        **options: Any
+    ) -> Any:
+        if is_super:
+            return super().__kola_caller__(command, args, kwargs, **options)
+        return self._handler(command, args, kwargs, **options)
 
     @property
     def top(self) -> CommandSet:
@@ -282,6 +295,10 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
     @property
     def home(self) -> Self:
         return self
+    
+    @property
+    def handlers(self) -> "HandlerSequence":
+        return HandlerSequence(self._handler)
 
     @partial(Command, "@start", virtual=True)
     def at_start(self) -> None:
@@ -300,15 +317,28 @@ class KoiLang(CommandSet, metaclass=KoiLangMeta):
         will be that of 'parse' method.
         """
     
+    @partial(Command, "@command_exception", virtual=True)
+    def on_command_exception(self, exc_type: Type[Exception], exc_ins: Optional[Exception], traceback: TracebackType) -> None:
+        """
+        command exception handling command
+
+        Called when an exception occurs during command execution.
+        If the exception is not caught here, it will be wrapped as KoiLangCommandError passed to on_exception.
+        When there is a sub-section, the exception handling thrown from the command in the current environment
+        will not be affected by the command exception handler function defined by the sub-section.
+        If the command wishes to suppress the exception, it should a true value.
+        """
+    
     @partial(Command, "@exception", virtual=True)
     def on_exception(self, exc_type: Type[KoiLangError], exc_ins: Optional[KoiLangError], traceback: TracebackType) -> None:
         """
         exception handling command
 
-        It is called when a KoiLang error occurs.
+        Called when a KoiLang error occurs.
+        Unlike the on_command_exception function, this function can catch exceptions thrown by the KoiLang language parser.
         If the command wishes to suppress the exception, it should a true value.
         """
 
 
-from .handler import AbstractHandler, build_handlers
+from .handler import AbstractHandler, ExceptionRecord, HandlerSequence, build_handlers
 from .writer import KoiLangWriter

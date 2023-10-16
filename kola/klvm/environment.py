@@ -1,6 +1,6 @@
 from functools import partial
 from types import TracebackType
-from typing import Any, Callable, Dict, Generator, Iterable, Optional, Set, Tuple, Type, TypeVar, Union, overload
+from typing import Any, Callable, Dict, Generator, Optional, Set, Tuple, Type, TypeVar, Union, overload
 from typing_extensions import Self
 
 from ..exception import KoiLangError
@@ -15,18 +15,13 @@ T = TypeVar("T")
 class EnvironmentCommand(Command):
     __slots__ = ["env_class"]
 
-    def __init__(
-        self,
-        __name: str,
-        func: Callable,
-        env_class: Optional[Type["Environment"]] = None,
-        envs: Union[Iterable[str], str, None] = None,
-        **kwds
-    ) -> None:
-        super().__init__(__name, func, **kwds)
-        if envs:
-            self.extra_data["envs"] = (envs,) if isinstance(envs, str) else tuple(envs)
-        self.env_class = env_class
+    def __init__(self, *args, env_class: Optional[Type["Environment"]] = None, **kwds) -> None:
+        super().__init__(*args, **kwds)
+        if env_class is not None:
+            self.env_class = env_class
+
+    def __set_name__(self, owner: Type["Environment"], name: str) -> None:
+        self.env_class = owner
     
     @classmethod
     def from_command(cls, command: "Command", **kwds: Any) -> Self:
@@ -41,45 +36,28 @@ class EnvironmentEntry(EnvironmentCommand):
     def __init__(self, *args, **kwds) -> None:
         super().__init__(*args, suppression=True, **kwds)
     
+    def call_command(self, vmobj: Any, args: Tuple, kwargs: Dict[str, Any], **options: Any) -> Any:
+        return super().call_command(vmobj, args, kwargs, push=self.env_class, **options)
+    
     def __get__(self, ins: Any, owner: type) -> Any:
         assert self.env_class
         if isinstance(ins, self.env_class) and self.env_class.__env_autopop__:
             return EnvironmentAutopop.from_command(self).__get__(ins, owner)
         return super().__get__(ins, owner)
 
-    def __call__(self, vmobj: Union["Environment", "KoiLang"], *args: Any, **kwds: Any) -> Any:
-        assert self.env_class
-        home = vmobj.home
-        env = home.push_prepare(self.env_class)
-        ret = super().__call__(env, *args, **kwds)
-        home.push_apply(env)
-        return ret
-
 
 class EnvironmentExit(EnvironmentCommand):
     __slots__ = []
 
-    def __call__(self, vmobj: "Environment", *args: Any, **kwds: Any) -> Any:
-        home = vmobj.home
-        pop_env = home.pop_prepare(self.env_class)
-        ret = super().__call__(vmobj, *args, **kwds)
-        home.pop_apply(pop_env)
-        return ret
+    def call_command(self, vmobj: Any, args: Tuple, kwargs: Dict[str, Any], **options: Any) -> Any:
+        return super().call_command(vmobj, args, kwargs, pop=self.env_class, **options)
 
 
 class EnvironmentAutopop(EnvironmentCommand):
     __slots__ = []
-
-    def __call__(self, vmobj: "Environment", *args: Any, **kwds: Any) -> Any:
-        assert self.env_class
-        home = vmobj.home
-
-        cache = home.pop_prepare(self.env_class)
-        home.pop_apply(cache)
-        cache = home.push_prepare(self.env_class)
-        ret = super().__call__(cache, *args, **kwds)
-        home.push_apply(cache)
-        return ret
+    
+    def call_command(self, vmobj: Any, args: Tuple, kwargs: Dict[str, Any], **options: Any) -> Any:
+        return super().call_command(vmobj, args, kwargs, push=self.env_class, pop=self.env_class, **options)
 
 
 class EnvironmentMeta(CommandSetMeta):
@@ -103,9 +81,9 @@ class EnvironmentMeta(CommandSetMeta):
         new_cls = super().__new__(cls, name, bases, attr, **kwds)
         
         for v in attr.values():
-            if not isinstance(v, EnvironmentCommand):
-                continue
-            v.env_class = new_cls  # type: ignore
+            # if not isinstance(v, EnvironmentCommand):
+            #     continue
+            # v.env_class = new_cls  # type: ignore
             if isinstance(v, EnvironmentEntry):
                 entry.add(v)
             elif isinstance(v, EnvironmentExit):
@@ -192,8 +170,19 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
             cmd = cmd_set.get(__key)
         return cmd
     
-    def __kola_caller__(self, command: Command, args: tuple, kwargs: Dict[str, Any], **kwds: Any) -> Any:
-        return self.home.__kola_caller__(command, args, kwargs, bound_instance=self, **kwds)
+    def __kola_caller__(
+        self,
+        command: Command,
+        args: tuple,
+        kwargs: Dict[str, Any],
+        *,
+        bound_instance: Optional[CommandSet] = None,
+        **kwds: Any
+    ) -> Any:
+        return self.back.__kola_caller__(
+            command, args, kwargs,
+            bound_instance=bound_instance or self, **kwds
+        )
 
     @property
     def home(self) -> "KoiLang":
@@ -217,7 +206,7 @@ class Environment(CommandSet, metaclass=EnvironmentMeta):
         if not self.__class__.__env_autopop__:
             return
         home = self.home
-        home.pop_apply(home.pop_prepare(self.__class__))
+        home.pop_apply(home.pop_prepare(self))
         home.at_end()
     
     @partial(Command, "@exception", virtual=True, suppression=True)

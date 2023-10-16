@@ -23,6 +23,8 @@ class CommandSetMeta(ABCMeta):
             if isinstance(v, Command):
                 if v.virtual:
                     virtual_table[k] = v.__name__
+                elif k in virtual_table:
+                    v.virtual = True
             elif k in virtual_table:
                 attr[k] = v = Command(virtual_table[k], v, virtual=True)
             elif not isinstance(v, CommandLike):
@@ -102,10 +104,7 @@ class CommandSet(object, metaclass=CommandSetMeta):
         bound_cmd = MethodType(raw_cmd, self)
         self._bound_command_cache[__key] = bound_cmd
         return bound_cmd
-
-    def check_virtual(self, command: Command) -> bool:
-        return command is self.raw_command_set[command.__name__]
-
+    
     @classmethod
     def mask(cls, type: Union["Mask.MType", str] = "") -> "Mask":
         return ClassTypeMask(cls, type)  # type: ignore

@@ -3,7 +3,7 @@ from cpython cimport PyErr_Format
 from typing import TypeVar
 from typing_extensions import Protocol
 
-from .exception import KoiLangError, KoiLangSyntaxError, KoiLangCommandError
+from .exception import KoiLangError, KoiLangSyntaxError, KoiLangCommandError, KoiLangCommandNotFoundError
 
 
 class SupportGetCommand(Protocol):
@@ -20,7 +20,7 @@ cdef class Parser:
         self.command_set = command_set
         self.recovery()
     
-    cpdef void push(self, Token n):
+    cpdef void push(self, Token n) noexcept:
         n.next = self.stack_top
         self.stack_top = n
     
@@ -31,7 +31,7 @@ cdef class Parser:
         self.stack_top = n.next
         return n
     
-    cdef void recovery(self):
+    cdef void recovery(self) noexcept:
         while True:
             try:
                 self.t_cache = self.lexer.next_token()
@@ -159,7 +159,7 @@ cdef class Parser:
         except KeyError:
             if token.syn == ANNOTATION:
                 return
-            kola_set_errcause(KoiLangCommandError, 2, 
+            kola_set_errcause(KoiLangCommandNotFoundError, 2, 
                 self.lexer.lexer_data.filename, token.lineno, token.raw_val, None)
         
         try:

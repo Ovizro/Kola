@@ -27,11 +27,11 @@ from . import __version__
 
 def _read_stdin() -> str:
     try:
-        sys.stdout.write("$kola: ")
+        sys.stdout.write(f"kola@{__version__}$ ")
         sys.stdout.flush()
         s = sys.stdin.readline()
         while s.endswith("\\\n"):
-            sys.stdout.write("$...: ")
+            sys.stdout.write("> ")
             sys.stdout.flush()
             s += sys.stdin.readline()
     except KeyboardInterrupt:
@@ -44,8 +44,10 @@ if __name__ == "__main__":
     parser.add_argument("file", default=None, nargs="?")
     parser.add_argument("-i", "-c", "--inline", help="parse inline string")
     parser.add_argument("-s", "--script", help="parser script")
+    parser.add_argument("-q", "--quiet", help="don't print version messages on interactive startup", action="store_true")
     parser.add_argument("-d", "--debug", help="dubugger type", choices=["token", "command"])
     parser.add_argument("--encoding", help="file encoding", default="utf-8")
+    parser.add_argument("-v", "--version", help="kola version", action="version", version=__version__)
 
     namespace = parser.parse_args()
 
@@ -63,7 +65,8 @@ if __name__ == "__main__":
     if namespace.debug == "token":
         runner_type = "Token Debugger"
         if lexer is None:
-            print(f"KoiLang {runner_type} {__version__} on Python {sys.version}")
+            if not namespace.quiet:
+                print(f"KoiLang {runner_type} {__version__} on Python {sys.version}")
             lexer = BaseLexer()
         while True:
             try:
@@ -87,6 +90,7 @@ if __name__ == "__main__":
             if lexer:
                 command_set.parse(lexer)
             else:
-                print(f"KoiLang {runner_type} {__version__} on Python {sys.version}")
+                if not namespace.quiet:
+                    print(f"KoiLang {runner_type} {__version__} on Python {sys.version}")
                 while True:
                     command_set.parse(_read_stdin())

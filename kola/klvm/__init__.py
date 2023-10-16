@@ -2,6 +2,7 @@ from .command import Command, CommandLike
 from .commandset import CommandSet, CommandSetMeta
 from .environment import Environment
 from .koilang import KoiLang
+from .handler import AbstractHandler, default_handler
 from .decorator import *
 
 
@@ -16,6 +17,9 @@ __all__ = [
     "CommandSet",
     "Environment",
     "KoiLang",
+    
+    "AbstractHandler",
+    "default_handler",
 
     "kola_command",
     "kola_text",
