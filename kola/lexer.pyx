@@ -59,7 +59,7 @@ cdef class Token:
     def __eq__(self, other) -> bool:
         return self is other or self.syn == other
     
-    cpdef int get_flag(self):
+    cpdef int get_flag(self) noexcept:
         if self.syn <= TEXT or self.syn == ANNOTATION:
             return 0
         elif self.syn == LITERAL:
@@ -180,7 +180,7 @@ cdef class BaseLexer(object):
         if self.scanner:
             yylex_destroy(self.scanner)
     
-    cpdef void close(self):
+    cpdef void close(self) noexcept:
         yypop_buffer_state(self.scanner)
     
     cdef void set_error(self, const char* text) except *:
@@ -194,7 +194,7 @@ cdef class BaseLexer(object):
             errno = 10
         kola_set_error(KoiLangSyntaxError, errno, self.lexer_data.filename, lineno, text)
     
-    cdef (int, const char*, Py_ssize_t) next_syn(self) nogil:
+    cdef (int, const char*, Py_ssize_t) next_syn(self) noexcept nogil:
         cdef int syn = yylex(self.scanner)
         return syn, yyget_text(self.scanner), yyget_leng(self.scanner)
     
@@ -313,7 +313,7 @@ cdef class FileLexer(BaseLexer):
         self.lexer_data.filename = self._filenameb
         LexerConfig(self).set(**kwds)
     
-    cpdef void close(self):
+    cpdef void close(self) noexcept:
         BaseLexer.close(self)
         if self.fp:
             fclose(self.fp)

@@ -18,7 +18,7 @@ cdef class Token:
         bytes raw_val
         int lineno
     
-    cpdef int get_flag(self)
+    cpdef int get_flag(self) noexcept
 
 
 cdef class LexerConfig:
@@ -34,9 +34,9 @@ cdef class BaseLexer:
     cdef readonly:
         str encoding
 
-    cpdef void close(self)
+    cpdef void close(self) noexcept
     cdef void set_error(self, const char* text) except *
-    cdef (int, const char*, Py_ssize_t) next_syn(self) nogil
+    cdef (int, const char*, Py_ssize_t) next_syn(self) noexcept nogil
     cdef Token next_token(self)
 
 
@@ -46,7 +46,7 @@ cdef class FileLexer(BaseLexer):
         bytes _filenameb
         FILE* fp
     
-    cpdef void close(self)
+    cpdef void close(self) noexcept
 
 
 @cython.no_gc

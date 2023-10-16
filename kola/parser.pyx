@@ -20,7 +20,7 @@ cdef class Parser:
         self.command_set = command_set
         self.recovery()
     
-    cpdef void push(self, Token n):
+    cpdef void push(self, Token n) noexcept:
         n.next = self.stack_top
         self.stack_top = n
     
@@ -31,7 +31,7 @@ cdef class Parser:
         self.stack_top = n.next
         return n
     
-    cdef void recovery(self):
+    cdef void recovery(self) noexcept:
         while True:
             try:
                 self.t_cache = self.lexer.next_token()
