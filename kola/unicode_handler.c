@@ -97,37 +97,64 @@ PyObject* decode_escapes(const char* s, Py_ssize_t len) {
 
 PyObject* filter_text(PyObject* string) {
     Py_ssize_t len = PyUnicode_GET_LENGTH(string);
+    Py_UCS4 maxchar = PyUnicode_MAX_CHAR_VALUE(string);
+    PyObject* result = PyUnicode_New(len, maxchar);
+    if (!result) {
+        return NULL;
+    }
+    
     Py_ssize_t offset = 0;
+    Py_ssize_t new_len = 0;
+    
     for (Py_ssize_t i = 0; i < len; ++i) {
         Py_UCS4 chr = PyUnicode_READ_CHAR(string, i);
         if (chr == '\\') {
             offset++;
-            Py_UCS4 tc = PyUnicode_READ_CHAR(string, ++i);
+            i++;
+            if (i >= len) {
+                if (PyUnicode_WriteChar(result, new_len, '\\') == -1)
+                    goto bad;
+                new_len++;
+                break;
+            }
+            
+            Py_UCS4 tc = PyUnicode_READ_CHAR(string, i);
             switch (tc) {
             case '\n':
                 offset++;
                 break;
             case '\r':
-                if (PyUnicode_READ_CHAR(string, i + 1) == '\n') {
+                if (i + 1 < len && PyUnicode_READ_CHAR(string, i + 1) == '\n') {
                     i++;
                     offset += 2;
-                    break;
                 }
+                break;
             default:
-                if (PyUnicode_WriteChar(string, i - offset, '\\') == -1)
+                if (PyUnicode_WriteChar(result, new_len, '\\') == -1)
                     goto bad;
-                --offset;
-                if (PyUnicode_WriteChar(string, i - offset, tc) == -1)
+                new_len++;
+                if (PyUnicode_WriteChar(result, new_len, tc) == -1)
                     goto bad;
+                new_len++;
+                offset--;
                 break;
             }
-        } else if (offset) {
-            if (PyUnicode_WriteChar(string, i - offset, chr) == -1) goto bad;
+        } else {
+            if (PyUnicode_WriteChar(result, new_len, chr) == -1)
+                goto bad;
+            new_len++;
         }
     }
-    if (offset)
-        PyUnicode_Resize(&string, len - offset);
-    return string;
+    
+    if (new_len != len) {
+        if (PyUnicode_Resize(&result, new_len) < 0) {
+            goto bad;
+        }
+    }
+    
+    return result;
+
 bad:
+    Py_DECREF(result);
     return NULL;
 }

@@ -46,7 +46,7 @@ if USE_CYTHON:
     from Cython.Compiler import Options
 
     Options.fast_fail = True
-    extensions = cythonize(extensions, annotate=True, compiler_directives={"language_level": "3"})
+    extensions = cythonize(extensions, annotate=True, compiler_directives={"language_level": "3"}, legacy_implicit_noexcept=True)
 
 
 setup(

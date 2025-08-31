@@ -92,4 +92,4 @@ cdef extern from "_cutil.h":
     const char* get_type_qualname(object obj) nogil
     const char* unicode2string(str __s, Py_ssize_t* s_len) except NULL
     str decode_escapes(const char* string, Py_ssize_t len)
-    PyObject* filter_text(str string) except NULL
+    str filter_text(str string)
