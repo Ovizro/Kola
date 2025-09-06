@@ -224,7 +224,7 @@ cdef class BaseLexer(object):
         elif syn == TEXT or syn == ANNOTATION:
             encoding = unicode2string(self.encoding, NULL)
             s = PyUnicode_Decode(text, text_len, encoding, NULL)
-            val = <str>filter_text(s)
+            val = filter_text(s)
         elif syn == STRING:
             encoding = unicode2string(self.encoding, NULL)
             if strcmp(encoding, "utf-8") != 0:
