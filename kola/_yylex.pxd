@@ -1,7 +1,7 @@
 from libc.stdio cimport FILE
 from ._cutil cimport yyscan_t, LexerData
 
-cdef extern from "lex.yy.c":
+cdef extern from *:
     ctypedef LexerData* YY_EXTRA_TYPE
     ctypedef void* YY_BUFFER_STATE
 

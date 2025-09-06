@@ -37,7 +37,7 @@ USE_CYTHON = "USE_CYTHON" in os.environ
 FILE_SUFFIX = ".pyx" if USE_CYTHON else ".c"
 
 extensions = [
-    Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX, "kola/unicode_handler.c"]),
+    Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX, "kola/unicode_handler.c", "kola/lex.yy.c"]),
     Extension("kola.parser", ["kola/parser" + FILE_SUFFIX]),
     Extension("kola.writer", ["kola/writer" + FILE_SUFFIX])
 ]
@@ -67,7 +67,7 @@ setup(
     python_requires=">=3.6",
     package_data={'':["*.pyi", "*.pxd", "*.h"]},
     install_requires=[
-        "typing_extensions>=4.0" if sys.version_info >= (3, 7)
+        "typing_extensions>=4.0,<4.14" if sys.version_info >= (3, 7)
             else "typing_extensions>=4.0,<4.2"
     ],
     ext_modules=extensions,

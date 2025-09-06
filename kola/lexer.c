@@ -4,8 +4,7 @@
 {
     "distutils": {
         "depends": [
-            "kola/_cutil.h",
-            "kola/lex.yy.c"
+            "kola/_cutil.h"
         ],
         "include_dirs": [
             "kola"
@@ -13,7 +12,8 @@
         "name": "kola.lexer",
         "sources": [
             "kola/lexer.pyx",
-            "kola/unicode_handler.c"
+            "kola/unicode_handler.c",
+            "kola/lex.yy.c"
         ]
     },
     "module_name": "kola.lexer"
@@ -1184,7 +1184,6 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <stdint.h>
 #include <stdarg.h>
 #include "_cutil.h"
-#include "lex.yy.c"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
@@ -6597,7 +6596,7 @@ static void __pyx_f_4kola_5lexer_9BaseLexer_set_error(struct __pyx_obj_4kola_5le
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_3);
-  // __Pyx_AddTraceback("kola.lexer.BaseLexer.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("kola.lexer.BaseLexer.set_error", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }

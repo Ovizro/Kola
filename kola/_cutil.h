@@ -155,7 +155,7 @@ static void __inline kola_set_errcause(PyObject* exc_type, int errorno,
         Py_INCREF(cause);
         PyException_SetCause(val, cause);
     }
-    #if PY_VERSION_HEX >= 0x03080000
+    #if PY_VERSION_HEX >= 0x03080000 && (!defined(__clang__))
         PyErr_Restore(exc, val, tb);
         _PyTraceback_Add("<kola>", filename, lineno);
     #else
