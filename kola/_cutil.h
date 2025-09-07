@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <Python.h>
 
+#if PY_VERSION_HEX >= 0x030b00a6 && !defined(PYPY_VERSION)
+  #include "internal/pycore_frame.h"
+#endif
+
 #ifdef MS_WINDOWS
 #include <Windows.h>
 #endif
