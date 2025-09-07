@@ -4,7 +4,8 @@
 {
     "distutils": {
         "depends": [
-            "kola/_cutil.h"
+            "kola/_cutil.h",
+            "kola/lex.yy.c"
         ],
         "include_dirs": [
             "kola"
@@ -12,8 +13,7 @@
         "name": "kola.lexer",
         "sources": [
             "kola/lexer.pyx",
-            "kola/unicode_handler.c",
-            "kola/lex.yy.c"
+            "kola/unicode_handler.c"
         ]
     },
     "module_name": "kola.lexer"
@@ -1184,6 +1184,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <stdint.h>
 #include <stdarg.h>
 #include "_cutil.h"
+#include "lex.yy.c"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
