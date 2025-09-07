@@ -6,13 +6,6 @@
 #include <stdlib.h>
 #include <Python.h>
 
-#if PY_VERSION_HEX >= 0x030b00a6 && !defined(PYPY_VERSION)
-  #ifndef Py_BUILD_CORE
-    #define Py_BUILD_CORE 1
-  #endif
-  #include "internal/pycore_frame.h"
-#endif
-
 #ifdef MS_WINDOWS
 #include <Windows.h>
 #endif
@@ -109,6 +102,14 @@ static const char* get_format(int code) {
 }
 
 #include "frameobject.h"
+
+#if PY_VERSION_HEX >= 0x030b00a6 && !defined(PYPY_VERSION)
+  #ifndef Py_BUILD_CORE
+    #define Py_BUILD_CORE 1
+  #endif
+  #include "internal/pycore_frame.h"
+#endif
+
 // For Cython limiting, error setting function has to define here 
 static void __inline kola_set_error(PyObject* exc_type, int errorno,
                             const char* filename, int lineno, const char* text) 
