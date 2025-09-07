@@ -37,7 +37,7 @@ USE_CYTHON = "USE_CYTHON" in os.environ
 FILE_SUFFIX = ".pyx" if USE_CYTHON else ".c"
 
 extensions = [
-    Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX, "kola/unicode_handler.c"], include_dirs=["kola"]),
+    Extension("kola.lexer", ["kola/lexer" + FILE_SUFFIX, "kola/unicode_handler.c"], depends=["kola/_cutil.h", "kola/lex.yy.c"]),
     Extension("kola.parser", ["kola/parser" + FILE_SUFFIX]),
     Extension("kola.writer", ["kola/writer" + FILE_SUFFIX])
 ]
