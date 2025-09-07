@@ -18,7 +18,7 @@ build:
 	python setup.py build_ext --inplace
 
 install:
-	python setup.py install
+	pip install .
 
 run:
 	python -m kola
@@ -27,7 +27,8 @@ develop:
 	python setup.py develop
 
 build_dist:
-	python setup.py sdist bdist_wheel
+	python -m build
+	pip install dist/*.whl
 
 lint:
 	flake8 ${MODULE}/ tests/ --exclude __init__.py --count --max-line-length=127 --extend-ignore=W293,E402

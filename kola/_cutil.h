@@ -6,6 +6,13 @@
 #include <stdlib.h>
 #include <Python.h>
 
+#if PY_VERSION_HEX >= 0x030b00a6 && !defined(PYPY_VERSION)
+  #ifndef Py_BUILD_CORE
+    #define Py_BUILD_CORE 1
+  #endif
+  #include "internal/pycore_frame.h"
+#endif
+
 #ifdef MS_WINDOWS
 #include <Windows.h>
 #endif
@@ -109,7 +116,7 @@ static void __inline kola_set_error(PyObject* exc_type, int errorno,
     PyErr_Format(exc_type, get_format(errorno), errorno, text);
 
     // add traceback in .kola file
-    #if PY_VERSION_HEX >= 0x03080000
+    #if PY_VERSION_HEX >= 0x03080000 && (!defined(__clang__))
         _PyTraceback_Add("<kola>", filename, lineno);
     #else
         PyCodeObject* code = NULL;
@@ -131,7 +138,7 @@ static void __inline kola_set_error(PyObject* exc_type, int errorno,
         );
         if (!frame) goto end;
 
-        frame->f_lineno = lineno;
+        (frame)->f_lineno = lineno;
         PyErr_Restore(exc, val, tb);
         PyTraceBack_Here(frame);
 
@@ -155,7 +162,7 @@ static void __inline kola_set_errcause(PyObject* exc_type, int errorno,
         Py_INCREF(cause);
         PyException_SetCause(val, cause);
     }
-    #if PY_VERSION_HEX >= 0x03080000
+    #if PY_VERSION_HEX >= 0x03080000 && (!defined(__clang__))
         PyErr_Restore(exc, val, tb);
         _PyTraceback_Add("<kola>", filename, lineno);
     #else
@@ -174,7 +181,7 @@ static void __inline kola_set_errcause(PyObject* exc_type, int errorno,
         );
         if (!frame) goto end;
 
-        frame->f_lineno = lineno;
+        (frame)->f_lineno = lineno;
         PyErr_Restore(exc, val, tb);
         PyTraceBack_Here(frame);
 
